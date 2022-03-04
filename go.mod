@@ -1,3 +1,3 @@
-module common-syllabi/viewer
+module commonsyllabi
 
 go 1.17
