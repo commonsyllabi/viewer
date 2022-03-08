@@ -5,7 +5,7 @@ import (
 )
 
 func TestLoadFileEmpty(t *testing.T) {
-	err := LoadFile("")
+	_, err := LoadFile("")
 
 	if err == nil {
 		t.Fail()
@@ -13,9 +13,13 @@ func TestLoadFileEmpty(t *testing.T) {
 }
 
 func TestLoadFileCorrect(t *testing.T) {
-	err := LoadFile("../test_files/canvas_large_1.3.imscc")
+	file, err := LoadFile("../test_files/canvas_large_1.3.imscc")
 
 	if err != nil {
+		t.Fail()
+	}
+
+	if file == "" {
 		t.Fail()
 	}
 }
