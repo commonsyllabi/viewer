@@ -2,7 +2,7 @@ package viewer
 
 import (
 	"archive/zip"
-	"encoding/json"
+	"commonsyllabi/viewer/specs"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -13,6 +13,8 @@ import (
 )
 
 //-- from https://stackoverflow.com/questions/20357223/easy-way-to-unzip-file-with-golang
+//-- takes in a src zip file, a destination folder
+//-- returns the destination path if the unzipping succeeds
 func Unzip(src, dest string) (string, error) {
 	r, err := zip.OpenReader(src)
 	if err != nil {
@@ -92,7 +94,7 @@ func Unzip(src, dest string) (string, error) {
 	}
 	defer file.Close()
 
-	return file.Name(), nil
+	return dest, nil
 }
 
 func LoadFile(path string) (string, error) {
@@ -110,8 +112,8 @@ func LoadFile(path string) (string, error) {
 	return manifest, nil
 }
 
-func ParseManifest(manifest_path string) error {
-	file, err := os.OpenFile(manifest_path, os.O_RDONLY, os.ModePerm)
+func ParseManifest(root string) error {
+	file, err := os.OpenFile(filepath.Join(root, "imsmanifest.xml"), os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -125,13 +127,14 @@ func ParseManifest(manifest_path string) error {
 		return err
 	}
 
-	var manifest Manifest
+	var manifest specs.Manifest
 
 	xml.Unmarshal(bytesArray, &manifest)
+	//-- these identifierrefs point to either topic/topicmeta/weblink/lti
 
-	s, _ := json.MarshalIndent(manifest, "", "\t")
-	fmt.Printf("manifest struct: %s\n", s)
+	for _, org := range manifest.Organizations.Organizations {
+		manifest.TraverseItems(org.Items, root)
+	}
 
-	fmt.Printf("title: %v\n", manifest.Metadata.LOM.General.Title.Value)
 	return nil
 }
