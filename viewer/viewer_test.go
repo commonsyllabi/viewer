@@ -4,6 +4,10 @@ import (
 	"testing"
 )
 
+// have setup() to create tmp files, with e.g. different schema versions
+// check go test tables
+// `reflect.deepEqual` to check if two types are similar
+
 func TestLoadFileEmpty(t *testing.T) {
 	_, err := LoadFile("")
 

@@ -23,7 +23,7 @@ type Item struct {
 	Items         []Item `xml:"item"`
 	Filepaths     []string
 	Assignments   []Assignment
-	Assessment    []Assessment
+	Assessments   []Assessment
 }
 
 func (i Item) parseItem(path string) error {
@@ -50,7 +50,7 @@ func (i Item) parseItem(path string) error {
 	//-- qti
 	//-- topic
 	//-- weblink
-	//-- topic
+	//-- topicmeta
 
 	return nil
 
