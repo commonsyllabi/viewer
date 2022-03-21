@@ -133,7 +133,7 @@ func ParseManifest(root string) error {
 	//-- these identifierrefs point to either topic/topicmeta/weblink/lti
 
 	manifest.TraverseItemOrg(manifest.Organizations.Organization.Item, root)
-	manifest.PrettyPrint()
+	// manifest.PrettyPrint()
 
 	return nil
 }

@@ -31,11 +31,6 @@ func (i Item) parseItem(path string) error {
 	fmt.Printf("parsed: %v\n", gen.XMLName)
 
 	//-- then big switch case with all the different possibilities
-	//-- assignment
-	//-- qti
-	//-- topic
-	//-- weblink
-	//-- topicmeta
 
 	return nil
 

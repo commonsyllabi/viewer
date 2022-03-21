@@ -3,14 +3,12 @@ package specs
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"path/filepath"
-	"strings"
 )
 
 func (m Manifest) TraverseItemOrg(itemOrg Item, root string) {
-	m.traverseItemModules(itemOrg.Item, root)
+	if itemOrg.Identifier != "" {
+		m.traverseItemModules(itemOrg.Item, root)
+	}
 }
 
 func (m Manifest) traverseItemModules(itemModules []Item, root string) {
@@ -20,60 +18,63 @@ func (m Manifest) traverseItemModules(itemModules []Item, root string) {
 }
 
 func (m Manifest) traverseItems(items []Item, root string) {
-	for i, _ := range items {
-		for j, _ := range items[i].Item {
-			if items[i].Item[j].Identifierref != "" {
-				fmt.Printf("checking for idref: %v\n", items[i].Item[j].Identifierref) //-- should i skip if there is no identifierref? probably
-				//-- check if there are any related files in the top level directory
+	fmt.Printf("- traversing batch of %d items\n", len(items))
+	for i := range items {
 
-				files, err := ioutil.ReadDir(root)
-				if err != nil {
-					log.Fatal(err)
-				}
+		fmt.Printf("- - checking for idref: %v\n", items[i].Identifierref)
 
-				for _, f := range files {
-					if strings.Contains(f.Name(), items[i].Identifierref) {
-						fmt.Printf("idref %v - found matching file %s\n", items[i].Identifierref, f.Name())
+		err := m.resolveItem(items[i])
 
-						if f.IsDir() {
-							fmt.Println("found dir, entering...")
-							innerfiles, err := ioutil.ReadDir(filepath.Join(root, f.Name()))
+		if err != nil {
+			fmt.Errorf(err.Error())
+		}
 
-							if err != nil {
-								log.Fatal(err)
-							}
+		if len(items[i].Item) > 0 {
+			m.traverseItems(items[i].Item, root)
+		}
 
-							for _, inner := range innerfiles {
+	}
+}
 
-								if filepath.Ext(inner.Name()) == ".xml" {
-									err = items[i].parseItem(filepath.Join(root, f.Name(), inner.Name()))
+//-- given an item, resolves its relationship to a resource
+//-- since items are just folders with stuff inside
+func (m Manifest) resolveItem(item Item) error {
+	if item.Identifierref == "" {
+		return fmt.Errorf("nope, no identifierref on item, skipping...")
+	}
 
-									if err != nil {
-										log.Fatal(err)
-									}
-								} else {
-									fmt.Printf("...skipping %s\n", inner.Name())
-									//-- note: we might want to store relative paths
-									// items[i].Filepaths = append(items[i].Filepaths, filepath.Join(root, f.Name(), inner.Name()))
-								}
+	identified := false
+	for _, resource := range m.Resources.Resource {
+		if resource.Identifier == item.Identifierref {
+			identified = true
+			fmt.Printf("- - mathched resource type %s\n", resource.Type)
 
-							}
-						} else {
-							items[i].parseItem(filepath.Join(root, f.Name()))
-
-							if err != nil {
-								log.Fatal(err)
-							}
-						}
-					}
-				}
-			}
-
-			if len(items[i].Item) > 0 {
-				m.traverseItems(items[i].Item, root)
+			//-- TODO here we could parse the resources based on type
+			switch resource.Type {
+			case "imsdt_xmlv1p1":
+				//-- topic
+				break
+			case "webcontent":
+				//-- webcontent
+				break
+			case "imswl_xmlv1p1":
+				//-- weblink
+				break
+			case "assignment_xmlv1p0":
+				//-- assignment
+				break
+			case "assessment":
+				//-- qti
+				break
+			default:
+				return fmt.Errorf("[resolveItem] No matching type found: %s\n", resource.Type)
 			}
 		}
 	}
+
+	fmt.Printf("found match? %v\n", identified)
+
+	return nil
 }
 
 func (m Manifest) PrettyPrint() {
