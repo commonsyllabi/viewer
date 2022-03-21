@@ -81,5 +81,18 @@ func (m Manifest) PrettyPrint() {
 	s, _ := json.MarshalIndent(m, "", "\t")
 	fmt.Printf("manifest struct: %s\n", s)
 
-	fmt.Printf("title: %v\n", m.Metadata.Lom.General.Title)
+	fmt.Println()
+	fmt.Printf("Cartridge: %v\n", m.Metadata.Lom.General.Title)
+	fmt.Printf("Modules (%d):\n", len(m.Organizations.Organization.Item.Item))
+	for _, i := range m.Organizations.Organization.Item.Item {
+		fmt.Printf("- %d items \n", len(i.Item))
+		for _, v := range i.Item {
+			fmt.Printf("- - %v\n", v.Identifierref)
+		}
+	}
+
+	fmt.Printf("Resources (%d):\n", len(m.Resources.Resource))
+	for _, r := range m.Resources.Resource {
+		fmt.Printf(" - - %s (%v)\n", r.Type, r.Identifier)
+	}
 }

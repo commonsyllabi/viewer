@@ -130,10 +130,9 @@ func ParseManifest(root string) error {
 	var manifest specs.Manifest
 
 	xml.Unmarshal(bytesArray, &manifest)
-	//-- these identifierrefs point to either topic/topicmeta/weblink/lti
 
 	manifest.TraverseItemOrg(manifest.Organizations.Organization.Item, root)
-	// manifest.PrettyPrint()
+	manifest.PrettyPrint()
 
 	return nil
 }
