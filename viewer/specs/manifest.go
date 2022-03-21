@@ -5,19 +5,19 @@ import (
 	"fmt"
 )
 
-func (m Manifest) TraverseItemOrg(itemOrg Item, root string) {
-	if itemOrg.Identifier != "" {
-		m.traverseItemModules(itemOrg.Item, root)
+func (m *Manifest) ResolveItems() {
+	if m.Organizations.Organization.Item.Identifier != "" {
+		m.traverseItemModules(m.Organizations.Organization.Item.Item)
 	}
 }
 
-func (m Manifest) traverseItemModules(itemModules []Item, root string) {
+func (m *Manifest) traverseItemModules(itemModules []Item) {
 	for i, _ := range itemModules {
-		m.traverseItems(itemModules[i].Item, root)
+		m.traverseItems(itemModules[i].Item)
 	}
 }
 
-func (m Manifest) traverseItems(items []Item, root string) {
+func (m *Manifest) traverseItems(items []Item) {
 	fmt.Printf("- traversing batch of %d items\n", len(items))
 	for i := range items {
 
@@ -30,7 +30,7 @@ func (m Manifest) traverseItems(items []Item, root string) {
 		}
 
 		if len(items[i].Item) > 0 {
-			m.traverseItems(items[i].Item, root)
+			m.traverseItems(items[i].Item)
 		}
 
 	}
@@ -38,7 +38,7 @@ func (m Manifest) traverseItems(items []Item, root string) {
 
 //-- given an item, resolves its relationship to a resource
 //-- since items are just folders with stuff inside
-func (m Manifest) resolveItem(item Item) error {
+func (m *Manifest) resolveItem(item Item) error {
 	if item.Identifierref == "" {
 		return fmt.Errorf("nope, no identifierref on item, skipping...")
 	}
@@ -49,7 +49,6 @@ func (m Manifest) resolveItem(item Item) error {
 			identified = true
 			fmt.Printf("- - mathched resource type %s\n", resource.Type)
 
-			//-- TODO here we could parse the resources based on type
 			switch resource.Type {
 			case "imsdt_xmlv1p1":
 				//-- topic
@@ -77,7 +76,7 @@ func (m Manifest) resolveItem(item Item) error {
 	return nil
 }
 
-func (m Manifest) PrettyPrint() {
+func (m *Manifest) PrettyPrint() {
 	s, _ := json.MarshalIndent(m, "", "\t")
 	fmt.Printf("manifest struct: %s\n", s)
 

@@ -97,7 +97,7 @@ func Unzip(src, dest string) (string, error) {
 	return dest, nil
 }
 
-func LoadFile(path string) (string, error) {
+func Load(path string) (string, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return "", nil
@@ -131,7 +131,7 @@ func ParseManifest(root string) error {
 
 	xml.Unmarshal(bytesArray, &manifest)
 
-	manifest.TraverseItemOrg(manifest.Organizations.Organization.Item, root)
+	manifest.ResolveItems()
 	manifest.PrettyPrint()
 
 	return nil

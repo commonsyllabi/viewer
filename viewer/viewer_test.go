@@ -8,16 +8,16 @@ import (
 // check go test tables
 // `reflect.deepEqual` to check if two types are similar
 
-func TestLoadFileEmpty(t *testing.T) {
-	_, err := LoadFile("")
+func TestLoadEmpty(t *testing.T) {
+	_, err := Load("")
 
 	if err == nil {
 		t.Fail()
 	}
 }
 
-func TestLoadFileCorrect(t *testing.T) {
-	file, err := LoadFile("../test_files/canvas_large_1.3.imscc")
+func TestLoadCorrect(t *testing.T) {
+	file, err := Load("../test_files/canvas_large_1.3.imscc")
 
 	if err != nil {
 		t.Fail()
