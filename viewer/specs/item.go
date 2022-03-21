@@ -7,23 +7,8 @@ import (
 	"os"
 )
 
-type Assignment struct {
+type Generic struct {
 	XMLName xml.Name
-}
-
-type Assessment struct {
-	XMLName xml.Name
-}
-
-type Item struct {
-	XMLName       xml.Name
-	Identifier    string `xml:"identifier,attr"`
-	Identifierref string `xml:"identifierref,attr"`
-	Title         string `xml:"title"`
-	Items         []Item `xml:"item"`
-	Filepaths     []string
-	Assignments   []Assignment
-	Assessments   []Assessment
 }
 
 func (i Item) parseItem(path string) error {
