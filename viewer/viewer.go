@@ -3,11 +3,10 @@ package viewer
 import (
 	"archive/zip"
 	"commonsyllabi/viewer/specs"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
-	"os"
-	"path/filepath"
 )
 
 type IMSCC struct {
@@ -34,41 +33,48 @@ func (cc IMSCC) Load(path string) (Cartridge, error) {
 	return cc, nil
 }
 
-func (cc IMSCC) Dump() {
+func (cc IMSCC) Dump() []string {
+	dump := make([]string, len(cc.Reader.File))
 	for _, f := range cc.Reader.File {
-		fmt.Println(f.Name)
+		dump = append(dump, f.Name)
 	}
+	return dump
 }
 
 //-- pointer receivers (*IMSCC) can modify the struct instance,
 //-- while the value receivers can't change it
-func (cc IMSCC) ParseManifest(root string) error {
-	//-- todo, here, directy open from the zip reader
-	file, err := os.OpenFile(filepath.Join(root, "imsmanifest.xml"), os.O_RDONLY, os.ModePerm)
+func (cc IMSCC) ParseManifest() (specs.Manifest, error) {
+
+	var manifest specs.Manifest
+	file, err := cc.Reader.Open("imsmanifest.xml")
+
 	if err != nil {
-		return err
+		return manifest, err
 	}
-
-	defer file.Close()
-
-	fmt.Printf("opened manifest %s\n", file.Name())
 
 	bytesArray, err := io.ReadAll(file)
 	if err != nil {
-		return err
+		return manifest, err
 	}
-
-	var manifest specs.Manifest
 
 	xml.Unmarshal(bytesArray, &manifest)
 
 	manifest.ResolveItems()
-	manifest.PrettyPrint()
 
-	return nil
+	return manifest, nil
 }
 
-func (cc IMSCC) AsObject() []byte {
+func (cc IMSCC) AsObject() ([]byte, error) {
 	var obj []byte
-	return obj
+
+	m, err := cc.ParseManifest()
+	if err != nil {
+		return obj, err
+	}
+
+	obj, err = json.Marshal(m)
+	if err != nil {
+		return obj, err
+	}
+	return obj, err
 }
