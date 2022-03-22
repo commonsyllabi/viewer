@@ -2,10 +2,10 @@ package viewer
 
 import (
 	"archive/zip"
+	. "commonsyllabi/logger"
 	"commonsyllabi/viewer/specs"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
 )
 
@@ -14,6 +14,7 @@ type IMSCC struct {
 }
 
 func NewIMSCC() IMSCC {
+	Log.Debug().Msg("Creating new IMSCC")
 	var ims IMSCC
 	return ims
 }
@@ -21,7 +22,7 @@ func NewIMSCC() IMSCC {
 //-- given a particular path, assigns a reader to a Cartridge
 //-- and returns it
 func (cc IMSCC) Load(path string) (Cartridge, error) {
-	fmt.Println("decompressing files")
+	Log.Debug().Msg("Decompressing files")
 
 	r, err := zip.OpenReader(path)
 	if err != nil {

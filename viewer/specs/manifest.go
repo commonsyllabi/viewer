@@ -1,7 +1,7 @@
 package specs
 
 import (
-	"encoding/json"
+	. "commonsyllabi/logger"
 	"fmt"
 )
 
@@ -18,10 +18,10 @@ func (m *Manifest) traverseItemModules(itemModules []Item) {
 }
 
 func (m *Manifest) traverseItems(items []Item) {
-	fmt.Printf("- traversing batch of %d items\n", len(items))
+	Log.Debug().Int("- items traversed", len(items))
 	for i := range items {
 
-		fmt.Printf("- - checking for idref: %v\n", items[i].Identifierref)
+		Log.Debug().Str("- - idref", items[i].Identifierref)
 
 		err := m.resolveItem(items[i])
 
@@ -43,11 +43,9 @@ func (m *Manifest) resolveItem(item Item) error {
 		return fmt.Errorf("nope, no identifierref on item, skipping...")
 	}
 
-	identified := false
 	for _, resource := range m.Resources.Resource {
 		if resource.Identifier == item.Identifierref {
-			identified = true
-			fmt.Printf("- - mathched resource type %s\n", resource.Type)
+			// Log.Debug().Msg("- - mathched resource type %s\n", resource.Type)
 
 			switch resource.Type {
 			case "imsdt_xmlv1p1":
@@ -70,28 +68,21 @@ func (m *Manifest) resolveItem(item Item) error {
 			}
 		}
 	}
-
-	fmt.Printf("found match? %v\n", identified)
-
 	return nil
 }
 
 func (m *Manifest) PrettyPrint() {
-	s, _ := json.MarshalIndent(m, "", "\t")
-	fmt.Printf("manifest struct: %s\n", s)
-
-	fmt.Println()
-	fmt.Printf("Cartridge: %v\n", m.Metadata.Lom.General.Title)
-	fmt.Printf("Modules (%d):\n", len(m.Organizations.Organization.Item.Item))
+	Log.Debug().Str("Cartridge:", m.Metadata.Lom.General.Title.String)
+	Log.Debug().Int("Modules:", len(m.Organizations.Organization.Item.Item))
 	for _, i := range m.Organizations.Organization.Item.Item {
-		fmt.Printf("- %d items \n", len(i.Item))
+		Log.Debug().Int("- items:", len(i.Item))
 		for _, v := range i.Item {
-			fmt.Printf("- - %v\n", v.Identifierref)
+			Log.Debug().Str("- - id", v.Identifierref)
 		}
 	}
 
-	fmt.Printf("Resources (%d):\n", len(m.Resources.Resource))
+	Log.Debug().Int("Resources (%d):\n", len(m.Resources.Resource))
 	for _, r := range m.Resources.Resource {
-		fmt.Printf(" - - %s (%v)\n", r.Type, r.Identifier)
+		Log.Debug().Str(" - - type", r.Type).Str(" - - id", r.Identifier)
 	}
 }

@@ -1,14 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
+	. "commonsyllabi/logger"
 	"commonsyllabi/viewer"
 )
 
 func main() {
-	fmt.Println("cc viewer 0.1")
+	InitLog()
+	Log.Info().Msg("CC Viewer v0.1")
 
 	var cc viewer.Cartridge
 	cc = viewer.NewIMSCC()
@@ -16,11 +17,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("successfully loaded cartridge")
+	Log.Info().Msg("successfully loaded cartridge")
 
-	obj, err := cc.AsObject()
+	_, err = cc.AsObject()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(obj))
 }
