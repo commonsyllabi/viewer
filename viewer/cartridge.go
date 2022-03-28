@@ -7,4 +7,5 @@ type Cartridge interface {
 	AsObject() ([]byte, error)
 	ParseManifest() (specs.Manifest, error)
 	Dump() []string
+	Title() string
 }

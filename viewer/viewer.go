@@ -11,6 +11,7 @@ import (
 
 type IMSCC struct {
 	Reader zip.Reader
+	Path   string
 }
 
 func NewIMSCC() IMSCC {
@@ -30,8 +31,23 @@ func (cc IMSCC) Load(path string) (Cartridge, error) {
 	}
 
 	cc.Reader = r.Reader
+	cc.Path = path
 
 	return cc, nil
+}
+
+func (cc IMSCC) Title() string {
+	title := "--undefined--"
+
+	var m specs.Manifest
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		Log.Error().Msg("Error parsing Manifest")
+	}
+
+	title = m.Metadata.Lom.General.Title.String
+	return title
 }
 
 func (cc IMSCC) Dump() []string {
@@ -50,6 +66,7 @@ func (cc IMSCC) ParseManifest() (specs.Manifest, error) {
 	file, err := cc.Reader.Open("imsmanifest.xml")
 
 	if err != nil {
+		Log.Debug().Str("Error in opening manifest.", cc.Path)
 		return manifest, err
 	}
 
