@@ -12,7 +12,7 @@ func (m *Manifest) ResolveItems() {
 }
 
 func (m *Manifest) traverseItemModules(itemModules []Item) {
-	for i, _ := range itemModules {
+	for i := range itemModules {
 		m.traverseItems(itemModules[i].Item)
 	}
 }
@@ -72,7 +72,7 @@ func (m *Manifest) resolveItem(item Item) error {
 }
 
 func (m *Manifest) PrettyPrint() {
-	Log.Debug().Str("Cartridge:", m.Metadata.Lom.General.Title.String)
+	Log.Debug().Str("Cartridge:", m.Metadata.Lom.General.Title.String.Text)
 	Log.Debug().Int("Modules:", len(m.Organizations.Organization.Item.Item))
 	for _, i := range m.Organizations.Organization.Item.Item {
 		Log.Debug().Int("- items:", len(i.Item))

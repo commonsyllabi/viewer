@@ -4,7 +4,7 @@ package specs
 
 import "encoding/xml"
 
-// Item was generated 2022-03-21 14:18:27 by pierre on pierre-mac.
+// Item was generated 2022-03-29 17:02:15 by pierre on archpierre.
 type Item struct {
 	XMLName    xml.Name `xml:"item"`
 	Text       string   `xml:",chardata"`

@@ -46,7 +46,7 @@ func (cc IMSCC) Title() string {
 		Log.Error().Msg("Error parsing Manifest")
 	}
 
-	title = m.Metadata.Lom.General.Title.String
+	title = m.Metadata.Lom.General.Title.String.Text
 	return title
 }
 

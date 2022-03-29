@@ -91,6 +91,11 @@ func TestLoadAll(t *testing.T) {
 			t.Fail()
 		}
 
+		if cc.Title() == "" {
+			fmt.Println("Cartridge Title should not be empty!")
+			t.Fail()
+		}
+
 		fmt.Printf("Parsed %d/%d - %s\n", i, len(files), cc.Title())
 	}
 }

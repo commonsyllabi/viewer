@@ -4,7 +4,7 @@ package specs
 
 import "encoding/xml"
 
-// Manifest was generated 2022-03-21 14:18:27 by pierre on pierre-mac.
+// Manifest was generated 2022-03-29 17:02:15 by pierre on archpierre.
 type Manifest struct {
 	XMLName        xml.Name `xml:"manifest"`
 	Text           string   `xml:",chardata"`
@@ -12,7 +12,6 @@ type Manifest struct {
 	Xmlns          string   `xml:"xmlns,attr"`
 	Lom            string   `xml:"lom,attr"`
 	Lomimscc       string   `xml:"lomimscc,attr"`
-	Cpx            string   `xml:"cpx,attr"`
 	Xsi            string   `xml:"xsi,attr"`
 	SchemaLocation string   `xml:"schemaLocation,attr"`
 	Metadata       struct {
@@ -25,30 +24,26 @@ type Manifest struct {
 				Text  string `xml:",chardata"`
 				Title struct {
 					Text   string `xml:",chardata"`
-					String string `xml:"string"`
-				} `xml:"title"`
-			} `xml:"general"`
-			LifeCycle struct {
-				Text       string `xml:",chardata"`
-				Contribute struct {
-					Text string `xml:",chardata"`
-					Date struct {
+					String struct {
 						Text     string `xml:",chardata"`
-						DateTime string `xml:"dateTime"`
-					} `xml:"date"`
-				} `xml:"contribute"`
-			} `xml:"lifeCycle"`
-			Rights struct {
-				Text                          string `xml:",chardata"`
-				CopyrightAndOtherRestrictions struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value"`
-				} `xml:"copyrightAndOtherRestrictions"`
+						Language string `xml:"language,attr"`
+					} `xml:"string"`
+				} `xml:"title"`
 				Description struct {
 					Text   string `xml:",chardata"`
-					String string `xml:"string"`
+					String struct {
+						Text     string `xml:",chardata"`
+						Language string `xml:"language,attr"`
+					} `xml:"string"`
 				} `xml:"description"`
-			} `xml:"rights"`
+				Keyword struct {
+					Text   string `xml:",chardata"`
+					String struct {
+						Text     string `xml:",chardata"`
+						Language string `xml:"language,attr"`
+					} `xml:"string"`
+				} `xml:"keyword"`
+			} `xml:"general"`
 		} `xml:"lom"`
 	} `xml:"metadata"`
 	Organizations struct {

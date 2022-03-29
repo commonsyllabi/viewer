@@ -4,7 +4,7 @@ package specs
 
 import "encoding/xml"
 
-// Questestinterop was generated 2022-03-21 18:11:48 by pierre on pierre-mac.
+// Questestinterop was generated 2022-03-29 17:02:15 by pierre on archpierre.
 type Questestinterop struct {
 	XMLName        xml.Name `xml:"questestinterop"`
 	Text           string   `xml:",chardata"`

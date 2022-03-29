@@ -4,7 +4,7 @@ package specs
 
 import "encoding/xml"
 
-// Topic was generated 2022-03-21 16:49:23 by pierre on pierre-mac.
+// Topic was generated 2022-03-29 17:02:15 by pierre on archpierre.
 type Topic struct {
 	XMLName        xml.Name `xml:"topic"`
 	Chardata       string   `xml:",chardata"`

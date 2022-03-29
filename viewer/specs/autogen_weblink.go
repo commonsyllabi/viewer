@@ -4,7 +4,7 @@ package specs
 
 import "encoding/xml"
 
-// WebLink was generated 2022-03-21 16:50:44 by pierre on pierre-mac.
+// WebLink was generated 2022-03-29 17:02:15 by pierre on archpierre.
 type WebLink struct {
 	XMLName        xml.Name `xml:"webLink"`
 	Text           string   `xml:",chardata"`
