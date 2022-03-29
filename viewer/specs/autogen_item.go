@@ -4,11 +4,26 @@ package specs
 
 import "encoding/xml"
 
-// Item was generated 2022-03-29 17:02:15 by pierre on archpierre.
+// Item was generated 2022-03-29 17:51:56 by pierre on archpierre.
 type Item struct {
-	XMLName    xml.Name `xml:"item"`
-	Text       string   `xml:",chardata"`
-	Identifier string   `xml:"identifier,attr"`
-	Identifierref string `xml:"identifierref,attr"`
-	Item       []Item `xml:"item"`
+	XMLName       xml.Name `xml:"item"`
+	Text          string   `xml:",chardata"`
+	Identifier    string   `xml:"identifier,attr"`
+	Identifierref string   `xml:"identifierref,attr"`
+	Title         string   `xml:"title"`
+	Metadata      struct {
+		Text string `xml:",chardata"`
+		Lom  struct {
+			Text    string `xml:",chardata"`
+			General struct {
+				Text      string `xml:",chardata"`
+				Structure struct {
+					Text   string `xml:",chardata"`
+					Source string `xml:"source"`
+					Value  string `xml:"value"`
+				} `xml:"structure"`
+			} `xml:"general"`
+		} `xml:"lom"`
+	} `xml:"metadata"`
+	Item []Item `xml:"item"`
 }

@@ -4,18 +4,15 @@ package specs
 
 import "encoding/xml"
 
-// Resource was generated 2022-03-29 17:02:15 by pierre on archpierre.
+// Resource was generated 2022-03-29 17:54:05 by pierre on archpierre.
 type Resource struct {
-	XMLName    xml.Name `xml:"resource"`
-	Text       string   `xml:",chardata"`
-	Href       string   `xml:"href,attr"`
-	Identifier string   `xml:"identifier,attr"`
-	Type       string   `xml:"type,attr"`
-	File       struct {
-		Text string `xml:",chardata"`
-		Href string `xml:"href,attr"`
-	} `xml:"file"`
-	Metadata struct {
+	XMLName     xml.Name `xml:"resource"`
+	Text        string   `xml:",chardata"`
+	Identifier  string   `xml:"identifier,attr"`
+	Type        string   `xml:"type,attr"`
+	Href        string   `xml:"href,attr"`
+	Intendeduse string   `xml:"intendeduse,attr"`
+	Metadata    struct {
 		Text string `xml:",chardata"`
 		Lom  struct {
 			Text        string `xml:",chardata"`
@@ -29,6 +26,16 @@ type Resource struct {
 			} `xml:"educational"`
 		} `xml:"lom"`
 	} `xml:"metadata"`
+	File []struct {
+		Text string `xml:",chardata"`
+		Href string `xml:"href,attr"`
+	} `xml:"file"`
+	Variant struct {
+		Text          string `xml:",chardata"`
+		Identifier    string `xml:"identifier,attr"`
+		Identifierref string `xml:"identifierref,attr"`
+		Metadata      string `xml:"metadata"`
+	} `xml:"variant"`
 	Dependency []struct {
 		Text          string `xml:",chardata"`
 		Identifierref string `xml:"identifierref,attr"`

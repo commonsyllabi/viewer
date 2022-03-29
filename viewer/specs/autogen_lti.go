@@ -4,7 +4,7 @@ package specs
 
 import "encoding/xml"
 
-// CartridgeBasicltiLink was generated 2022-03-29 17:02:15 by pierre on archpierre.
+// CartridgeBasicltiLink was generated 2022-03-29 17:51:56 by pierre on archpierre.
 type CartridgeBasicltiLink struct {
 	XMLName        xml.Name `xml:"cartridge_basiclti_link"`
 	Text           string   `xml:",chardata"`

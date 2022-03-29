@@ -4,7 +4,7 @@ package specs
 
 import "encoding/xml"
 
-// Manifest was generated 2022-03-29 17:02:15 by pierre on archpierre.
+// Manifest was generated 2022-03-29 17:51:56 by pierre on archpierre.
 type Manifest struct {
 	XMLName        xml.Name `xml:"manifest"`
 	Text           string   `xml:",chardata"`
@@ -29,6 +29,7 @@ type Manifest struct {
 						Language string `xml:"language,attr"`
 					} `xml:"string"`
 				} `xml:"title"`
+				Language    string `xml:"language"`
 				Description struct {
 					Text   string `xml:",chardata"`
 					String struct {
@@ -44,6 +45,27 @@ type Manifest struct {
 					} `xml:"string"`
 				} `xml:"keyword"`
 			} `xml:"general"`
+			LifeCycle struct {
+				Text       string `xml:",chardata"`
+				Contribute struct {
+					Text string `xml:",chardata"`
+					Date struct {
+						Text     string `xml:",chardata"`
+						DateTime string `xml:"dateTime"`
+					} `xml:"date"`
+				} `xml:"contribute"`
+			} `xml:"lifeCycle"`
+			Rights struct {
+				Text                          string `xml:",chardata"`
+				CopyrightAndOtherRestrictions struct {
+					Text  string `xml:",chardata"`
+					Value string `xml:"value"`
+				} `xml:"copyrightAndOtherRestrictions"`
+				Description struct {
+					Text   string `xml:",chardata"`
+					String string `xml:"string"`
+				} `xml:"description"`
+			} `xml:"rights"`
 		} `xml:"lom"`
 	} `xml:"metadata"`
 	Organizations struct {
