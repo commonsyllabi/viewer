@@ -45,7 +45,7 @@ func (m *Manifest) resolveItem(item Item) error {
 
 	for _, resource := range m.Resources.Resource {
 		if resource.Identifier == item.Identifierref {
-			// Log.Debug().Msg("- - mathched resource type %s\n", resource.Type)
+			// Log.Debug().Msg("- - mathched resource id %s\n", resource.Identifier)
 
 			switch resource.Type {
 			case "imsdt_xmlv1p1":
