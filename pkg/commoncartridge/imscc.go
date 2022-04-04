@@ -1,9 +1,8 @@
-package viewer
+package commoncartridge
 
 import (
 	"archive/zip"
-	. "commonsyllabi/logger"
-	"commonsyllabi/viewer/specs"
+	zero "commonsyllabi/internals/logger"
 	"encoding/json"
 	"encoding/xml"
 	"io"
@@ -15,15 +14,17 @@ type IMSCC struct {
 }
 
 func NewIMSCC() IMSCC {
-	Log.Debug().Msg("Creating new IMSCC")
+	zero.Log.Debug().Msg("Creating new IMSCC")
 	var ims IMSCC
 	return ims
 }
 
 //-- given a particular path, assigns a reader to a Cartridge
 //-- and returns it
-func (cc IMSCC) Load(path string) (Cartridge, error) {
-	Log.Debug().Msg("Decompressing files")
+func Load(path string) (IMSCC, error) {
+	zero.Log.Debug().Msg("Decompressing files")
+
+	cc := IMSCC{}
 
 	r, err := zip.OpenReader(path)
 	if err != nil {
@@ -39,11 +40,11 @@ func (cc IMSCC) Load(path string) (Cartridge, error) {
 func (cc IMSCC) Title() string {
 	title := "--undefined--"
 
-	var m specs.Manifest
+	var m Manifest
 	m, err := cc.ParseManifest()
 
 	if err != nil {
-		Log.Error().Msg("Error parsing Manifest")
+		zero.Log.Error().Msg("Error parsing Manifest")
 	}
 
 	title = m.Metadata.Lom.General.Title.String.Text
@@ -60,13 +61,13 @@ func (cc IMSCC) Dump() []string {
 
 //-- pointer receivers (*IMSCC) can modify the struct instance,
 //-- while the value receivers can't change it
-func (cc IMSCC) ParseManifest() (specs.Manifest, error) {
+func (cc IMSCC) ParseManifest() (Manifest, error) {
 
-	var manifest specs.Manifest
+	var manifest Manifest
 	file, err := cc.Reader.Open("imsmanifest.xml")
 
 	if err != nil {
-		Log.Debug().Str("Error in opening manifest.", cc.Path)
+		zero.Log.Debug().Str("Error in opening manifest.", cc.Path)
 		return manifest, err
 	}
 

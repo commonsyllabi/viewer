@@ -16,6 +16,5 @@ main
 # vendor/
 
 # Output directories for CC files
-viewer/tmp/
 /tmp/
 test_files/

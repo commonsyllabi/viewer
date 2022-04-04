@@ -1,7 +1,7 @@
-package specs
+package commoncartridge
 
 import (
-	. "commonsyllabi/logger"
+	zero "commonsyllabi/internals/logger" //-- TODO remove this dependency because internals should not be imported in the public package, and because zerolog is an opinion and libraries shouldn't import opinions
 	"fmt"
 )
 
@@ -18,10 +18,10 @@ func (m *Manifest) traverseItemModules(itemModules []Item) {
 }
 
 func (m *Manifest) traverseItems(items []Item) {
-	Log.Debug().Int("- items traversed", len(items))
+	zero.Log.Debug().Int("- items traversed", len(items))
 	for i := range items {
 
-		Log.Debug().Str("- - idref", items[i].Identifierref)
+		zero.Log.Debug().Str("- - idref", items[i].Identifierref)
 
 		err := m.resolveItem(items[i])
 
@@ -45,24 +45,29 @@ func (m *Manifest) resolveItem(item Item) error {
 
 	for _, resource := range m.Resources.Resource {
 		if resource.Identifier == item.Identifierref {
-			// Log.Debug().Msg("- - mathched resource id %s\n", resource.Identifier)
+			// Log.Debug().Msg("- - matched resource id %s\n", resource.Identifier)
 
 			switch resource.Type {
 			case "imsdt_xmlv1p1":
 				//-- topic
-				break
+				zero.Log.Info().Msgf("found topic %v", resource.File)
+
 			case "webcontent":
 				//-- webcontent
-				break
+				zero.Log.Info().Msgf("found webcontent %v", resource.File)
+
 			case "imswl_xmlv1p1":
 				//-- weblink
-				break
+				zero.Log.Info().Msgf("found weblink %v", resource.File)
+
 			case "assignment_xmlv1p0":
 				//-- assignment
-				break
+				zero.Log.Info().Msgf("found assignment %v", resource.File)
+
 			case "assessment":
 				//-- qti
-				break
+				zero.Log.Info().Msgf("found question bank %v", resource.File)
+
 			default:
 				return fmt.Errorf("[resolveItem] No matching type found: %s\n", resource.Type)
 			}
@@ -72,17 +77,17 @@ func (m *Manifest) resolveItem(item Item) error {
 }
 
 func (m *Manifest) PrettyPrint() {
-	Log.Debug().Str("Cartridge:", m.Metadata.Lom.General.Title.String.Text)
-	Log.Debug().Int("Modules:", len(m.Organizations.Organization.Item.Item))
+	zero.Log.Debug().Str("Cartridge:", m.Metadata.Lom.General.Title.String.Text)
+	zero.Log.Debug().Int("Modules:", len(m.Organizations.Organization.Item.Item))
 	for _, i := range m.Organizations.Organization.Item.Item {
-		Log.Debug().Int("- items:", len(i.Item))
+		zero.Log.Debug().Int("- items:", len(i.Item))
 		for _, v := range i.Item {
-			Log.Debug().Str("- - id", v.Identifierref)
+			zero.Log.Debug().Str("- - id", v.Identifierref)
 		}
 	}
 
-	Log.Debug().Int("Resources (%d):\n", len(m.Resources.Resource))
+	zero.Log.Debug().Int("Resources (%d):\n", len(m.Resources.Resource))
 	for _, r := range m.Resources.Resource {
-		Log.Debug().Str(" - - type", r.Type).Str(" - - id", r.Identifier)
+		zero.Log.Debug().Str(" - - type", r.Type).Str(" - - id", r.Identifier)
 	}
 }
