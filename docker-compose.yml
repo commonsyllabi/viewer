@@ -1,0 +1,11 @@
+services:
+  web:
+    image: caddy:2.4.6-alpine
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - $PWD/web/www:/var/www
+      - $PWD/web/Caddyfile:/etc/caddy/Caddyfile
+  cosyl:
+    image: cosyl
