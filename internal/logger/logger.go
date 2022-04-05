@@ -11,8 +11,12 @@ import (
 
 var Log zerolog.Logger
 
-func InitLog() {
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+func InitLog(debug bool) {
+	if debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	} else {
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	}
 	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
 	output.FormatLevel = func(i interface{}) string {
 		return strings.ToUpper(fmt.Sprintf("| %-6s |", i))

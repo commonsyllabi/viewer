@@ -1,24 +1,55 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 
-	zero "commonsyllabi/internal/logger"
 	"commonsyllabi/pkg/commoncartridge"
 )
 
+var (
+	debug    = flag.Bool("d", false, "debug output")
+	metadata = flag.Bool("m", false, "show metadata")
+	json     = flag.Bool("j", false, "dumps a serialized json representation")
+)
+
 func main() {
-	zero.InitLog()
-	zero.Log.Info().Msg("CC Viewer v0.1")
-
-	cc, err := commoncartridge.Load("test_files/canvas_large_1.3.imscc")
-	if err != nil {
-		log.Fatal(err) //-- todo remove and change to zerolog
+	flag.Parse()
+	if *debug {
+		fmt.Println("cosyl v0.1")
 	}
-	zero.Log.Info().Msg("successfully loaded cartridge")
 
-	_, err = cc.AsObject()
+	if flag.NArg() == 0 {
+		log.Fatal("provide the path of the cartridge to be opened!")
+	}
+
+	inputFile := flag.Args()[0]
+
+	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if *debug {
+		fmt.Println("successfully loaded cartridge")
+	}
+
+	if *metadata {
+		meta, err := cc.Metadata()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(meta)
+	}
+
+	if *json {
+		obj, err := cc.AsObject()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Print(obj)
 	}
 }

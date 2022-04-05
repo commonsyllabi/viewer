@@ -1,11 +1,12 @@
 package commoncartridge
 
 import (
-	"archive/zip" //-- TODO: switch to standard library log and fmt
+	"archive/zip"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"strings"
 )
 
 type IMSCC struct {
@@ -13,17 +14,8 @@ type IMSCC struct {
 	Path   string
 }
 
-func NewIMSCC() IMSCC {
-	fmt.Println("Creating new IMSCC")
-	var ims IMSCC
-	return ims
-}
-
-//-- given a particular path, assigns a reader to a Cartridge
-//-- and returns it
+//-- Load creates a cartridge from a given path
 func Load(path string) (IMSCC, error) {
-	fmt.Println("Decompressing files")
-
 	cc := IMSCC{}
 
 	r, err := zip.OpenReader(path)
@@ -37,6 +29,47 @@ func Load(path string) (IMSCC, error) {
 	return cc, nil
 }
 
+type Metadata struct {
+	Title                string
+	Schema               string
+	SchemaVersion        string
+	Language             string
+	Description          string
+	Keyword              string
+	Date                 string
+	Copyright            string
+	CopyrightDescription string
+}
+
+func (cc IMSCC) Metadata() (string, error) {
+
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		return "", err
+	}
+
+	meta := Metadata{
+		m.Metadata.Lom.General.Title.String.Text,
+		m.Metadata.Schema,
+		m.Metadata.Schemaversion,
+		m.Metadata.Lom.General.Language,
+		m.Metadata.Lom.General.Description.String.Text,
+		m.Metadata.Lom.General.Keyword.String.Text,
+		m.Metadata.Lom.LifeCycle.Contribute.Date.DateTime,
+		m.Metadata.Lom.Rights.CopyrightAndOtherRestrictions.Value,
+		m.Metadata.Lom.Rights.Description.String,
+	}
+
+	serialized, err := json.Marshal(meta)
+
+	if err != nil {
+		return string(serialized), nil
+	}
+
+	return string(serialized), nil
+}
+
 func (cc IMSCC) Title() string {
 	title := "--undefined--"
 
@@ -44,7 +77,7 @@ func (cc IMSCC) Title() string {
 	m, err := cc.ParseManifest()
 
 	if err != nil {
-		fmt.Println("Error parsing Manifest")
+		fmt.Printf("Error parsing Manifest: %v\n", err)
 	}
 
 	title = m.Metadata.Lom.General.Title.String.Text
@@ -59,12 +92,17 @@ func (cc IMSCC) Dump() []string {
 	return dump
 }
 
-//-- pointer receivers (*IMSCC) can modify the struct instance,
-//-- while the value receivers can't change it
 func (cc IMSCC) ParseManifest() (Manifest, error) {
 
 	var manifest Manifest
-	file, err := cc.Reader.Open("imsmanifest.xml")
+	var path string
+	for _, f := range cc.Reader.File {
+		if strings.Contains(f.Name, "imsmanifest.xml") {
+			path = f.Name
+		}
+	}
+
+	file, err := cc.Reader.Open(path)
 
 	if err != nil {
 		fmt.Printf("Error in opening manifest: %v\n", cc.Path)
