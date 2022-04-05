@@ -29,6 +29,49 @@ func Load(path string) (IMSCC, error) {
 	return cc, nil
 }
 
+func (cc IMSCC) ParseManifest() (Manifest, error) {
+
+	var manifest Manifest
+	var path string
+	for _, f := range cc.Reader.File {
+		if strings.Contains(f.Name, "imsmanifest.xml") {
+			path = f.Name
+		}
+	}
+
+	file, err := cc.Reader.Open(path)
+
+	if err != nil {
+		fmt.Printf("Error in opening manifest: %v\n", cc.Path)
+		return manifest, err
+	}
+
+	bytesArray, err := io.ReadAll(file)
+	if err != nil {
+		return manifest, err
+	}
+
+	xml.Unmarshal(bytesArray, &manifest)
+
+	manifest.ResolveItems()
+
+	return manifest, nil
+}
+
+func (cc IMSCC) Title() string {
+	title := "--undefined--"
+
+	var m Manifest
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		fmt.Printf("Error parsing Manifest: %v\n", err)
+	}
+
+	title = m.Metadata.Lom.General.Title.String.Text
+	return title
+}
+
 type Metadata struct {
 	Title                string
 	Schema               string
@@ -70,18 +113,33 @@ func (cc IMSCC) Metadata() (string, error) {
 	return string(serialized), nil
 }
 
-func (cc IMSCC) Title() string {
-	title := "--undefined--"
+type FullResource struct {
+	Resource Resource
+	Item     Item
+}
 
-	var m Manifest
+func (cc IMSCC) Resources() ([]FullResource, error) {
+	resources := make([]FullResource, 0)
+
 	m, err := cc.ParseManifest()
 
 	if err != nil {
-		fmt.Printf("Error parsing Manifest: %v\n", err)
+		return resources, err
 	}
 
-	title = m.Metadata.Lom.General.Title.String.Text
-	return title
+	for _, r := range m.Resources.Resource {
+		res := FullResource{}
+		res.Resource = r
+
+		item, err := m.FindItem(r.Identifier)
+		if err != nil {
+			return resources, err
+		}
+		res.Item = item
+		resources = append(resources, res)
+	}
+
+	return resources, nil
 }
 
 func (cc IMSCC) Dump() []string {
@@ -90,35 +148,6 @@ func (cc IMSCC) Dump() []string {
 		dump = append(dump, f.Name)
 	}
 	return dump
-}
-
-func (cc IMSCC) ParseManifest() (Manifest, error) {
-
-	var manifest Manifest
-	var path string
-	for _, f := range cc.Reader.File {
-		if strings.Contains(f.Name, "imsmanifest.xml") {
-			path = f.Name
-		}
-	}
-
-	file, err := cc.Reader.Open(path)
-
-	if err != nil {
-		fmt.Printf("Error in opening manifest: %v\n", cc.Path)
-		return manifest, err
-	}
-
-	bytesArray, err := io.ReadAll(file)
-	if err != nil {
-		return manifest, err
-	}
-
-	xml.Unmarshal(bytesArray, &manifest)
-
-	manifest.ResolveItems()
-
-	return manifest, nil
 }
 
 func (cc IMSCC) AsObject() ([]byte, error) {

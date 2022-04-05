@@ -16,6 +16,9 @@ type Cartridge interface {
 	// Metadata returns the metadata fields of the cartridge in a structured fashion
 	Metadata() (string, error)
 
+	// Resources returns an array of structs which include the resource and, if found, the item in which the resource appears
+	Resources() ([]FullResource, error)
+
 	// Tobi's weird ideas
 	// Weblinks() ([]Weblink, error)
 	// GetWeblink(string) (Weblink, error)

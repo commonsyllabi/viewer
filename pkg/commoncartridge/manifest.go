@@ -10,6 +10,41 @@ func (m *Manifest) ResolveItems() {
 	}
 }
 
+func (m *Manifest) FindItem(id string) (Item, error) {
+	// fmt.Printf("starting search for %s\n", id)
+	var item Item
+	for i := range m.Organizations.Organization.Item.Item {
+		item, err := m.findItem(m.Organizations.Organization.Item.Item[i].Item, id)
+
+		if err != nil {
+			return item, nil
+		}
+
+		if item.Identifierref == id { //-- found
+			return item, nil
+		}
+	}
+
+	return item, nil
+}
+
+func (m *Manifest) findItem(items []Item, id string) (Item, error) {
+	// fmt.Printf("looking for %s in %d items\n", id, len(items))
+	var item Item
+	var err error
+	for i := range items {
+		if items[i].Identifierref == id {
+			return items[i], nil
+		}
+
+		if len(items[i].Item) > 0 {
+			item, err = m.findItem(items[i].Item, id)
+		}
+	}
+
+	return item, err
+}
+
 func (m *Manifest) traverseItemModules(itemModules []Item) {
 	for i := range itemModules {
 		m.traverseItems(itemModules[i].Item)

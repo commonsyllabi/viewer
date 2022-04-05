@@ -9,9 +9,10 @@ import (
 )
 
 var (
-	debug    = flag.Bool("d", false, "debug output")
-	metadata = flag.Bool("m", false, "show metadata")
-	json     = flag.Bool("j", false, "dumps a serialized json representation")
+	debug     = flag.Bool("d", false, "debug output")
+	metadata  = flag.Bool("m", false, "shows metadata as serialized json")
+	json      = flag.Bool("j", false, "dumps a serialized json representation")
+	resources = flag.Bool("r", false, "lists all resources in the cartridge")
 )
 
 func main() {
@@ -42,6 +43,24 @@ func main() {
 		}
 
 		fmt.Println(meta)
+	}
+
+	if *resources {
+		resources, err := cc.Resources()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, r := range resources {
+			if r.Item.Identifierref == "" {
+				r.Item.Title = "none"
+			}
+			if r.Resource.Href == "" {
+				r.Resource.Href = "none"
+			}
+
+			fmt.Printf("type: %s\nfiles: %d \nhref: %s\nitem: %s\n\n", r.Resource.Type, len(r.Resource.File), r.Resource.Href, r.Item.Title)
+		}
 	}
 
 	if *json {
