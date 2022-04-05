@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	zero "commonsyllabi/internals/logger"
+	zero "commonsyllabi/internal/logger"
 	"commonsyllabi/pkg/commoncartridge"
 )
 

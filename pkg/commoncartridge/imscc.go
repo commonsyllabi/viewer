@@ -1,10 +1,10 @@
 package commoncartridge
 
 import (
-	"archive/zip"
-	zero "commonsyllabi/internals/logger"
+	"archive/zip" //-- TODO: switch to standard library log and fmt
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 )
 
@@ -14,7 +14,7 @@ type IMSCC struct {
 }
 
 func NewIMSCC() IMSCC {
-	zero.Log.Debug().Msg("Creating new IMSCC")
+	fmt.Println("Creating new IMSCC")
 	var ims IMSCC
 	return ims
 }
@@ -22,7 +22,7 @@ func NewIMSCC() IMSCC {
 //-- given a particular path, assigns a reader to a Cartridge
 //-- and returns it
 func Load(path string) (IMSCC, error) {
-	zero.Log.Debug().Msg("Decompressing files")
+	fmt.Println("Decompressing files")
 
 	cc := IMSCC{}
 
@@ -44,7 +44,7 @@ func (cc IMSCC) Title() string {
 	m, err := cc.ParseManifest()
 
 	if err != nil {
-		zero.Log.Error().Msg("Error parsing Manifest")
+		fmt.Println("Error parsing Manifest")
 	}
 
 	title = m.Metadata.Lom.General.Title.String.Text
@@ -67,7 +67,7 @@ func (cc IMSCC) ParseManifest() (Manifest, error) {
 	file, err := cc.Reader.Open("imsmanifest.xml")
 
 	if err != nil {
-		zero.Log.Debug().Str("Error in opening manifest.", cc.Path)
+		fmt.Printf("Error in opening manifest: %v\n", cc.Path)
 		return manifest, err
 	}
 

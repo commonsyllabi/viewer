@@ -1,7 +1,6 @@
 package commoncartridge
 
 import (
-	zero "commonsyllabi/internals/logger" //-- TODO remove this dependency because internals should not be imported in the public package, and because zerolog is an opinion and libraries shouldn't import opinions
 	"fmt"
 )
 
@@ -18,10 +17,10 @@ func (m *Manifest) traverseItemModules(itemModules []Item) {
 }
 
 func (m *Manifest) traverseItems(items []Item) {
-	zero.Log.Debug().Int("- items traversed", len(items))
+	fmt.Printf("- %d items traversed\n", len(items))
 	for i := range items {
 
-		zero.Log.Debug().Str("- - idref", items[i].Identifierref)
+		fmt.Printf("- - idref %v\n", items[i].Identifierref)
 
 		err := m.resolveItem(items[i])
 
@@ -40,36 +39,36 @@ func (m *Manifest) traverseItems(items []Item) {
 //-- since items are just folders with stuff inside
 func (m *Manifest) resolveItem(item Item) error {
 	if item.Identifierref == "" {
-		return fmt.Errorf("nope, no identifierref on item, skipping...")
+		return fmt.Errorf("no identifierref on item %v, skipping", item)
 	}
 
 	for _, resource := range m.Resources.Resource {
 		if resource.Identifier == item.Identifierref {
-			// Log.Debug().Msg("- - matched resource id %s\n", resource.Identifier)
+			fmt.Printf("- - matched resource id %s\n", resource.Identifier)
 
 			switch resource.Type {
 			case "imsdt_xmlv1p1":
 				//-- topic
-				zero.Log.Info().Msgf("found topic %v", resource.File)
+				fmt.Printf("found topic %v", resource.File)
 
 			case "webcontent":
 				//-- webcontent
-				zero.Log.Info().Msgf("found webcontent %v", resource.File)
+				fmt.Printf("found webcontent %v", resource.File)
 
 			case "imswl_xmlv1p1":
 				//-- weblink
-				zero.Log.Info().Msgf("found weblink %v", resource.File)
+				fmt.Printf("found weblink %v", resource.File)
 
 			case "assignment_xmlv1p0":
 				//-- assignment
-				zero.Log.Info().Msgf("found assignment %v", resource.File)
+				fmt.Printf("found assignment %v", resource.File)
 
 			case "assessment":
 				//-- qti
-				zero.Log.Info().Msgf("found question bank %v", resource.File)
+				fmt.Printf("found question bank %v", resource.File)
 
 			default:
-				return fmt.Errorf("[resolveItem] No matching type found: %s\n", resource.Type)
+				return fmt.Errorf("[resolveItem] No matching type found: %s", resource.Type)
 			}
 		}
 	}
@@ -77,17 +76,18 @@ func (m *Manifest) resolveItem(item Item) error {
 }
 
 func (m *Manifest) PrettyPrint() {
-	zero.Log.Debug().Str("Cartridge:", m.Metadata.Lom.General.Title.String.Text)
-	zero.Log.Debug().Int("Modules:", len(m.Organizations.Organization.Item.Item))
+	fmt.Printf("Cartridge: %v\n", m.Metadata.Lom.General.Title.String.Text)
+	fmt.Printf("Modules: %v\n", len(m.Organizations.Organization.Item.Item))
+
 	for _, i := range m.Organizations.Organization.Item.Item {
-		zero.Log.Debug().Int("- items:", len(i.Item))
+		fmt.Printf("- %d items\n", len(i.Item))
 		for _, v := range i.Item {
-			zero.Log.Debug().Str("- - id", v.Identifierref)
+			fmt.Printf("- - id %v\n", v.Identifierref)
 		}
 	}
 
-	zero.Log.Debug().Int("Resources (%d):\n", len(m.Resources.Resource))
+	fmt.Printf("Resources (%d):\n", len(m.Resources.Resource))
 	for _, r := range m.Resources.Resource {
-		zero.Log.Debug().Str(" - - type", r.Type).Str(" - - id", r.Identifier)
+		fmt.Printf(" - - type %v - id %v\n", r.Type, r.Identifier)
 	}
 }

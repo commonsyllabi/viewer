@@ -1,4 +1,0 @@
-localhost {
-    root * /var/www
-    file_server
-}
