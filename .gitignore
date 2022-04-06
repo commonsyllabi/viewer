@@ -18,3 +18,4 @@ main
 # Output directories for CC files
 /tmp/
 test_files/
+cmd/cosyl/*.imscc
