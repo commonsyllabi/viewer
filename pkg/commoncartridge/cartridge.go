@@ -20,7 +20,7 @@ type Cartridge interface {
 	Resources() ([]FullResource, error)
 
 	// Tobi's weird ideas
-	// Weblinks() ([]Weblink, error)
+	Weblinks() ([]WebLink, error)
 	// GetWeblink(string) (Weblink, error)
 	// Webcontents() ([]os.File, error)
 	// GetWebcontent(string) (os.File, error)

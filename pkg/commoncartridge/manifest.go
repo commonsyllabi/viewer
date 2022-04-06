@@ -73,7 +73,9 @@ func (m *Manifest) traverseItems(items []Item) {
 //-- resolveItem resolves its relationship to a resource (since items are just folders with stuff inside)
 func (m *Manifest) resolveItem(item Item) error {
 	if item.Identifierref == "" {
-		return fmt.Errorf("no identifierref for item %s", item.Identifier)
+		//-- this edge case is due to the fact that the top most item in the organizations
+		//-- never has an identifierref (as per the specs)
+		return nil
 	}
 
 	for _, resource := range m.Resources.Resource {

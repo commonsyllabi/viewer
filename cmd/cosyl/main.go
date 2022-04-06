@@ -13,6 +13,7 @@ var (
 	metadata  = flag.Bool("m", false, "shows metadata as serialized json")
 	json      = flag.Bool("j", false, "dumps a serialized json representation")
 	resources = flag.Bool("r", false, "lists all resources in the cartridge")
+	weblinks  = flag.Bool("w", false, "lists all weblinks in the cartridge")
 )
 
 func main() {
@@ -60,6 +61,18 @@ func main() {
 			}
 
 			fmt.Printf("type: %s\nfiles: %d \nhref: %s\nitem: %s\n\n", r.Resource.Type, len(r.Resource.File), r.Resource.Href, r.Item.Title)
+		}
+	}
+
+	if *weblinks {
+		weblinks, err := cc.Weblinks()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, wl := range weblinks {
+			fmt.Printf("title: %s url: %s\n", wl.Title, wl.URL.Href)
 		}
 	}
 

@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 )
 
@@ -36,6 +37,7 @@ func (cc IMSCC) ParseManifest() (Manifest, error) {
 	for _, f := range cc.Reader.File {
 		if strings.Contains(f.Name, "imsmanifest.xml") {
 			path = f.Name
+			break
 		}
 	}
 
@@ -140,6 +142,53 @@ func (cc IMSCC) Resources() ([]FullResource, error) {
 	}
 
 	return resources, nil
+}
+
+func (cc IMSCC) Weblinks() ([]WebLink, error) {
+	weblinks := make([]WebLink, 0)
+
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		return weblinks, err
+	}
+
+	re, err := regexp.Compile(`imswl_xmlv1p\d`)
+	if err != nil {
+		return weblinks, err
+	}
+
+	for _, r := range m.Resources.Resource {
+		match := re.Find([]byte(r.Type))
+
+		if match != nil {
+
+			var wl WebLink
+			var path string
+			for _, f := range cc.Reader.File {
+				if strings.Contains(f.Name, r.Identifier+".xml") {
+					path = f.Name
+					break
+				}
+			}
+
+			file, err := cc.Reader.Open(path)
+			if err != nil {
+				return weblinks, err
+			}
+
+			bytesArray, err := io.ReadAll(file)
+			if err != nil {
+				return weblinks, err
+			}
+
+			xml.Unmarshal(bytesArray, &wl)
+
+			weblinks = append(weblinks, wl)
+		}
+	}
+
+	return weblinks, nil
 }
 
 func (cc IMSCC) Dump() []string {
