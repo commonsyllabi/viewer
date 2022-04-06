@@ -144,7 +144,6 @@ func (cc IMSCC) Resources() ([]FullResource, error) {
 	return resources, nil
 }
 
-//-- TODO investigate why some of them don't have a title?
 func (cc IMSCC) Assignments() ([]Assignment, error) {
 	assignments := make([]Assignment, 0)
 
@@ -289,6 +288,22 @@ func (cc IMSCC) Weblinks() ([]WebLink, error) {
 	}
 
 	return weblinks, nil
+}
+
+func (cc IMSCC) Find(id string) (Resource, error) {
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		return Resource{}, err
+	}
+
+	for _, r := range m.Resources.Resource {
+		if r.Identifier == id {
+			return r, nil
+		}
+	}
+
+	return Resource{}, fmt.Errorf("could not find resource with id: %v", id)
 }
 
 // findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern

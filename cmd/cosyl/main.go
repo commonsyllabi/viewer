@@ -18,6 +18,7 @@ var (
 	topics      = flag.Bool("topics", false, "lists all topics in the cartridge")
 	qtis        = flag.Bool("qtis", false, "lists all quizzes in the cartridge")
 	ltis        = flag.Bool("ltis", false, "lists all basic LTI links in the cartridge")
+	find        = flag.String("f", "", "finds the resource with the related id")
 )
 
 func main() {
@@ -64,7 +65,7 @@ func main() {
 				r.Resource.Href = "none"
 			}
 
-			fmt.Printf("type: %s\nfiles: %d \nhref: %s\nitem: %s\n\n", r.Resource.Type, len(r.Resource.File), r.Resource.Href, r.Item.Title)
+			fmt.Printf("type: %s\nfiles: %d \nhref: %s\nitem: %s\nid: %s\n\n", r.Resource.Type, len(r.Resource.File), r.Resource.Href, r.Item.Title, r.Resource.Identifier)
 		}
 	}
 
@@ -135,5 +136,15 @@ func main() {
 		}
 
 		fmt.Print(obj)
+	}
+
+	if *find != "" {
+		res, err := cc.Find(*find)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("%+v", res)
 	}
 }
