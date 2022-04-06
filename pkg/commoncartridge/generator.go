@@ -11,5 +11,6 @@ package commoncartridge
 //go:generate bash -c "zek -P commoncartridge -t lti -o ./autogen_lti.go ./types/examples/lti.xml"
 //go:generate bash -c "zek -P commoncartridge -t qti -o ./autogen_qti.go ./types/examples/qti.xml"
 //go:generate bash -c "zek -P commoncartridge -t weblink -o ./autogen_weblink.go ./types/examples/weblink.xml"
+//go:generate bash -c "zek -P commoncartridge -t assignment -o ./autogen_assignment.go ./types/examples/assignment.xml"
 
 //go:generate "...done!"
