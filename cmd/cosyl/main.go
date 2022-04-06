@@ -9,11 +9,15 @@ import (
 )
 
 var (
-	debug     = flag.Bool("d", false, "debug output")
-	metadata  = flag.Bool("m", false, "shows metadata as serialized json")
-	json      = flag.Bool("j", false, "dumps a serialized json representation")
-	resources = flag.Bool("r", false, "lists all resources in the cartridge")
-	weblinks  = flag.Bool("w", false, "lists all weblinks in the cartridge")
+	debug       = flag.Bool("d", false, "debug output")
+	metadata    = flag.Bool("m", false, "shows metadata as serialized json")
+	json        = flag.Bool("j", false, "dumps a serialized json representation")
+	resources   = flag.Bool("r", false, "lists all resources in the cartridge")
+	weblinks    = flag.Bool("weblinks", false, "lists all weblinks in the cartridge")
+	assignments = flag.Bool("assignments", false, "lists all assignments in the cartridge")
+	topics      = flag.Bool("topics", false, "lists all topics in the cartridge")
+	qtis        = flag.Bool("qtis", false, "lists all quizzes in the cartridge")
+	ltis        = flag.Bool("ltis", false, "lists all basic LTI links in the cartridge")
 )
 
 func main() {
@@ -72,7 +76,55 @@ func main() {
 		}
 
 		for _, wl := range weblinks {
-			fmt.Printf("title: %s url: %s\n", wl.Title, wl.URL.Href)
+			fmt.Printf("xml: %s title: %s url: %s\n", wl.XMLName.Local, wl.Title, wl.URL.Href)
+		}
+	}
+
+	if *assignments {
+		assignments, err := cc.Assignments()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, a := range assignments {
+			fmt.Printf("xml: %s title: %s\n", a.XMLName.Local, a.Title)
+		}
+	}
+
+	if *topics {
+		topics, err := cc.Topics()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, t := range topics {
+			fmt.Printf("xml: %s title: %s attachements: %d\n", t.XMLName.Local, t.Title, len(t.Attachments.Attachment))
+		}
+	}
+
+	if *qtis {
+		qtis, err := cc.QTIs()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, qti := range qtis {
+			fmt.Printf("xml: %s title: %s items: %d\n", qti.XMLName.Local, qti.Assessment.Title, len(qti.Assessment.Section.Item))
+		}
+	}
+
+	if *ltis {
+		ltis, err := cc.LTIs()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, lti := range ltis {
+			fmt.Printf("xml: %s title: %s description: %s url: %s\n", lti.XMLName.Local, lti.Title, lti.Description, lti.SecureLaunchURL)
 		}
 	}
 

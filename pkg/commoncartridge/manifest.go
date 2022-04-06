@@ -103,7 +103,8 @@ func (m *Manifest) resolveItem(item Item) error {
 				"imsqti_xmlv1p2/imscc_xmlv1p3/assessment":
 				//-- qti
 				// fmt.Printf("found question bank %v", resource.File)
-
+			case "imsbasiclti_xmlv1p0":
+				//-- fmt.Printf("found LTI %v\n, resource.File")
 			default:
 				return fmt.Errorf("[resolveItem] No matching type found: %s", resource.Type)
 			}

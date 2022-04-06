@@ -144,51 +144,181 @@ func (cc IMSCC) Resources() ([]FullResource, error) {
 	return resources, nil
 }
 
+//-- TODO investigate why some of them don't have a title?
+func (cc IMSCC) Assignments() ([]Assignment, error) {
+	assignments := make([]Assignment, 0)
+
+	paths, err := cc.findResourcesByType(`assignment_xmlv1p\d`)
+
+	if err != nil {
+		return assignments, err
+	}
+
+	for _, p := range paths {
+		file, err := cc.Reader.Open(p)
+		if err != nil {
+			return assignments, err
+		}
+
+		bytesArray, err := io.ReadAll(file)
+		if err != nil {
+			return assignments, err
+		}
+
+		var a Assignment
+		xml.Unmarshal(bytesArray, &a)
+		//-- necessary check for avoiding other files in the folder that are returned by the findResourcesByType() (e.g. `assignment.xml` also has `assignment_meta.html`)
+		if a.XMLName.Local == "assignment" {
+			assignments = append(assignments, a)
+		}
+	}
+
+	return assignments, nil
+}
+
+func (cc IMSCC) LTIs() ([]CartridgeBasicltiLink, error) {
+	qtis := make([]CartridgeBasicltiLink, 0)
+
+	paths, err := cc.findResourcesByType(`imsbasiclti_xmlv1p\d`)
+
+	if err != nil {
+		return qtis, err
+	}
+
+	for _, p := range paths {
+		file, err := cc.Reader.Open(p)
+		if err != nil {
+			return qtis, err
+		}
+
+		bytesArray, err := io.ReadAll(file)
+		if err != nil {
+			return qtis, err
+		}
+
+		var qti CartridgeBasicltiLink
+		xml.Unmarshal(bytesArray, &qti)
+		qtis = append(qtis, qti)
+	}
+
+	return qtis, nil
+}
+
+func (cc IMSCC) QTIs() ([]Questestinterop, error) {
+	qtis := make([]Questestinterop, 0)
+
+	paths, err := cc.findResourcesByType(`imsqti_xmlv1p\d`)
+
+	if err != nil {
+		return qtis, err
+	}
+
+	for _, p := range paths {
+		file, err := cc.Reader.Open(p)
+		if err != nil {
+			return qtis, err
+		}
+
+		bytesArray, err := io.ReadAll(file)
+		if err != nil {
+			return qtis, err
+		}
+
+		var qti Questestinterop
+		xml.Unmarshal(bytesArray, &qti)
+
+		if qti.XMLName.Local == "questestinterop" {
+			qtis = append(qtis, qti)
+		}
+	}
+
+	return qtis, nil
+}
+
+func (cc IMSCC) Topics() ([]Topic, error) {
+	topics := make([]Topic, 0)
+
+	paths, err := cc.findResourcesByType(`imsdt_xmlv1p\d`)
+
+	if err != nil {
+		return topics, err
+	}
+
+	for _, p := range paths {
+		file, err := cc.Reader.Open(p)
+		if err != nil {
+			return topics, err
+		}
+
+		bytesArray, err := io.ReadAll(file)
+		if err != nil {
+			return topics, err
+		}
+
+		var t Topic
+		xml.Unmarshal(bytesArray, &t)
+		topics = append(topics, t)
+	}
+
+	return topics, nil
+}
+
 func (cc IMSCC) Weblinks() ([]WebLink, error) {
 	weblinks := make([]WebLink, 0)
 
-	m, err := cc.ParseManifest()
+	paths, err := cc.findResourcesByType(`imswl_xmlv1p\d`)
 
 	if err != nil {
 		return weblinks, err
 	}
 
-	re, err := regexp.Compile(`imswl_xmlv1p\d`)
+	for _, p := range paths {
+		file, err := cc.Reader.Open(p)
+		if err != nil {
+			return weblinks, err
+		}
+
+		bytesArray, err := io.ReadAll(file)
+		if err != nil {
+			return weblinks, err
+		}
+
+		var wl WebLink
+		xml.Unmarshal(bytesArray, &wl)
+		weblinks = append(weblinks, wl)
+	}
+
+	return weblinks, nil
+}
+
+// findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern
+func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
+	paths := make([]string, 0)
+
+	re, err := regexp.Compile(pattern)
 	if err != nil {
-		return weblinks, err
+		return paths, err
+	}
+
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		return paths, err
 	}
 
 	for _, r := range m.Resources.Resource {
 		match := re.Find([]byte(r.Type))
 
 		if match != nil {
-
-			var wl WebLink
-			var path string
 			for _, f := range cc.Reader.File {
-				if strings.Contains(f.Name, r.Identifier+".xml") {
-					path = f.Name
-					break
+				if !f.FileInfo().IsDir() && strings.Contains(f.Name, r.Identifier) {
+					paths = append(paths, f.Name)
 				}
 			}
-
-			file, err := cc.Reader.Open(path)
-			if err != nil {
-				return weblinks, err
-			}
-
-			bytesArray, err := io.ReadAll(file)
-			if err != nil {
-				return weblinks, err
-			}
-
-			xml.Unmarshal(bytesArray, &wl)
-
-			weblinks = append(weblinks, wl)
 		}
 	}
 
-	return weblinks, nil
+	return paths, nil
 }
 
 func (cc IMSCC) Dump() []string {
