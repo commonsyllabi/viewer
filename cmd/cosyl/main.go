@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"os"
 
 	"commonsyllabi/pkg/commoncartridge"
 )
@@ -19,6 +21,8 @@ var (
 	qtis        = flag.Bool("qtis", false, "lists all quizzes in the cartridge")
 	ltis        = flag.Bool("ltis", false, "lists all basic LTI links in the cartridge")
 	find        = flag.String("f", "", "finds the resource with the related id")
+	file        = flag.String("F", "", "finds the file (i.e. webcontent) with the related id and returns the file as a bytestream")
+	output      = flag.String("o", "extracted_file", "specifies the name of the output file return by the -F flag")
 )
 
 func main() {
@@ -145,6 +149,28 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("%+v", res)
+		fmt.Printf("%+v\n", res)
+	}
+
+	if *file != "" {
+		f, err := cc.FindFile(*file)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		result, err := f.Open()
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer result.Close()
+
+		output, err := os.OpenFile(*output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		io.Copy(output, result)
 	}
 }

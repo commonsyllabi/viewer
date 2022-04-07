@@ -306,6 +306,31 @@ func (cc IMSCC) Find(id string) (Resource, error) {
 	return Resource{}, fmt.Errorf("could not find resource with id: %v", id)
 }
 
+// FindFile takes an ID and returns the zip.File from the cartridge's Reader
+func (cc IMSCC) FindFile(id string) (zip.File, error) {
+	file := zip.File{}
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		return file, err
+	}
+
+	for _, r := range m.Resources.Resource {
+		if r.Type == "webcontent" && r.Identifier == id {
+			for _, f := range cc.Reader.File {
+				if strings.Contains(f.Name, r.Href) {
+					if err != nil {
+						return *f, err
+					}
+					return *f, nil
+				}
+			}
+		}
+	}
+
+	return file, nil
+}
+
 // findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern
 func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
 	paths := make([]string, 0)
