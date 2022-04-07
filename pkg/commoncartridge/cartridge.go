@@ -18,9 +18,16 @@ type Cartridge interface {
 
 	// Resources returns an array of structs which include the resource and, if found, the item in which the resource appears
 	Resources() ([]FullResource, error)
+	Weblinks() ([]WebLink, error)
+	Assignments() ([]Assignment, error)
+	LTIs() ([]CartridgeBasicltiLink, error)
+	QTIs() ([]Questestinterop, error)
+	Topics() ([]Topic, error)
+
+	Find(string) (Resource, error)
+	FindFile(string) ([]byte, error)
 
 	// Tobi's weird ideas
-	Weblinks() ([]WebLink, error)
 	// GetWeblink(string) (Weblink, error)
 	// Webcontents() ([]os.File, error)
 	// GetWebcontent(string) (os.File, error)

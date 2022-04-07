@@ -112,20 +112,3 @@ func (m *Manifest) resolveItem(item Item) error {
 	}
 	return nil
 }
-
-func (m *Manifest) PrettyPrint() {
-	fmt.Printf("Cartridge: %v\n", m.Metadata.Lom.General.Title.String.Text)
-	fmt.Printf("Modules: %v\n", len(m.Organizations.Organization.Item.Item))
-
-	for _, i := range m.Organizations.Organization.Item.Item {
-		fmt.Printf("- %d items\n", len(i.Item))
-		for _, v := range i.Item {
-			fmt.Printf("- - id %v\n", v.Identifierref)
-		}
-	}
-
-	fmt.Printf("Resources (%d):\n", len(m.Resources.Resource))
-	for _, r := range m.Resources.Resource {
-		fmt.Printf(" - - type %v - id %v\n", r.Type, r.Identifier)
-	}
-}

@@ -3,9 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
-	"os"
 
 	"commonsyllabi/pkg/commoncartridge"
 )
@@ -153,24 +152,15 @@ func main() {
 	}
 
 	if *file != "" {
-		f, err := cc.FindFile(*file)
+		bytes, err := cc.FindFile(*file)
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		result, err := f.Open()
+		err = ioutil.WriteFile(*output, bytes, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer result.Close()
-
-		output, err := os.OpenFile(*output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		io.Copy(output, result)
 	}
 }

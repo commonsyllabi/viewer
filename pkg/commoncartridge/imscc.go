@@ -2,6 +2,7 @@ package commoncartridge
 
 import (
 	"archive/zip"
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -307,28 +308,39 @@ func (cc IMSCC) Find(id string) (Resource, error) {
 }
 
 // FindFile takes an ID and returns the zip.File from the cartridge's Reader
-func (cc IMSCC) FindFile(id string) (zip.File, error) {
-	file := zip.File{}
+func (cc IMSCC) FindFile(id string) ([]byte, error) {
+	var file bytes.Buffer
 	m, err := cc.ParseManifest()
 
 	if err != nil {
-		return file, err
+		return file.Bytes(), err
 	}
 
 	for _, r := range m.Resources.Resource {
 		if r.Type == "webcontent" && r.Identifier == id {
 			for _, f := range cc.Reader.File {
 				if strings.Contains(f.Name, r.Href) {
+					b, err := f.Open()
 					if err != nil {
-						return *f, err
+						return file.Bytes(), err
 					}
-					return *f, nil
+
+					bytes, err := io.ReadAll(b)
+					if err != nil {
+						return file.Bytes(), err
+					}
+
+					_, err = file.Write(bytes)
+					if err != nil {
+						return file.Bytes(), err
+					}
+					return file.Bytes(), nil
 				}
 			}
 		}
 	}
 
-	return file, nil
+	return file.Bytes(), nil
 }
 
 // findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern
