@@ -24,11 +24,10 @@ type Cartridge interface {
 	QTIs() ([]Questestinterop, error)
 	Topics() ([]Topic, error)
 
-	Find(string) (Resource, error)
+	Find(string) (interface{}, error)
 	FindFile(string) ([]byte, error)
 
 	// Tobi's weird ideas
-	// GetWeblink(string) (Weblink, error)
 	// Webcontents() ([]os.File, error)
 	// GetWebcontent(string) (os.File, error)
 }

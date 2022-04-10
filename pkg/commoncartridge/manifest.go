@@ -101,6 +101,8 @@ func (m *Manifest) resolveItem(item Item) error {
 				// fmt.Printf("found question bank %v", resource.File)
 			case "imsbasiclti_xmlv1p0":
 				//-- fmt.Printf("found LTI %v\n, resource.File")
+			case "associatedcontent/imscc_xmlv1p1/learning-application-resource":
+				//-- associated resource
 			default:
 				return fmt.Errorf("[resolveItem] No matching type found: %s", resource.Type)
 			}

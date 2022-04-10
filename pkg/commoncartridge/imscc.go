@@ -291,23 +291,105 @@ func (cc IMSCC) Weblinks() ([]WebLink, error) {
 	return weblinks, nil
 }
 
-func (cc IMSCC) Find(id string) (Resource, error) {
+func (cc IMSCC) Find(id string) (interface{}, error) {
 	m, err := cc.ParseManifest()
 
 	if err != nil {
 		return Resource{}, err
 	}
 
+	//-- find the type, then marshal into the appropriate struct
+	//-- otherwise return the resource
 	for _, r := range m.Resources.Resource {
 		if r.Identifier == id {
-			return r, nil
+
+			var path string
+			if r.Href != "" {
+				path = r.Href
+			} else {
+				for _, f := range r.File {
+					if strings.Contains(f.Href, ".xml") {
+						path = f.Href
+					}
+				}
+			}
+
+			if path == "" {
+				return r, fmt.Errorf("corresponding resource does not contain a valid href to am XML file")
+			}
+
+			file, err := cc.Reader.Open(path)
+			if err != nil {
+				return r, err
+			}
+
+			bytes, err := io.ReadAll(file)
+			if err != nil {
+				return r, err
+			}
+
+			switch r.Type {
+			case "imsdt_xmlv1p0", "imsdt_xmlv1p1", "imsdt_xmlv1p2", "imsdt_xmlv1p3":
+				// fmt.Printf("found topic %v", resource.File)
+				var t Topic
+				err = xml.Unmarshal(bytes, &t)
+				if err != nil {
+					return t, nil
+				}
+				return t, nil
+
+			case "webcontent":
+				// fmt.Printf("found webcontent %v", resource.File)
+				return r, nil
+			case "imswl_xmlv1p0", "imswl_xmlv1p1", "imswl_xmlv1p2", "imswl_xmlv1p3":
+				// fmt.Printf("found weblink %v", resource.File)
+				var wl WebLink
+				err = xml.Unmarshal(bytes, &wl)
+				if err != nil {
+					return wl, nil
+				}
+				return wl, nil
+
+			case "assignment_xmlv1p0", "assignment_xmlv1p1", "assignment_xmlv1p2", "assignment_xmlv1p3":
+				// fmt.Printf("found assignment %v", resource.File)
+				var a Assignment
+				err = xml.Unmarshal(bytes, &a)
+				if err != nil {
+					return a, nil
+				}
+				return a, nil
+
+			case "imsqti_xmlv1p2/imscc_xmlv1p1/assessment", "imsqti_xmlv1p2/imscc_xmlv1p2/assessment",
+				"imsqti_xmlv1p2/imscc_xmlv1p3/assessment":
+				// fmt.Printf("found question bank %v", resource.File)
+				var qti Questestinterop
+				err = xml.Unmarshal(bytes, &qti)
+				if err != nil {
+					return qti, nil
+				}
+				return qti, nil
+			case "imsbasiclti_xmlv1p0", "imsbasiclti_xmlv1p1", "imsbasiclti_xmlv1p2":
+				//-- fmt.Printf("found LTI %v\n, resource.File")
+				var lti CartridgeBasicltiLink
+				err = xml.Unmarshal(bytes, &lti)
+				if err != nil {
+					return lti, nil
+				}
+				return lti, nil
+			case "associatedcontent/imscc_xmlv1p0/learning-application-resource", "associatedcontent/imscc_xmlv1p1/learning-application-resource", "associatedcontent/imscc_xmlv1p2/learning-application-resource",
+				"associatedcontent/imscc_xmlv1p3/learning-application-resource":
+				return r, nil
+			default:
+				return r, fmt.Errorf("no matching type found: %s", r.Type)
+			}
+
 		}
 	}
 
 	return Resource{}, fmt.Errorf("could not find resource with id: %v", id)
 }
 
-// FindFile takes an ID and returns the zip.File from the cartridge's Reader
+// FindFile takes an ID and returns the byte representation of the corresponding file
 func (cc IMSCC) FindFile(id string) ([]byte, error) {
 	var file bytes.Buffer
 	m, err := cc.ParseManifest()

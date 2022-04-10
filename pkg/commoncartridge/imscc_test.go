@@ -299,14 +299,82 @@ func TestWeblinks(t *testing.T) {
 
 func TestFind(t *testing.T) {
 	cc := load(t, singleTestFile)
+
+	//-- generic learing application resource
 	found, err := cc.Find("ic1b5d76bd9a4bd37eb78cf0bcb5b84da")
 
 	if err != nil {
 		t.Errorf("%v", err)
 	}
 
-	if found.Type != "associatedcontent/imscc_xmlv1p1/learning-application-resource" {
-		t.Errorf("Expected to have the returned resource to be of type associatedcontent/imscc_xmlv1p1/learning-application-resource, got %v", found.Type)
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(Resource{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	}
+
+	//-- topic
+	found, err = cc.Find("i528c2ce0186a758d13a9bd193bd88611")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(Topic{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	}
+
+	//-- weblink
+	found, err = cc.Find("ibb3ca45e774c0c487daeb9352e7a4553")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	}
+
+	//-- assignment
+	found, err = cc.Find("ie801a403cd25e9a771ab7e3a2d6bea3a")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	}
+
+	//-- qti
+	found, err = cc.Find("iad7e264143b9f2ec9dbc71a9d166f6f2")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	}
+
+	//-- lti
+	found, err = cc.Find("iae0220efe8693f664806e9bfe43b6e30")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	}
+
+	//-- webcontent
+	found, err = cc.Find("i3755487a331b36c76cec8bbbcdb7cc66")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
 	}
 }
 
