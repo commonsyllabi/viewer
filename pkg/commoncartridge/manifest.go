@@ -4,9 +4,11 @@ import (
 	"fmt"
 )
 
+//-- TODO unnecessary? it might be useful when it comes to saving to database?
 func (m *Manifest) ResolveItems() {
-	if m.Organizations.Organization.Item.Identifier != "" {
-		m.traverseItemModules(m.Organizations.Organization.Item.Item)
+	//-- A CC always have only one top level item, so we can directly jump to its children
+	for i := range m.Organizations.Organization.Item.Item {
+		m.traverseItems(m.Organizations.Organization.Item.Item[i].Item)
 	}
 }
 
@@ -20,7 +22,7 @@ func (m *Manifest) FindItem(id string) (Item, error) {
 			return item, nil
 		}
 
-		if item.Identifierref == id { //-- found
+		if item.Identifierref == id {
 			return item, nil
 		}
 	}
@@ -43,12 +45,6 @@ func (m *Manifest) findItem(items []Item, id string) (Item, error) {
 	}
 
 	return item, err
-}
-
-func (m *Manifest) traverseItemModules(itemModules []Item) {
-	for i := range itemModules {
-		m.traverseItems(itemModules[i].Item)
-	}
 }
 
 func (m *Manifest) traverseItems(items []Item) {
