@@ -1,11 +1,27 @@
 services:
   web:
     image: caddy:2.4.6-alpine
+    restart: always
     ports:
       - 80:80
       - 443:443
     volumes:
-      - $PWD/web/www:/var/www
-      - $PWD/web/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/internal/web/www:/var/www
+      - $PWD/internal/web/Caddyfile:/etc/caddy/Caddyfile
   cosyl:
-    image: cosyl
+    build: .
+    ports:
+     - 2046:2046
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - $PWD/internal/db/data:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
