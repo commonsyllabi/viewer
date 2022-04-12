@@ -1,4 +1,4 @@
-module commonsyllabi
+module github.com/commonsyllabi/viewer
 
 go 1.18
 
