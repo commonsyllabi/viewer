@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	zero "commonsyllabi/internal/logger"
+	zero "github.com/commonsyllabi/viewer/internal/logger"
 
 	"github.com/jackc/pgx/v4"
 )

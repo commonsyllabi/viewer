@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"commonsyllabi/pkg/commoncartridge"
+	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 )
 
 var (
