@@ -1,4 +1,24 @@
 services:
+  db:
+    image: postgres:alpine
+    user: postgres
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - $PWD/internal/db/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres && psql -U postgres" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - internal
+
   web:
     image: caddy:2.4.6-alpine
     restart: always
@@ -8,20 +28,24 @@ services:
     volumes:
       - $PWD/internal/web/www:/var/www
       - $PWD/internal/web/Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - internal
+
   cosyl:
     build: .
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
      - 2046:2046
-  db:
-    image: postgres:alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    ports:
-      - 5432:5432
-    volumes:
-      - $PWD/internal/db/data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - internal
+
 
 volumes:
   pgdata:
+
+networks:
+  internal:
+    driver: bridge
