@@ -7,13 +7,11 @@ import (
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 )
 
-const PORT string = "2046"
-
-func StartServer() {
-	zero.Log.Info().Msgf("Starting API on port %s", PORT)
+func StartServer(port string) {
+	zero.Log.Info().Msgf("Starting API on port %s", port)
 	handler := http.HandlerFunc(handleRequest)
 	http.Handle("/ping", handler)
-	http.ListenAndServe(":"+PORT, nil)
+	http.ListenAndServe(":"+port, nil)
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
