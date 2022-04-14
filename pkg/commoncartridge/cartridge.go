@@ -1,11 +1,13 @@
 package commoncartridge
 
+import "github.com/commonsyllabi/viewer/pkg/commoncartridge/types"
+
 type Cartridge interface {
 	// AsObject returns a serialized JSON representation - TODO: check how to make the CC implement Marshal
 	AsObject() ([]byte, error)
 
 	//-- ParseManifest finds the imsmanifest.xml in the ZipReader and marshals it into a struct
-	ParseManifest() (Manifest, error)
+	ParseManifest() (types.Manifest, error)
 
 	// Dump returns all the contents of the cartridge as a string
 	Dump() []string
@@ -18,11 +20,11 @@ type Cartridge interface {
 
 	// Resources returns an array of structs which include the resource and, if found, the item in which the resource appears
 	Resources() ([]FullResource, error)
-	Weblinks() ([]WebLink, error)
-	Assignments() ([]Assignment, error)
-	LTIs() ([]CartridgeBasicltiLink, error)
-	QTIs() ([]Questestinterop, error)
-	Topics() ([]Topic, error)
+	Weblinks() ([]types.WebLink, error)
+	Assignments() ([]types.Assignment, error)
+	LTIs() ([]types.CartridgeBasicltiLink, error)
+	QTIs() ([]types.Questestinterop, error)
+	Topics() ([]types.Topic, error)
 
 	Find(string) (interface{}, error)
 	FindFile(string) ([]byte, error)

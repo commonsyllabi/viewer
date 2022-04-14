@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/commonsyllabi/viewer/pkg/commoncartridge/types"
 )
 
 const singleTestFile = "./test_files/test_01.imscc"
@@ -220,7 +222,7 @@ func TestAssignments(t *testing.T) {
 		t.Error(err)
 	}
 
-	if reflect.TypeOf(assignments) != reflect.TypeOf([]Assignment{}) {
+	if reflect.TypeOf(assignments) != reflect.TypeOf([]types.Assignment{}) {
 		t.Errorf("Expected assignments to be of type []Assignment, got %v", reflect.TypeOf(assignments))
 	}
 
@@ -237,7 +239,7 @@ func TestLTIs(t *testing.T) {
 		t.Error(err)
 	}
 
-	if reflect.TypeOf(ltis) != reflect.TypeOf([]CartridgeBasicltiLink{}) {
+	if reflect.TypeOf(ltis) != reflect.TypeOf([]types.CartridgeBasicltiLink{}) {
 		t.Errorf("Expected ltis to be of type []CartridgeBasicltiLink, got %v", reflect.TypeOf(ltis))
 	}
 
@@ -254,7 +256,7 @@ func TestQTIs(t *testing.T) {
 		t.Error(err)
 	}
 
-	if reflect.TypeOf(qtis) != reflect.TypeOf([]Questestinterop{}) {
+	if reflect.TypeOf(qtis) != reflect.TypeOf([]types.Questestinterop{}) {
 		t.Errorf("Expected qtis to be of type []Questestinterop, got %v", reflect.TypeOf(qtis))
 	}
 
@@ -271,7 +273,7 @@ func TestTopics(t *testing.T) {
 		t.Error(err)
 	}
 
-	if reflect.TypeOf(topics) != reflect.TypeOf([]Topic{}) {
+	if reflect.TypeOf(topics) != reflect.TypeOf([]types.Topic{}) {
 		t.Errorf("Expected topics to be of type []Topic, got %v", reflect.TypeOf(topics))
 	}
 
@@ -288,7 +290,7 @@ func TestWeblinks(t *testing.T) {
 		t.Error(err)
 	}
 
-	if reflect.TypeOf(weblinks) != reflect.TypeOf([]WebLink{}) {
+	if reflect.TypeOf(weblinks) != reflect.TypeOf([]types.WebLink{}) {
 		t.Errorf("Expected weblinks to be of type []webLink, got %v", reflect.TypeOf(weblinks))
 	}
 
@@ -307,7 +309,7 @@ func TestFind(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.TypeOf(found).Kind() != reflect.TypeOf(Resource{}).Kind() {
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(types.Resource{}).Kind() {
 		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
 	}
 
@@ -318,8 +320,8 @@ func TestFind(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.TypeOf(found).Kind() != reflect.TypeOf(Topic{}).Kind() {
-		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(types.Topic{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Topic{}, got %v", reflect.TypeOf(found).Kind())
 	}
 
 	//-- weblink
@@ -329,8 +331,8 @@ func TestFind(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
-		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(types.WebLink{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type WebLink{}, got %v", reflect.TypeOf(found).Kind())
 	}
 
 	//-- assignment
@@ -340,8 +342,8 @@ func TestFind(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
-		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(types.Assignment{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type Assignment{}, got %v", reflect.TypeOf(found).Kind())
 	}
 
 	//-- qti
@@ -351,8 +353,8 @@ func TestFind(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
-		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(types.Questestinterop{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type LTI{}, got %v", reflect.TypeOf(found).Kind())
 	}
 
 	//-- lti
@@ -362,8 +364,8 @@ func TestFind(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
-		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(types.CartridgeBasicltiLink{}).Kind() {
+		t.Errorf("Expected to have the returned resource to be of type CartridgeBasicltiLink{}, got %v", reflect.TypeOf(found).Kind())
 	}
 
 	//-- webcontent
@@ -373,7 +375,7 @@ func TestFind(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.TypeOf(found).Kind() != reflect.TypeOf(WebLink{}).Kind() {
+	if reflect.TypeOf(found).Kind() != reflect.TypeOf(types.WebLink{}).Kind() {
 		t.Errorf("Expected to have the returned resource to be of type Resource{}, got %v", reflect.TypeOf(found).Kind())
 	}
 }
