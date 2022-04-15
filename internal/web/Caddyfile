@@ -1,4 +1,9 @@
 localhost {
-    root * /var/www
-    file_server
+	root * /var/www
+	file_server
+
+	route /api/* {
+		uri strip_prefix /api
+		reverse_proxy api:2046
+	}
 }

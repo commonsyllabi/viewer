@@ -31,7 +31,8 @@ services:
     networks:
       - internal
 
-  cosyl:
+  api:
+    container_name: api
     build: .
     depends_on:
       db:
