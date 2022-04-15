@@ -1,13 +1,14 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
+	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 )
 
 func StartServer(port string) {
@@ -59,13 +60,21 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	resp := make(map[string]string)
-	resp["msg"] = "success"
-	jsonResp, err := json.Marshal(resp)
+	inputFile := filepath.Join("./uploads", fileHeader.Filename)
+	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
-		zero.Log.Error().Msg("cannot marshal response to json")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msg("error loading CC from filesystem")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	obj, err := cc.AsObject()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msg("error parsing manifest into JSON")
+		return
 	}
 
-	w.Write(jsonResp)
+	w.Write(obj)
 }

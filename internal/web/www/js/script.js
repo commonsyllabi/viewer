@@ -14,6 +14,7 @@ let upload = () => {
         return res.json()
     }).then(data => {
         console.log(data);
+        document.getElementById("log").innerText = `Succesfully loaded: ${data.Metadata.Lom.General.Title.String.Text}`
     }).catch(err => {
         console.error(err);
     })
