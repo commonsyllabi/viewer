@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/commonsyllabi/viewer/internal/api"
-	"github.com/commonsyllabi/viewer/internal/db"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/joho/godotenv"
 )
@@ -18,6 +17,6 @@ func main() {
 	zero.InitLog(true)
 	zero.Log.Info().Msg("Starting CoSyl")
 
-	db.Connect(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+	// db.Connect(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 	api.StartServer(os.Getenv("PORT"))
 }

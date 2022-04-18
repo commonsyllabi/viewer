@@ -20,5 +20,6 @@ pkg/commoncartridge/test_files/dump
 cmd/cosyl/*.imscc
 
 internal/api/uploads
+internal/api/tmp
 
 .env

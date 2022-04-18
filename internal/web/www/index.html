@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,6 +11,7 @@
     <script src="js/stub.js"></script>
     <script src="js/script.js"></script>
 </head>
+
 <body onload="init()">
     <header>commonsyllabi</header>
     <main id="app">
@@ -20,15 +22,15 @@
             </form>
             <button type="button" @click="upload()">upload</button>
         </div>
-        <div id="log"></div>
-        <div v-if="cartridge" class="cartridge">
+        <div class="log">{{log}}</div>
+        <div v-if="cartridge.down" class="cartridge">
             <div class="metadata">
                 <h2>Metadata</h2>
-                <div class="title">{{cartridge.Metadata.Lom.General.Title.String.Text}}</div>
+                <div class="title">{{cartridge.down.Metadata.Lom.General.Title.String.Text}}</div>
             </div>
             <div class="items">
                 <h2>Items</h2>
-                <div class="item" v-for="i in cartridge.Organizations.Organization.Item.Item">
+                <div class="item" v-for="i in cartridge.down.Organizations.Organization.Item.Item">
                     <h3>{{i.Identifier}} - {{i.Title}}</h3>
                     <div class="sub-item" v-for="si in i.Item">
                         <div>{{si.Identifier}} - {{si.Title}}</div>
@@ -37,15 +39,21 @@
             </div>
             <div class="resources">
                 <h2>Resources</h2>
-                <div class="resource" v-for="r in cartridge.Resources.Resource">
-                    <a :href="r.Href" target="_blank" rel="noopener noreferrer">{{r.Identifier}}</a>
-                    <ol class="resource-files">
-                        <li class="resource-file" v-for="f in r.File"><a :href="f.Href">{{f.Href}}</a></li>
-                    </ol>
+                <div class="resource" v-for="r in cartridge.down.Resources.Resource">
+                    <div @click="getResource(r.Identifier, r.Type)">{{r.Type}} - {{r.Identifier}}</a>
+                        <ol class="resource-files">
+                            <li class="resource-file" v-for="f in r.File">{{f.Href}}</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="preview">
+            <iframe :src="this.preview" frameborder="0"></iframe>
+            <object :data="this.preview" type=""></object>
         </div>
     </main>
     <footer></footer>
 </body>
+
 </html>

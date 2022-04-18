@@ -1,21 +1,31 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 )
+
+// todo, make this dependent on env (inside docker or not)
+const uploadsDir = "uploads"
+const tmpDir = "tmp"
 
 func StartServer(port string) {
 	zero.Log.Info().Msgf("Starting API on port %s", port)
 
 	http.Handle("/ping", http.HandlerFunc(handlePing))
 	http.Handle("/upload", http.HandlerFunc(handleUpload))
+	http.Handle("/resource/", http.HandlerFunc(handleResource))
+	http.Handle("/file/", http.HandlerFunc(handleFile))
+	http.Handle("/tmp/", http.FileServer(http.Dir(tmpDir)))
 
 	http.ListenAndServe(":"+port, nil)
 }
@@ -23,6 +33,103 @@ func StartServer(port string) {
 func handlePing(w http.ResponseWriter, r *http.Request) {
 	zero.Log.Debug().Msg("Received ping")
 	fmt.Fprintf(w, "pong")
+}
+
+func handleFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		zero.Log.Warn().Msgf("Method not allowed: %s", r.Method)
+		return
+	}
+
+	id := strings.TrimPrefix(r.URL.Path, "/file/")
+	cartridge := r.FormValue("cartridge")
+	zero.Log.Info().Msgf("GET handleFile id: %v cartridge %v", id, cartridge)
+
+	inputFile := filepath.Join(uploadsDir, cartridge)
+	cc, err := commoncartridge.Load(inputFile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error loading CC from disk: %v", err)
+		return
+	}
+
+	data, err := cc.FindFile(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error finding finding file in CC: %v", err)
+		return
+	}
+
+	if len(data) == 0 {
+		http.Error(w, "empty bytes returned", http.StatusBadRequest)
+		zero.Log.Error().Msgf("empty bytes returned, the id doesn't correspond to a file (fixme): %v", err)
+		return
+	}
+	// fmt.Print(data)
+
+	// w.WriteHeader(http.StatusOK)
+	// // w.Header().Set("Content-Type", "application/octet-stream")
+	// // w.Write(data)
+	// fmt.Fprint(w, string(data))
+
+	// write file to tmp
+	dst := filepath.Join(tmpDir, id)
+
+	err = ioutil.WriteFile(dst, data, os.ModePerm)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error writing file to tmp: %v", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	resp := make(map[string]string)
+	resp["path"] = dst
+	body, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error marshalling response to json: %v", err)
+		return
+	}
+	fmt.Fprint(w, string(body))
+}
+
+func handleResource(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		zero.Log.Warn().Msgf("Method not allowed: %s", r.Method)
+		return
+	}
+
+	id := strings.TrimPrefix(r.URL.Path, "/resource/")
+	cartridge := r.FormValue("cartridge")
+	zero.Log.Info().Msgf("GET handleResource id: %v cartridge %v", id, cartridge)
+
+	inputFile := filepath.Join(uploadsDir, cartridge)
+	cc, err := commoncartridge.Load(inputFile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error loading CC from disk: %v", err)
+		return
+	}
+
+	file, err := cc.Find(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error finding resource in CC: %v", err)
+		return
+	}
+
+	data, err := json.Marshal(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msg("error marshalling to json")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(data))
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
@@ -41,12 +148,13 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	err = os.MkdirAll("./uploads", os.ModePerm)
+	err = os.MkdirAll(uploadsDir, os.ModePerm)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// todo replace with Filepath.Join
 	dst, err := os.Create(fmt.Sprintf("./uploads/%s", fileHeader.Filename))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -60,7 +168,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	inputFile := filepath.Join("./uploads", fileHeader.Filename)
+	inputFile := filepath.Join(uploadsDir, fileHeader.Filename)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
