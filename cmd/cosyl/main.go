@@ -64,11 +64,8 @@ func main() {
 			if r.Item.Identifierref == "" {
 				r.Item.Title = "none"
 			}
-			if r.Resource.Href == "" {
-				r.Resource.Href = "none"
-			}
 
-			fmt.Printf("type: %s\nfiles: %d \nhref: %s\nitem: %s\nid: %s\n\n", r.Resource.Type, len(r.Resource.File), r.Resource.Href, r.Item.Title, r.Resource.Identifier)
+			fmt.Printf("%+v\n", r)
 		}
 	}
 
