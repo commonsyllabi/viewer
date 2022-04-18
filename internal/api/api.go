@@ -61,21 +61,14 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// todo handle this gracefully
 	if len(data) == 0 {
 		http.Error(w, "empty bytes returned", http.StatusBadRequest)
 		zero.Log.Error().Msgf("empty bytes returned, the id doesn't correspond to a file (fixme): %v", err)
 		return
 	}
-	// fmt.Print(data)
 
-	// w.WriteHeader(http.StatusOK)
-	// // w.Header().Set("Content-Type", "application/octet-stream")
-	// // w.Write(data)
-	// fmt.Fprint(w, string(data))
-
-	// write file to tmp
 	dst := filepath.Join(tmpDir, id)
-
 	err = ioutil.WriteFile(dst, data, os.ModePerm)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -175,7 +168,6 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		zero.Log.Error().Msg("error loading CC from filesystem")
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 
 	obj, err := cc.AsObject()
 	if err != nil {
@@ -184,5 +176,24 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(obj)
+	w.Header().Set("Content-Type", "application/json")
+	resp := make(map[string]string)
+	resp["data"] = string(obj)
+
+	fr, err := cc.Resources()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error getting resources: %v", err)
+		return
+	}
+	sfr, err := json.Marshal(fr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error getting resources: %v", err)
+		return
+	}
+	resp["resources"] = string(sfr)
+
+	body, _ := json.Marshal(resp)
+	w.Write(body)
 }
