@@ -20,6 +20,7 @@ services:
       - internal
 
   web:
+    container_name: web
     image: caddy:2.4.6-alpine
     restart: always
     ports:
@@ -28,6 +29,7 @@ services:
     volumes:
       - $PWD/internal/web/www:/var/www
       - $PWD/internal/web/Caddyfile:/etc/caddy/Caddyfile
+      - tmp:/var/www/tmp
     networks:
       - internal
 
@@ -40,12 +42,15 @@ services:
     ports:
      - 2046:2046
     restart: always
+    volumes:
+      - tmp:/app/tmp
     networks:
       - internal
 
 
 volumes:
   pgdata:
+  tmp:
 
 networks:
   internal:
