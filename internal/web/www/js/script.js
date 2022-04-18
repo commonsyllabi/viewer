@@ -2,10 +2,9 @@ let init = () => {
     Vue.createApp({
         data() {
             return {
-                cartridge: {
-                    up: null,
-                    down: null
-                },
+                cartridge: null,
+                manifest: null,
+                resources: null,
                 log: "",
                 preview: ""
             }
@@ -21,7 +20,7 @@ let init = () => {
                     return
                 }
 
-                this.cartridge.up = formData.get("cartridge")
+                this.cartridge = formData.get("cartridge")
 
                 fetch("/api/upload", {
                     method: 'POST',
@@ -30,8 +29,9 @@ let init = () => {
                     return res.json()
                 }).then(data => {
                     console.log(data);
-                    this.log = `loaded ${this.cartridge.up.name}`
-                    this.cartridge.down = data
+                    this.log = `loaded ${this.cartridge.name}`
+                    this.manifest = JSON.parse(data.data)
+                    this.resources = JSON.parse(data.resources)
                 }).catch(err => {
                     console.error(err);
                 })
@@ -40,7 +40,7 @@ let init = () => {
                 if(_type == "webcontent"){
                     this.getFile(_id)
                 }else{
-                    fetch(`/api/resource/${_id}?cartridge=${this.cartridge.up.name}`, {
+                    fetch(`/api/resource/${_id}?cartridge=${this.cartridge.name}`, {
                         method: 'GET'
                     }).then(res => {
                         return res.json()
@@ -52,7 +52,7 @@ let init = () => {
                 }
             },
             getFile(_id) {
-                fetch(`/api/file/${_id}?cartridge=${this.cartridge.up.name}`, {
+                fetch(`/api/file/${_id}?cartridge=${this.cartridge.name}`, {
                     method: 'GET'
                 })
                     .then(res => { return res.json() })
@@ -62,7 +62,7 @@ let init = () => {
             }
         },
         mounted() {
-
+            
         }
     }).mount('#app')
 }
