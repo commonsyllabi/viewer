@@ -127,7 +127,7 @@ func (cc IMSCC) Metadata() (string, error) {
 
 // FullResource is a union of a Resource and the Item that refers to it
 type FullResource struct {
-	Resource types.Resource
+	Resource interface{}
 	Item     types.Item //-- as is, this might not be very meaningful; might need to store every other parent Item
 }
 
@@ -143,7 +143,10 @@ func (cc IMSCC) Resources() ([]FullResource, error) {
 
 	for _, r := range m.Resources.Resource {
 		res := FullResource{}
-		res.Resource = r
+		res.Resource, err = cc.Find(r.Identifier) //todo: resolve the actual resource in there
+		if err != nil {
+			return resources, err
+		}
 
 		item, err := m.FindItem(r.Identifier)
 		if err != nil {
@@ -318,6 +321,7 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 	//-- find the type, then marshal into the appropriate struct
 	//-- otherwise return the resource
 	for _, r := range m.Resources.Resource {
+
 		if r.Identifier == id {
 
 			var path string
@@ -332,8 +336,10 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 				}
 			}
 
+			// todo decide to handle _fallback here or in client
+			// otherwise, return the resource as is
 			if path == "" {
-				return r, fmt.Errorf("corresponding resource does not contain a valid href to am XML file")
+				return r, nil
 			}
 
 			file, err := cc.Reader.Open(path)
