@@ -5,20 +5,46 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Common Syllabi</title>
+    <script src="https://unpkg.com/vue@3"></script>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/stub.js"></script>
     <script src="js/script.js"></script>
 </head>
-<body>
+<body onload="init()">
     <header>commonsyllabi</header>
-    <main>
+    <main id="app">
         <h1>upload a common cartridge</h1>
         <div class="upload">
             <form action="/api/upload" method="post" id="upload-form">
                 <input type="file" name="cartridge" id="cartridge">
             </form>
-            <button type="button" onclick="upload()">upload</button>
+            <button type="button" @click="upload()">upload</button>
         </div>
         <div id="log"></div>
+        <div v-if="cartridge" class="cartridge">
+            <div class="metadata">
+                <h2>Metadata</h2>
+                <div class="title">{{cartridge.Metadata.Lom.General.Title.String.Text}}</div>
+            </div>
+            <div class="items">
+                <h2>Items</h2>
+                <div class="item" v-for="i in cartridge.Organizations.Organization.Item.Item">
+                    <h3>{{i.Identifier}} - {{i.Title}}</h3>
+                    <div class="sub-item" v-for="si in i.Item">
+                        <div>{{si.Identifier}} - {{si.Title}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="resources">
+                <h2>Resources</h2>
+                <div class="resource" v-for="r in cartridge.Resources.Resource">
+                    <a :href="r.Href" target="_blank" rel="noopener noreferrer">{{r.Identifier}}</a>
+                    <ol class="resource-files">
+                        <li class="resource-file" v-for="f in r.File"><a :href="f.Href">{{f.Href}}</a></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
     </main>
     <footer></footer>
 </body>

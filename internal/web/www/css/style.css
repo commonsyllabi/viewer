@@ -7,6 +7,7 @@ body {
 header, main, footer{
     width: 60vw;
     margin:auto;
+    padding-top: 20px;
 }
 
 input[type="file"], button{
@@ -14,4 +15,9 @@ input[type="file"], button{
     border: 1px solid black;
     margin-bottom: 10px;
     padding: 10px;
+}
+
+.item{
+    margin-left: 5px;
+    margin-bottom: 5px;
 }
