@@ -8,7 +8,6 @@
     <title>Common Syllabi</title>
     <script src="https://unpkg.com/vue@3"></script>
     <link rel="stylesheet" href="css/style.css">
-    <script src="js/stub.js"></script>
     <script src="js/script.js"></script>
 </head>
 
@@ -23,14 +22,14 @@
             <button type="button" @click="upload()">upload</button>
         </div>
         <div class="log">{{log}}</div>
-        <div v-if="cartridge.down" class="cartridge">
+        <div v-if="manifest" class="cartridge">
             <div class="metadata">
                 <h2>Metadata</h2>
-                <div class="title">{{cartridge.down.Metadata.Lom.General.Title.String.Text}}</div>
+                <div class="title">{{manifest.Metadata.Lom.General.Title.String.Text}}</div>
             </div>
             <div class="items">
                 <h2>Items</h2>
-                <div class="item" v-for="i in cartridge.down.Organizations.Organization.Item.Item">
+                <div class="item" v-for="i in manifest.Organizations.Organization.Item.Item">
                     <h3>{{i.Identifier}} - {{i.Title}}</h3>
                     <div class="sub-item" v-for="si in i.Item">
                         <div>{{si.Identifier}} - {{si.Title}}</div>
@@ -39,10 +38,25 @@
             </div>
             <div class="resources">
                 <h2>Resources</h2>
-                <div class="resource" v-for="r in cartridge.down.Resources.Resource">
-                    <div @click="getResource(r.Identifier, r.Type)">{{r.Type}} - {{r.Identifier}}</a>
+                <div class="resource" v-for="r in resources">
+                    <div @click="getResource(r.Resource.Identifier, r.Resource.Type)">
+                        <div class="meta">
+                            <div>
+                                xml: <span class="resource-value">{{r.Resource.XMLName.Local}}</span>
+                            </div>
+                            <div>
+                                title: <span class="resource-value">{{r.Resource.Title}}</span>
+                            </div>
+                            <div>
+                                type: <span class="resource-value">{{r.Resource.Type}}</span>
+                            </div>
+                            <div>
+                                id: <span class="resource-value">{{r.Resource.Identifier}}</a></span>
+                            </div>
+                        </div>
+
                         <ol class="resource-files">
-                            <li class="resource-file" v-for="f in r.File">{{f.Href}}</li>
+                            <li class="resource-file" v-for="f in r.Resource.File">{{f.Href}}</li>
                         </ol>
                     </div>
                 </div>
