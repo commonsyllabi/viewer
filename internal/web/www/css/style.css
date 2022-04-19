@@ -45,11 +45,16 @@ input[type="file"], button{
     font-size: 0.85em;
 }
 
+.resource-file:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .preview {
-    position: fixed;
+    /* position: fixed;
     top: 10vh;
     right: 10vw;
     min-height: 20vh;
-    min-width: 20vw;
+    min-width: 20vw; */
     border: 2px solid  black;
 }

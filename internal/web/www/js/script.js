@@ -6,7 +6,6 @@ let init = () => {
                 manifest: null,
                 resources: null,
                 log: "",
-                preview: ""
             }
         },
         methods: {
@@ -26,7 +25,12 @@ let init = () => {
                     method: 'POST',
                     body: formData
                 }).then(res => {
-                    return res.json()
+                    if (res.ok) {
+                        return res.json()
+                    } else {
+                        console.error(res.err)
+                        this.log = `internal server error on upload: ${res.err}`
+                    }
                 }).then(data => {
                     console.log(data);
                     this.log = `loaded ${this.cartridge.name}`
@@ -36,33 +40,20 @@ let init = () => {
                     console.error(err);
                 })
             },
-            getResource(_id, _type) {
-                if(_type == "webcontent"){
-                    this.getFile(_id)
-                }else{
-                    fetch(`/api/resource/${_id}?cartridge=${this.cartridge.name}`, {
-                        method: 'GET'
-                    }).then(res => {
-                        return res.json()
-                    }).then(data => {
-                        console.log(data);
-                    }).catch(err => {
-                        console.error(err)
-                    })
-                }
-            },
-            getFile(_id) {
+            getFile(_evt, _id) {
                 fetch(`/api/file/${_id}?cartridge=${this.cartridge.name}`, {
                     method: 'GET'
                 })
                     .then(res => { return res.json() })
-                    .then(body => { this.preview = body.path })
+                    .then(body => {
+                        //-- assign to iframe
+                        _evt.target.nextElementSibling.children[0].src = body.path 
+                    })
                     .catch(err => console.error(err));
-
             }
         },
         mounted() {
-            
+
         }
     }).mount('#app')
 }

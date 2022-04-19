@@ -39,7 +39,7 @@
             <div class="resources">
                 <h2>Resources</h2>
                 <div class="resource" v-for="r in resources">
-                    <div @click="getResource(r.Resource.Identifier, r.Resource.Type)">
+                    <div>
                         <div class="meta">
                             <div>
                                 xml: <span class="resource-value">{{r.Resource.XMLName.Local}}</span>
@@ -55,17 +55,22 @@
                             </div>
                         </div>
 
-                        <ol class="resource-files">
-                            <li class="resource-file" v-for="f in r.Resource.File">{{f.Href}}</li>
+                        <ol class="resource-files" v-if="r.Resource.XMLName.Local == 'resource'">
+                            <li v-for="f in r.Resource.File">
+                                <div class="resource-file" @click="getFile($event, r.Resource.Identifier)">{{f.Href}}
+                                </div>
+                                <div class="preview">
+                                    <iframe src="" frameborder="0">
+                                        <!-- <object :data="this.preview" type=""></object> -->
+                                    </iframe>
+                                </div>
+                            </li>
                         </ol>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="preview">
-            <iframe :src="this.preview" frameborder="0"></iframe>
-            <object :data="this.preview" type=""></object>
-        </div>
+
     </main>
     <footer></footer>
 </body>
