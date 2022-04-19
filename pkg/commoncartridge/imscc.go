@@ -415,37 +415,37 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 
 // FindFile takes an ID and returns the corresponding file as a byte slice
 func (cc IMSCC) FindFile(id string) ([]byte, error) {
-	var file bytes.Buffer
+	var buffer bytes.Buffer
 	m, err := cc.ParseManifest()
 
 	if err != nil {
-		return file.Bytes(), err
+		return buffer.Bytes(), err
 	}
 
 	for _, r := range m.Resources.Resource {
 		if r.Identifier == id {
 			//-- directly go through the child []File and read from the href there
 
-			b, err := cc.Reader.Open(r.File[0].Href)
+			f, err := cc.Reader.Open(r.File[0].Href)
 			if err != nil {
-				return file.Bytes(), err
+				return buffer.Bytes(), err
 			}
 
-			bytes, err := io.ReadAll(b)
+			bytes, err := io.ReadAll(f)
 			if err != nil {
-				return file.Bytes(), err
+				return buffer.Bytes(), err
 			}
 
-			_, err = file.Write(bytes)
+			_, err = buffer.Write(bytes)
 			if err != nil {
-				return file.Bytes(), err
+				return buffer.Bytes(), err
 			}
 
-			return file.Bytes(), nil
+			return buffer.Bytes(), nil
 		}
 	}
 
-	return file.Bytes(), fmt.Errorf("couldn't find file for id %s", id)
+	return buffer.Bytes(), fmt.Errorf("couldn't find file for id %s", id)
 }
 
 // findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern
