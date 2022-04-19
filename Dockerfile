@@ -1,7 +1,8 @@
 FROM golang:1.18-alpine AS go
 
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories 
-RUN apk add pandoc
+RUN apk update && apk add libreoffice
+RUN apk add --no-cache msttcorefonts-installer fontconfig
+RUN update-ms-fonts
 
 RUN mkdir /app
 COPY . /app

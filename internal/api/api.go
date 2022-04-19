@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
@@ -54,7 +56,6 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file, err := cc.FindFile(id)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		zero.Log.Error().Msgf("error finding finding file in CC: %v", err)
@@ -81,6 +82,37 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		zero.Log.Error().Msgf("error writing file to tmp: %v", err)
 		return
+	}
+
+	//-- handle doc to pdf conversion
+	ext := filepath.Ext(info.Name())
+	match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error parsing file extension: %v", err)
+		return
+	}
+
+	if match {
+		libreoffice, err := exec.LookPath("libreoffice")
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			zero.Log.Error().Msgf("error finding libreoffice: %v", err)
+			return
+		}
+
+		cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", tmpDir, path)
+
+		err = cmd.Run()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			zero.Log.Error().Msgf("error converting file to pdf: %v", err)
+			return
+		}
+
+		path = strings.TrimSuffix(path, filepath.Ext(path)) + ".pdf"
+
 	}
 
 	w.Header().Set("Content-Type", "application/json")
