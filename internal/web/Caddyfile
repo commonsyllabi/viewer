@@ -1,9 +1,18 @@
 localhost {
+	file_server /favicon.ico {
+		root /var/www/static/{args.0}
+	}
 	root * /var/www
 	file_server
 
 	route /api/* {
 		uri strip_prefix /api
 		reverse_proxy api:2046
+	}
+}
+
+(favicon) {
+	file_server /favicon.ico {
+		root {args.0}
 	}
 }
