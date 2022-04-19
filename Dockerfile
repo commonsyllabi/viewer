@@ -1,4 +1,4 @@
-FROM golang:1.18 AS go
+FROM golang:1.18-alpine AS go
 
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories 
 RUN apk add pandoc
