@@ -3,11 +3,11 @@ package commoncartridge
 
 import (
 	"archive/zip"
-	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"io/fs"
 	"regexp"
 	"strings"
 
@@ -414,12 +414,12 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 }
 
 // FindFile takes an ID and returns the corresponding file as a byte slice
-func (cc IMSCC) FindFile(id string) ([]byte, error) {
-	var buffer bytes.Buffer
+func (cc IMSCC) FindFile(id string) (fs.File, error) {
+	var file fs.File
 	m, err := cc.ParseManifest()
 
 	if err != nil {
-		return buffer.Bytes(), err
+		return file, err
 	}
 
 	for _, r := range m.Resources.Resource {
@@ -428,24 +428,14 @@ func (cc IMSCC) FindFile(id string) ([]byte, error) {
 
 			f, err := cc.Reader.Open(r.File[0].Href)
 			if err != nil {
-				return buffer.Bytes(), err
+				return f, err
 			}
 
-			bytes, err := io.ReadAll(f)
-			if err != nil {
-				return buffer.Bytes(), err
-			}
-
-			_, err = buffer.Write(bytes)
-			if err != nil {
-				return buffer.Bytes(), err
-			}
-
-			return buffer.Bytes(), nil
+			return f, nil
 		}
 	}
 
-	return buffer.Bytes(), fmt.Errorf("couldn't find file for id %s", id)
+	return file, fmt.Errorf("couldn't find file for id %s", id)
 }
 
 // findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -54,15 +53,30 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := cc.FindFile(id)
+	file, err := cc.FindFile(id)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		zero.Log.Error().Msgf("error finding finding file in CC: %v", err)
 		return
 	}
 
-	dst := filepath.Join(tmpDir, id)
-	err = ioutil.WriteFile(dst, data, os.ModePerm)
+	info, err := file.Stat()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error getting file info: %v", err)
+		return
+	}
+
+	path := filepath.Join(tmpDir, info.Name())
+	dst, err := os.Create(path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error creating dest tmp file: %v", err)
+		return
+	}
+
+	_, err = io.Copy(dst, file)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		zero.Log.Error().Msgf("error writing file to tmp: %v", err)
@@ -71,7 +85,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	resp := make(map[string]string)
-	resp["path"] = dst
+	resp["path"] = path
 	body, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

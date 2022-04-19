@@ -384,15 +384,12 @@ func TestFind(t *testing.T) {
 func TestFindFile(t *testing.T) {
 	cc := load(t, singleTestFile)
 
-	bytes, err := cc.FindFile("i3755487a331b36c76cec8bbbcdb7cc66")
+	file, err := cc.FindFile("i3755487a331b36c76cec8bbbcdb7cc66")
 
 	if err != nil {
 		t.Error(err)
 	}
-
-	if len(bytes) == 0 {
-		t.Error("Found file should not be equal to 0")
-	}
+	fmt.Println(file)
 }
 
 func TestDump(t *testing.T) {

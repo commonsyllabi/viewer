@@ -1,6 +1,10 @@
 package commoncartridge
 
-import "github.com/commonsyllabi/viewer/pkg/commoncartridge/types"
+import (
+	"io/fs"
+
+	"github.com/commonsyllabi/viewer/pkg/commoncartridge/types"
+)
 
 type Cartridge interface {
 	// AsObject returns a serialized JSON representation - TODO: check how to make the CC implement Marshal
@@ -27,7 +31,7 @@ type Cartridge interface {
 	Topics() ([]types.Topic, error)
 
 	Find(string) (interface{}, error)
-	FindFile(string) ([]byte, error)
+	FindFile(string) (fs.File, error)
 
 	// Tobi's weird ideas
 	// Webcontents() ([]os.File, error)

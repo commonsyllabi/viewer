@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
+	"os"
 
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 )
@@ -149,15 +150,28 @@ func main() {
 	}
 
 	if *file != "" {
-		bytes, err := cc.FindFile(*file)
+		file, err := cc.FindFile(*file)
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = ioutil.WriteFile(*output, bytes, 0644)
+		info, err := file.Stat()
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		fmt.Printf("found: %s\n", info.Name())
+
+		dst, err := os.Create(info.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = io.Copy(dst, file)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 	}
 }
