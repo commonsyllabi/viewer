@@ -61,13 +61,6 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// todo handle this gracefully
-	if len(data) == 0 {
-		http.Error(w, "empty bytes returned", http.StatusBadRequest)
-		zero.Log.Error().Msgf("empty bytes returned, the id doesn't correspond to a file (fixme): %v", err)
-		return
-	}
-
 	dst := filepath.Join(tmpDir, id)
 	err = ioutil.WriteFile(dst, data, os.ModePerm)
 	if err != nil {

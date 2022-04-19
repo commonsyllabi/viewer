@@ -424,29 +424,28 @@ func (cc IMSCC) FindFile(id string) ([]byte, error) {
 
 	for _, r := range m.Resources.Resource {
 		if r.Type == "webcontent" && r.Identifier == id {
-			for _, f := range cc.Reader.File {
-				if strings.Contains(f.Name, r.Href) {
-					b, err := f.Open()
-					if err != nil {
-						return file.Bytes(), err
-					}
+			//-- directly go through the child []File and read from the href there
 
-					bytes, err := io.ReadAll(b)
-					if err != nil {
-						return file.Bytes(), err
-					}
-
-					_, err = file.Write(bytes)
-					if err != nil {
-						return file.Bytes(), err
-					}
-					return file.Bytes(), nil
-				}
+			b, err := cc.Reader.Open(r.File[0].Href)
+			if err != nil {
+				return file.Bytes(), err
 			}
+
+			bytes, err := io.ReadAll(b)
+			if err != nil {
+				return file.Bytes(), err
+			}
+
+			_, err = file.Write(bytes)
+			if err != nil {
+				return file.Bytes(), err
+			}
+
+			return file.Bytes(), nil
 		}
 	}
 
-	return file.Bytes(), nil
+	return file.Bytes(), fmt.Errorf("couldn't find file for id %s", id)
 }
 
 // findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern
