@@ -423,7 +423,7 @@ func (cc IMSCC) FindFile(id string) ([]byte, error) {
 	}
 
 	for _, r := range m.Resources.Resource {
-		if r.Type == "webcontent" && r.Identifier == id {
+		if r.Identifier == id {
 			//-- directly go through the child []File and read from the href there
 
 			b, err := cc.Reader.Open(r.File[0].Href)
