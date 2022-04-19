@@ -32,7 +32,6 @@ input[type="file"], button{
     margin: 5px;
     padding: 5px;
     border: 2px solid black;
-    width: max-content;
 }
 
 .meta {
@@ -51,10 +50,11 @@ input[type="file"], button{
 }
 
 .preview {
-    /* position: fixed;
-    top: 10vh;
-    right: 10vw;
-    min-height: 20vh;
-    min-width: 20vw; */
+    margin: 5px;
+    padding: 5px;
     border: 2px solid  black;
+}
+
+.preview iframe {
+    width: 100%;
 }
