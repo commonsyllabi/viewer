@@ -219,6 +219,20 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	resp := make(map[string]string)
 	resp["data"] = string(obj)
 
+	fi, err := cc.Items()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error getting resources: %v", err)
+		return
+	}
+	sfi, err := json.Marshal(fi)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		zero.Log.Error().Msgf("error getting resources: %v", err)
+		return
+	}
+	resp["items"] = string(sfi)
+
 	fr, err := cc.Resources()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

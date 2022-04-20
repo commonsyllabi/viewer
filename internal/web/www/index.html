@@ -29,11 +29,20 @@
             </div>
             <div class="items">
                 <h2>Items</h2>
-                <div class="item" v-for="i in manifest.Organizations.Organization.Item.Item">
-                    <h3>{{i.Identifier}} - {{i.Title}}</h3>
-                    <div class="sub-item" v-for="si in i.Item">
-                        <div>{{si.Identifier}} - {{si.Title}}</div>
+                <div class="item" v-for="i in items">
+                    <h3>{{i.Item.Identifier}} - {{i.Item.Title}}</h3>
+
+                    <div v-if="i.children">
+                        <h4>Children</h4>
+                        <div class="sub-item" v-for="si in i.Children">
+                            <div>{{si.Identifier}} - {{si.Title}}</div>
+                        </div>
                     </div>
+
+                    <h4>Resources</h4>
+                    <ul class="sub-resource" v-for="sr in i.Resources">
+                        <li>{{sr.XMLName.Local}} - {{sr.Identifier}}</li>
+                    </ul>
                 </div>
             </div>
             <div class="resources">

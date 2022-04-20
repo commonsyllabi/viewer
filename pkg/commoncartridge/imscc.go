@@ -148,7 +148,7 @@ func (cc IMSCC) traverseItems(items []types.Item) ([]FullItem, error) {
 
 		//-- add all resources
 		for _, r := range cc.Manifest.Resources.Resource {
-			if r.Identifier == i.Identifierref {
+			if strings.Contains(r.Identifier, i.Identifierref) {
 				f.Resources = append(f.Resources, r)
 			}
 		}

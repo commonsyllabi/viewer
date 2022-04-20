@@ -4,6 +4,7 @@ let init = () => {
             return {
                 cartridge: null,
                 manifest: null,
+                items: null,
                 resources: null,
                 log: "",
             }
@@ -35,6 +36,7 @@ let init = () => {
                     console.log(data);
                     this.log = `loaded ${this.cartridge.name}`
                     this.manifest = JSON.parse(data.data)
+                    this.items = JSON.parse(data.items)
                     this.resources = JSON.parse(data.resources)
                 }).catch(err => {
                     console.error(err);
