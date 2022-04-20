@@ -53,6 +53,38 @@ func TestHandleUpload(t *testing.T) {
 	}
 }
 
+func TestHandleFile(t *testing.T) {
+	// uploadTestCartridge(t)
+	TestHandleUpload(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
+	res := httptest.NewRecorder()
+	handleFile(res, req)
+	result := res.Result()
+
+	if res.Code != 200 {
+		t.Errorf("expected 200 response code, got %d", res.Code)
+	}
+
+	defer result.Body.Close()
+}
+
+func TestHandleResource(t *testing.T) {
+	TestHandleUpload(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
+	res := httptest.NewRecorder()
+	handleResource(res, req)
+	result := res.Result()
+
+	if res.Code != 200 {
+		t.Errorf("expected 200 response code, got %d", res.Code)
+	}
+
+	defer result.Body.Close()
+
+}
+
 func createFormData(fieldName, fileName string, t *testing.T) (bytes.Buffer, *multipart.Writer) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
