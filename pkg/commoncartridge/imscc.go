@@ -61,8 +61,6 @@ func (cc IMSCC) ParseManifest() (types.Manifest, error) {
 
 	xml.Unmarshal(bytesArray, &manifest)
 
-	manifest.ResolveItems()
-
 	return manifest, nil
 }
 
@@ -123,6 +121,71 @@ func (cc IMSCC) Metadata() (string, error) {
 	}
 
 	return string(serialized), nil
+}
+
+// FullItem is a union of an Item and all resources that refer to it
+type FullItem struct {
+	Resources []types.Resource
+	Item      types.Item
+	Children  []FullItem
+}
+
+// Items returns all items with their associated resources. It goes through each item at a  level n and looks for full items at the level n-1
+func (cc IMSCC) Items() ([]FullItem, error) {
+	items := make([]FullItem, 0)
+
+	m, err := cc.ParseManifest()
+
+	if err != nil {
+		return items, err
+	}
+
+	//-- A CC always have only one top level item, so we can directly jump to its children
+	for _, i := range m.Organizations.Organization.Item.Item {
+
+		full, err := traverseItems(m, i.Item)
+
+		if err != nil {
+			return items, err
+		}
+
+		items = append(items, full...)
+	}
+
+	return items, nil
+}
+
+func traverseItems(m types.Manifest, items []types.Item) ([]FullItem, error) {
+	full := make([]FullItem, 0)
+
+	// -- go through all children
+	for _, i := range items {
+		var f FullItem
+		f.Item = i
+
+		//-- add all resources
+		for _, r := range m.Resources.Resource {
+			if r.Identifier == i.Identifierref {
+				f.Resources = append(f.Resources, r)
+			}
+		}
+
+		//-- if it has children, go through
+		if len(i.Item) > 0 {
+			children, err := traverseItems(m, i.Item)
+
+			f.Children = append(f.Children, children...)
+
+			if err != nil {
+				return full, nil
+			}
+		}
+
+		full = append(full, f)
+
+	}
+
+	return full, nil
 }
 
 // FullResource is a union of a Resource and the Item that refers to it

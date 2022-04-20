@@ -14,6 +14,7 @@ var (
 	debug       = flag.Bool("d", false, "debug output")
 	metadata    = flag.Bool("m", false, "shows metadata as serialized json")
 	json        = flag.Bool("j", false, "dumps a serialized json representation")
+	items       = flag.Bool("I", false, "lists all items, with their associated resources in the cartridge")
 	resources   = flag.Bool("r", false, "lists all resources in the cartridge")
 	weblinks    = flag.Bool("weblinks", false, "lists all weblinks in the cartridge")
 	assignments = flag.Bool("assignments", false, "lists all assignments in the cartridge")
@@ -22,7 +23,6 @@ var (
 	ltis        = flag.Bool("ltis", false, "lists all basic LTI links in the cartridge")
 	find        = flag.String("f", "", "finds the resource with the related id")
 	file        = flag.String("F", "", "finds the file (i.e. webcontent) with the related id and returns the file as a bytestream")
-	output      = flag.String("o", "extracted_file", "specifies the name of the output file return by the -F flag")
 )
 
 func main() {
@@ -53,6 +53,17 @@ func main() {
 		}
 
 		fmt.Println(meta)
+	}
+
+	if *items {
+		items, err := cc.Items()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("found %d items\n", len(items))
+		fmt.Printf("%+v\n", items)
 	}
 
 	if *resources {

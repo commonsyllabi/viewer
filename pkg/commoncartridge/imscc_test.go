@@ -193,6 +193,23 @@ func TestMetadata(t *testing.T) {
 	}
 }
 
+func TestItems(t *testing.T) {
+	cc := load(t, singleTestFile)
+	items, err := cc.Items()
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if reflect.TypeOf(items[0]) != reflect.TypeOf(FullItem{}) {
+		t.Errorf("Expected items()[0] to be of type FullResource, got %v", reflect.TypeOf(items[0]))
+	}
+
+	if len(items) != 12 {
+		t.Errorf("Expected 12 items, got %d", len(items))
+	}
+}
+
 func TestResources(t *testing.T) {
 	cc := load(t, singleTestFile)
 	resources, err := cc.Resources()
