@@ -193,6 +193,27 @@ func TestMetadata(t *testing.T) {
 	}
 }
 
+func TestItems(t *testing.T) {
+	cc := load(t, singleTestFile)
+	items, err := cc.Items()
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if reflect.TypeOf(items[0]) != reflect.TypeOf(FullItem{}) {
+		t.Errorf("Expected items()[0] to be of type FullItem, got %v", reflect.TypeOf(items[0]))
+	}
+
+	if reflect.TypeOf(items[0].Item) != reflect.TypeOf(types.Item{}) {
+		t.Errorf("Expected FullResource[0].resource to have a type of 'Resource', got %s", reflect.TypeOf(items[0].Item))
+	}
+
+	if len(items) != 12 {
+		t.Errorf("Expected 12 items, got %d", len(items))
+	}
+}
+
 func TestResources(t *testing.T) {
 	cc := load(t, singleTestFile)
 	resources, err := cc.Resources()
@@ -205,10 +226,9 @@ func TestResources(t *testing.T) {
 		t.Errorf("Expected Resources()[0] to be of type FullResource, got %v", reflect.TypeOf(resources[0]))
 	}
 
-	// todo check how we can maintain type safety now that we return a slice of interfaces
-	// if resources[0].Resource.XMLName.Local != "resource" {
-	// 	t.Errorf("Expected FullResource to have a XMLName of 'resource', got %s", resources[0].Resource.XMLName.Local)
-	// }
+	if reflect.TypeOf(resources[0].Resource) != reflect.TypeOf(types.Resource{}) {
+		t.Errorf("Expected FullResource[0].resource to have a type of 'Resource', got %s", reflect.TypeOf(resources[0].Resource))
+	}
 
 	if len(resources) != 120 {
 		t.Errorf("Expected 120 resources, got %d", len(resources))
