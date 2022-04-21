@@ -27,7 +27,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - $PWD/internal/web/www:/var/www
+      - $PWD/internal/web/www/public:/var/www
       - $PWD/internal/web/Caddyfile:/etc/caddy/Caddyfile
       - tmp:/var/www/tmp
     networks:

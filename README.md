@@ -23,3 +23,10 @@ docker compose up
 ```
 docker compose down
 ```
+
+**To setup frontend**
+
+```
+yarn
+yarn watch
+```
