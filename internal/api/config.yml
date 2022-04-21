@@ -1,0 +1,3 @@
+port: 2046
+uploadsDir: uploads
+tmpDir: tmp

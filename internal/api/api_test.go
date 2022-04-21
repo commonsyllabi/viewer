@@ -13,6 +13,14 @@ import (
 
 const singleTestFile = "../../pkg/commoncartridge/test_files/test_01.imscc"
 
+func TestLoadConfig(t *testing.T) {
+	err := conf.loadConfig("../../internal/api/config.yml")
+
+	if err != nil {
+		t.Errorf("error loading conf file: %v", err)
+	}
+}
+
 func TestHandlePing(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	res := httptest.NewRecorder()
@@ -32,6 +40,7 @@ func TestHandlePing(t *testing.T) {
 }
 
 func TestHandleUpload(t *testing.T) {
+	conf.defaults()
 	body, writer := createFormData("cartridge", singleTestFile, t)
 
 	req := httptest.NewRequest(http.MethodPost, "/upload", &body)
@@ -54,7 +63,6 @@ func TestHandleUpload(t *testing.T) {
 }
 
 func TestHandleFile(t *testing.T) {
-	// uploadTestCartridge(t)
 	TestHandleUpload(t)
 
 	req := httptest.NewRequest(http.MethodGet, "/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)

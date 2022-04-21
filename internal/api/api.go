@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -13,22 +14,57 @@ import (
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
+	"gopkg.in/yaml.v2"
 )
 
-// todo, make this dependent on env (inside docker or not)
-const uploadsDir = "uploads"
-const tmpDir = "tmp"
+type Config struct {
+	Port       string `yaml:"port"`
+	UploadsDir string `yaml:"uploadsDir"`
+	TmpDir     string `yaml:"tmpDir"`
+}
 
-func StartServer(port string) {
-	zero.Log.Info().Msgf("Starting API on port %s", port)
+func (cc *Config) loadConfig(path string) error {
+	var c Config
+	cwd, _ := os.Getwd()
+	content, err := ioutil.ReadFile(filepath.Join(cwd, path))
+	if err != nil {
+		return err
+	}
+
+	err = yaml.Unmarshal(content, &c)
+	zero.Log.Debug().Msgf("%+v", c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Config) defaults() {
+	c.Port = "2046"
+	c.UploadsDir = "uploads"
+	c.TmpDir = "tmp"
+}
+
+var conf Config
+
+func StartServer() {
+
+	err := conf.loadConfig("internal/api/config.yml")
+	if err != nil || conf.Port == "" {
+		zero.Log.Warn().Msgf("error loading config: %v", err)
+		conf.defaults()
+	}
 
 	http.Handle("/ping", http.HandlerFunc(handlePing))
 	http.Handle("/upload", http.HandlerFunc(handleUpload))
 	http.Handle("/resource/", http.HandlerFunc(handleResource))
 	http.Handle("/file/", http.HandlerFunc(handleFile))
-	http.Handle("/tmp/", http.FileServer(http.Dir(tmpDir)))
+	http.Handle("/tmp/", http.FileServer(http.Dir(conf.TmpDir)))
 
-	http.ListenAndServe(":"+port, nil)
+	zero.Log.Info().Msgf("Starting API on port %s", conf.Port)
+	http.ListenAndServe(":"+conf.Port, nil)
+
 }
 
 func handlePing(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +83,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 	cartridge := r.FormValue("cartridge")
 	zero.Log.Info().Msgf("GET handleFile id: %v cartridge %v", id, cartridge)
 
-	inputFile := filepath.Join(uploadsDir, cartridge)
+	inputFile := filepath.Join(conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -69,7 +105,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := filepath.Join(tmpDir, info.Name())
+	path := filepath.Join(conf.TmpDir, info.Name())
 	dst, err := os.Create(path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -102,7 +138,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", tmpDir, path)
+		cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", conf.TmpDir, path)
 
 		err = cmd.Run()
 		if err != nil {
@@ -138,7 +174,7 @@ func handleResource(w http.ResponseWriter, r *http.Request) {
 	cartridge := r.FormValue("cartridge")
 	zero.Log.Info().Msgf("GET handleResource id: %v cartridge %v", id, cartridge)
 
-	inputFile := filepath.Join(uploadsDir, cartridge)
+	inputFile := filepath.Join(conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -180,14 +216,15 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	err = os.MkdirAll(uploadsDir, os.ModePerm)
+	fmt.Printf("conf uploads dir: %v\n", conf.UploadsDir)
+
+	err = os.MkdirAll(conf.UploadsDir, os.ModePerm)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// todo replace with Filepath.Join
-	dst, err := os.Create(fmt.Sprintf("./uploads/%s", fileHeader.Filename))
+	dst, err := os.Create(filepath.Join("./uploads/", fileHeader.Filename))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -200,7 +237,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	inputFile := filepath.Join(uploadsDir, fileHeader.Filename)
+	inputFile := filepath.Join(conf.UploadsDir, fileHeader.Filename)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
