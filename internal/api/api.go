@@ -11,9 +11,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
 )
 
@@ -49,73 +51,102 @@ func (c *Config) defaults() {
 var conf Config
 
 func StartServer() {
-
 	err := conf.loadConfig("internal/api/config.yml")
 	if err != nil || conf.Port == "" {
 		zero.Log.Warn().Msgf("error loading config: %v", err)
 		conf.defaults()
 	}
 
-	http.Handle("/ping", http.HandlerFunc(handlePing))
-	http.Handle("/upload", http.HandlerFunc(handleUpload))
-	http.Handle("/resource/", http.HandlerFunc(handleResource))
-	http.Handle("/file/", http.HandlerFunc(handleFile))
-	http.Handle("/tmp/", http.FileServer(http.Dir(conf.TmpDir)))
+	router := setupRouter()
 
-	zero.Log.Info().Msgf("Starting API on port %s", conf.Port)
-	http.ListenAndServe(":"+conf.Port, nil)
-
-}
-
-func handlePing(w http.ResponseWriter, r *http.Request) {
-	zero.Log.Debug().Msg("Received ping")
-	fmt.Fprintf(w, "pong")
-}
-
-func handleFile(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		zero.Log.Warn().Msgf("Method not allowed: %s", r.Method)
-		return
+	server := &http.Server{
+		Addr:         ":" + conf.Port,
+		Handler:      router,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
-	id := strings.TrimPrefix(r.URL.Path, "/file/")
-	cartridge := r.FormValue("cartridge")
-	zero.Log.Info().Msgf("GET handleFile id: %v cartridge %v", id, cartridge)
+	server.ListenAndServe()
+}
+
+func setupRouter() *gin.Engine {
+	router := gin.New()
+
+	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
+			param.ClientIP,
+			param.TimeStamp.Format(time.RFC1123),
+			param.Method,
+			param.Path,
+			param.Request.Proto,
+			param.StatusCode,
+			param.Latency,
+			param.Request.UserAgent(),
+			param.ErrorMessage,
+		)
+	}))
+	router.MaxMultipartMemory = 16 << 20 // 16 MiB for uploads
+	router.Use(gin.Recovery())
+
+	router.GET("/ping", handlePing)
+	router.POST("/upload", handleUpload)
+	router.GET("/resource/:id", handleResource)
+	router.GET("/file/:id", handleFile)
+	router.StaticFS("/tmp/", http.Dir(conf.TmpDir))
+
+	return router
+}
+
+func handlePing(c *gin.Context) {
+	c.String(200, "pong")
+}
+
+func handleFile(c *gin.Context) {
+
+	id := c.Param("id")
+	cartridge := c.Request.FormValue("cartridge")
+
+	zero.Log.Info().Msgf("handleFile id: %v cartridge %v", id, cartridge)
 
 	inputFile := filepath.Join(conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error loading CC from disk: %v", err)
 		return
 	}
 
 	file, err := cc.FindFile(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error finding finding file in CC: %v", err)
 		return
 	}
 
 	info, err := file.Stat()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting file info: %v", err)
+		return
+	}
+
+	err = os.MkdirAll(conf.TmpDir, os.ModePerm)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	path := filepath.Join(conf.TmpDir, info.Name())
 	dst, err := os.Create(path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error creating dest tmp file: %v", err)
 		return
 	}
 
 	_, err = io.Copy(dst, file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error writing file to tmp: %v", err)
 		return
 	}
@@ -124,7 +155,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 	ext := filepath.Ext(info.Name())
 	match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error parsing file extension: %v", err)
 		return
 	}
@@ -133,7 +164,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 		libreoffice, err := exec.LookPath("libreoffice")
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			c.String(http.StatusInternalServerError, err.Error())
 			zero.Log.Error().Msgf("error finding libreoffice: %v", err)
 			return
 		}
@@ -142,7 +173,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 
 		err = cmd.Run()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			c.String(http.StatusInternalServerError, err.Error())
 			zero.Log.Error().Msgf("error converting file to pdf: %v", err)
 			return
 		}
@@ -151,139 +182,106 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	resp := make(map[string]string)
-	resp["path"] = path
-	body, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		zero.Log.Error().Msgf("error marshalling response to json: %v", err)
-		return
-	}
-	fmt.Fprint(w, string(body))
+	c.JSON(http.StatusOK, gin.H{"path": path})
 }
 
-func handleResource(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		zero.Log.Warn().Msgf("Method not allowed: %s", r.Method)
-		return
-	}
+func handleResource(c *gin.Context) {
 
-	id := strings.TrimPrefix(r.URL.Path, "/resource/")
-	cartridge := r.FormValue("cartridge")
+	id := c.Param("id")
+	cartridge := c.Query("cartridge")
 	zero.Log.Info().Msgf("GET handleResource id: %v cartridge %v", id, cartridge)
 
 	inputFile := filepath.Join(conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error loading CC from disk: %v", err)
 		return
 	}
 
 	file, err := cc.Find(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error finding resource in CC: %v", err)
 		return
 	}
 
 	data, err := json.Marshal(file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msg("error marshalling to json")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(data))
+	c.JSON(http.StatusOK, string(data))
 }
 
-func handleUpload(w http.ResponseWriter, r *http.Request) {
+func handleUpload(c *gin.Context) {
 
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		zero.Log.Warn().Msgf("Method not allowed: %s", r.Method)
-		return
-	}
-
-	file, fileHeader, err := r.FormFile("cartridge")
+	file, err := c.FormFile("cartridge")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		zero.Log.Warn().Msgf("Cannot find cartridge file: %s", r.FormValue("cartridge"))
+		c.String(http.StatusBadRequest, err.Error())
+		zero.Log.Warn().Msgf("cannot upload cartridge file: %v", err)
 		return
 	}
-	defer file.Close()
-
-	fmt.Printf("conf uploads dir: %v\n", conf.UploadsDir)
 
 	err = os.MkdirAll(conf.UploadsDir, os.ModePerm)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	dst, err := os.Create(filepath.Join("./uploads/", fileHeader.Filename))
+	dst := filepath.Join(conf.UploadsDir, file.Filename)
+	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
-
-	_, err = io.Copy(dst, file)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error saving CC to filesystem: %v", err)
 		return
 	}
 
-	inputFile := filepath.Join(conf.UploadsDir, fileHeader.Filename)
-	cc, err := commoncartridge.Load(inputFile)
+	cc, err := commoncartridge.Load(dst)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		zero.Log.Error().Msg("error loading CC from filesystem")
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error loading CC from filesystem: %v", err)
 		return
 	}
 
 	obj, err := cc.MarshalJSON()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		zero.Log.Error().Msg("error parsing manifest into JSON")
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error parsing manifest into JSON: %v", err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	resp := make(map[string]string)
-	resp["data"] = string(obj)
-
 	fi, err := cc.Items()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting resources: %v", err)
 		return
 	}
 	sfi, err := json.Marshal(fi)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting resources: %v", err)
 		return
 	}
-	resp["items"] = string(sfi)
 
 	fr, err := cc.Resources()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting resources: %v", err)
 		return
 	}
 	sfr, err := json.Marshal(fr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting resources: %v", err)
 		return
 	}
-	resp["resources"] = string(sfr)
 
-	body, _ := json.Marshal(resp)
-	w.Write(body)
+	c.JSON(http.StatusOK, gin.H{
+		"data":      string(obj),
+		"items":     string(sfi),
+		"resources": string(sfr),
+	})
 }
