@@ -182,7 +182,7 @@ func (cc IMSCC) Resources() ([]FullResource, error) {
 
 	for _, r := range cc.Manifest.Resources.Resource {
 		res := FullResource{}
-		found, err := cc.Find(r.Identifier) //todo: resolve the actual resource in there
+		found, err := cc.Find(r.Identifier)
 		res.Resource = found
 
 		if err != nil {
@@ -402,14 +402,11 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 				path = r.Href
 			} else { //-- find the href in the first File nodes of XML type
 				for _, f := range r.File {
-					if strings.Contains(f.Href, ".xml") {
-						path = f.Href
-						break
-					}
+					path = f.Href
 				}
 			}
 
-			// todo decide to handle _fallback here or in client
+			// todo should `_fallback` resource be appended to parent resource?
 			// otherwise, return the resource as is
 			if path == "" {
 				return r, nil
@@ -539,8 +536,8 @@ func (cc IMSCC) Dump() []string {
 	return dump
 }
 
-// AsObject returns the JSON-encoded string representation of the Manifest
-func (cc IMSCC) AsObject() ([]byte, error) {
+// MarshalJSON returns the JSON-encoded string representation of the Manifest
+func (cc IMSCC) MarshalJSON() ([]byte, error) {
 	var obj []byte
 
 	obj, err := json.Marshal(cc.Manifest)

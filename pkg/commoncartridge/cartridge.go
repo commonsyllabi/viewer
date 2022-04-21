@@ -7,8 +7,8 @@ import (
 )
 
 type Cartridge interface {
-	// AsObject returns a serialized JSON representation - TODO: check how to make the CC implement Marshal
-	AsObject() ([]byte, error)
+	// MarshalJSON returns a serialized JSON representation - TODO: check how to make the CC implement Marshal
+	MarshalJSON() ([]byte, error)
 
 	//-- ParseManifest finds the imsmanifest.xml in the ZipReader and marshals it into a struct
 	ParseManifest() (types.Manifest, error)

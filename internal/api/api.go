@@ -245,7 +245,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	obj, err := cc.AsObject()
+	obj, err := cc.MarshalJSON()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		zero.Log.Error().Msg("error parsing manifest into JSON")

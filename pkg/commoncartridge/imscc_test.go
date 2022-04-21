@@ -426,11 +426,11 @@ func TestDump(t *testing.T) {
 	}
 }
 
-func TestAsObject(t *testing.T) {
+func TestMarshalJSON(t *testing.T) {
 
 	cc := load(t, singleTestFile)
 
-	obj, err := cc.AsObject()
+	obj, err := cc.MarshalJSON()
 
 	if err != nil {
 		t.Errorf("Error parsing the JSON: %v\n", err)

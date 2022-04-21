@@ -142,7 +142,7 @@ func main() {
 	}
 
 	if *json {
-		obj, err := cc.AsObject()
+		obj, err := cc.MarshalJSON()
 		if err != nil {
 			log.Fatal(err)
 		}
