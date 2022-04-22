@@ -5,6 +5,7 @@ package commoncartridge
 //go:generate bash -c "zek -P commoncartridge -t item -o ./autogen_item.go ./types/examples/item.xml"
 //go:generate echo "WARNING! when extracting Item, it needs to have a []Item field and not []struct"
 //go:generate bash -c "zek -P commoncartridge -t resource -o ./autogen_resource.go ./types/examples/resource.xml"
+//go:generate echo "WARNING! when extracting Resources, it needs to have a []Resource field and not []struct"
 
 //go:generate echo "Generating Topic, LTI, QTI, WebLink, ..."
 //go:generate bash -c "zek -P commoncartridge -t topic -o ./autogen_topic.go ./types/examples/topic.xml"

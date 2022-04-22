@@ -12,9 +12,9 @@ func main() {
 		zero.Log.Fatal().Msgf("Error loading .env file: %v", err)
 	}
 
-	zero.InitLog(true)
+	zero.InitLog(0)
 	zero.Log.Info().Msg("Starting CoSyl")
 
-	// db.Connect(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+	// db.Connect(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.GetEnv("DB_HOST"))
 	api.StartServer()
 }
