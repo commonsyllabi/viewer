@@ -29,7 +29,7 @@ func TestHandlePing(t *testing.T) {
 	res := httptest.NewRecorder()
 	router.ServeHTTP(res, req)
 
-	if res.Code != 200 {
+	if res.Code != http.StatusOK {
 		t.Errorf("expected 200, got %v", res.Code)
 	}
 	if res.Body.String() != "pong" {
@@ -50,7 +50,7 @@ func TestHandleUpload(t *testing.T) {
 	result := res.Result()
 	defer result.Body.Close()
 
-	if res.Code != 200 {
+	if res.Code != http.StatusOK {
 		t.Errorf("expected 200 response code, got %d", res.Code)
 	}
 
@@ -72,6 +72,42 @@ func TestHandleUpload(t *testing.T) {
 	}
 }
 
+func TestHandleUploadNoField(t *testing.T) {
+	conf.defaults()
+	router := setupRouter()
+
+	body, writer := createFormData("bad_cartridge", singleTestFile, t)
+	req, _ := http.NewRequest(http.MethodPost, "/upload", &body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	res := httptest.NewRecorder()
+
+	router.ServeHTTP(res, req)
+	result := res.Result()
+	defer result.Body.Close()
+
+	if res.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 Bad Request response code, got %d", res.Code)
+	}
+}
+
+func TestHandleUploadNoFile(t *testing.T) {
+	conf.defaults()
+	router := setupRouter()
+
+	body, writer := createFormData("cartridge", "", t)
+	req, _ := http.NewRequest(http.MethodPost, "/upload", &body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	res := httptest.NewRecorder()
+
+	router.ServeHTTP(res, req)
+	result := res.Result()
+	defer result.Body.Close()
+
+	if res.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 Bad Request response code, got %d", res.Code)
+	}
+}
+
 func TestHandleFile(t *testing.T) {
 	TestHandleUpload(t)
 	router := setupRouter()
@@ -82,7 +118,7 @@ func TestHandleFile(t *testing.T) {
 	router.ServeHTTP(res, req)
 	result := res.Result()
 
-	if res.Code != 200 {
+	if res.Code != http.StatusOK {
 		t.Errorf("expected 200 response code, got %d", res.Code)
 	}
 
@@ -96,6 +132,34 @@ func TestHandleFile(t *testing.T) {
 	defer result.Body.Close()
 }
 
+func TestHandleFileNoID(t *testing.T) {
+	TestHandleUpload(t)
+	router := setupRouter()
+
+	req, _ := http.NewRequest(http.MethodGet, "/file/WRONG-FILE?cartridge=test_01.imscc", nil)
+	res := httptest.NewRecorder()
+
+	router.ServeHTTP(res, req)
+
+	if res.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500 response code, got %d", res.Code)
+	}
+}
+
+func TestHandleFileNoCartridge(t *testing.T) {
+	TestHandleUpload(t)
+	router := setupRouter()
+
+	req, _ := http.NewRequest(http.MethodGet, "/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=WRONG-CARTRIDGE.imscc", nil)
+	res := httptest.NewRecorder()
+
+	router.ServeHTTP(res, req)
+
+	if res.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500 response code, got %d", res.Code)
+	}
+}
+
 func TestHandleResource(t *testing.T) {
 	TestHandleUpload(t)
 	router := setupRouter()
@@ -106,8 +170,42 @@ func TestHandleResource(t *testing.T) {
 	router.ServeHTTP(res, req)
 	result := res.Result()
 
-	if res.Code != 200 {
+	if res.Code != http.StatusOK {
 		t.Errorf("expected 200 response code, got %d", res.Code)
+	}
+
+	defer result.Body.Close()
+}
+
+func TestHandleResourceNoCartridge(t *testing.T) {
+	TestHandleUpload(t)
+	router := setupRouter()
+
+	req, _ := http.NewRequest(http.MethodGet, "/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=MISSING_CARTRIDGE", nil)
+	res := httptest.NewRecorder()
+
+	router.ServeHTTP(res, req)
+	result := res.Result()
+
+	if res.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500 response code, got %d", res.Code)
+	}
+
+	defer result.Body.Close()
+}
+
+func TestHandleResourceNoID(t *testing.T) {
+	TestHandleUpload(t)
+	router := setupRouter()
+
+	req, _ := http.NewRequest(http.MethodGet, "/resource/MALFORMED_ID?cartridge=test_01.imscc", nil)
+	res := httptest.NewRecorder()
+
+	router.ServeHTTP(res, req)
+	result := res.Result()
+
+	if res.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500 response code, got %d", res.Code)
 	}
 
 	defer result.Body.Close()
@@ -116,19 +214,22 @@ func TestHandleResource(t *testing.T) {
 func createFormData(fieldName, fileName string, t *testing.T) (bytes.Buffer, *multipart.Writer) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
-	var fw io.Writer
-	file := mustOpen(fileName)
 
-	fw, err := w.CreateFormFile(fieldName, file.Name())
-	if err != nil {
-		t.Errorf("Cannot create form file %s", file.Name())
-	}
+	if fileName != "" {
+		var fw io.Writer
+		file := mustOpen(fileName)
 
-	_, err = io.Copy(fw, file)
-	if err != nil {
-		t.Error("error copying file")
+		fw, err := w.CreateFormFile(fieldName, file.Name())
+		if err != nil {
+			t.Errorf("Cannot create form file %s", file.Name())
+		}
+
+		_, err = io.Copy(fw, file)
+		if err != nil {
+			t.Error("error copying file")
+		}
+		w.Close()
 	}
-	w.Close()
 
 	return b, w
 }
