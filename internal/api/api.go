@@ -92,7 +92,6 @@ func setupRouter() *gin.Engine {
 	router.POST("/upload", handleUpload)
 	router.GET("/resource/:id", handleResource)
 	router.GET("/file/:id", handleFile)
-	router.StaticFS("/tmp/", http.Dir(conf.TmpDir))
 
 	return router
 }

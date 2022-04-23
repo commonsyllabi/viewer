@@ -2,8 +2,14 @@ localhost {
 	file_server /favicon.ico {
 		root /var/www/static/{args.0}
 	}
-	root * /var/www
+	root * /var/www/public
 	file_server
+
+	route /tmp/* {
+		uri strip_prefix /tmp
+		root * /var/www/tmp
+		file_server
+	}
 
 	route /api/* {
 		uri strip_prefix /api
