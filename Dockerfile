@@ -7,6 +7,7 @@ RUN update-ms-fonts
 RUN mkdir /app
 COPY . /app
 WORKDIR /app
+RUN go mod download
 
 RUN go build -o main internal/main.go
 CMD ["/app/main"]
