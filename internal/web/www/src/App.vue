@@ -46,7 +46,7 @@ let resources = reactive<Array<ResourceType>>([{
   File: []
 }])
 
-let log = ref("ready")
+let log = ref("yes")
 let isUploaded = ref(false)
 
 let upload = function () {
