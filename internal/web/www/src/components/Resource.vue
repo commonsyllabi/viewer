@@ -1,20 +1,21 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { ResourceType } from '../js/types'
 
-const props = defineProps({
-  resource: {},
-  cartridge: String
-})
+const props = defineProps<{
+  resource: ResourceType,
+  cartridge: string
+}>()
 
 const previewPath = ref("")
 
-function getFile(_evt, _id,) {
+function getFile(_evt: Event, _id: string) {
   fetch(`/api/file/${_id}?cartridge=${props.cartridge}`, {
     method: 'GET'
   })
     .then(res => { return res.json() })
     .then(body => {
-      previewPath = body.path
+      previewPath.value = body.path
     })
     .catch(err => console.error(err));
 }
@@ -25,44 +26,37 @@ function getFile(_evt, _id,) {
     <div class="meta">
       <div>
         xml:
-        <span class="resource-value">{{ props.resource.Resource.XMLName.Local }}</span>
+        <span class="resource-value">{{ props.resource.XMLName.Local }}</span>
       </div>
       <div>
         title:
-        <span class="resource-value">{{ props.resource.Resource.Title }}</span>
+        <span class="resource-value">{{ props.resource.Title }}</span>
       </div>
       <div>
         type:
-        <span class="resource-value">{{ props.resource.Resource.Type }}</span>
+        <span class="resource-value">{{ props.resource.Type }}</span>
       </div>
       <div>
         id:
-        <span class="resource-value">{{ props.resource.Resource.Identifier }}</span>
+        <span class="resource-value">{{ props.resource.Identifier }}</span>
       </div>
     </div>
 
-    <ol class="resource-files" v-if="props.resource.Resource.XMLName.Local == 'resource'">
-      <li v-for="f in props.resource.Resource.File">
+    <ol class="resource-files" v-if="props.resource.XMLName.Local == 'resource'">
+      <li v-for="f in props.resource.File">
         <div
           class="resource-file"
-          @click="getFile($event, props.resource.Resource.Identifier)"
+          @click="getFile($event, props.resource.Identifier)"
         >{{ f.Href }}</div>
-        <div class="preview">
+        <div class="preview" v-if="previewPath != ''">
           <iframe :src="previewPath" frameborder="0"></iframe>
         </div>
       </li>
     </ol>
   </div>
-
-  <hr />
 </template>
 
 <style scoped>
-.resource {
-  margin: 5px;
-  padding: 5px;
-  border: 2px solid black;
-}
 
 .meta {
   display: flex;

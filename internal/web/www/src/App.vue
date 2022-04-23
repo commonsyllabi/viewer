@@ -7,7 +7,7 @@
     <button type="button" @click="upload()">upload</button>
   </div>
   <div class="log">{{ log }}</div>
-  <div v-if="manifest" class="cartridge">
+  <div v-if="isUploaded" class="cartridge">
     <div class="metadata">
       <h2>Metadata</h2>
       <div class="title">{{ manifest.Metadata.Lom.General.Title.String.Text }}</div>
@@ -15,75 +15,75 @@
     <div class="items">
       <h2>Items</h2>
       <div class="item" v-for="i in items">
-        <Item :item=i />
+        <Item :item="i" :cartridge="cartridge.name" />
+        <hr />
       </div>
     </div>
     <div class="resources">
       <h2>Resources</h2>
       <div class="resource" v-for="r in resources">
-        <Resource :resource=r :cartridge="cartridge.name" />
+        <Resource :resource="r" :cartridge="cartridge.name" />
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { ManifestType, ItemType, ResourceType } from './js/types'
+
 import Resource from './components/Resource.vue'
 import Item from './components/Item.vue'
 
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup for the newest way to use Vue3
+let cartridge = reactive({ name: "" })
+let manifest = reactive<ManifestType>({ Metadata: { Lom: { General: { Title: { String: { Text: "" } } } } } })
+let items = reactive<Array<ItemType>>([{ Item: { Identifier: "", Title: "" }, Children: [], Resources: [] }])
+let resources = reactive<Array<ResourceType>>([{
+  XMLName: { Local: "" },
+  Title: "",
+  Type: "",
+  Identifier: "",
+  File: []
+}])
 
-export default {
-  components: { Item, Resource },
-  setup() {
-    let cartridge
-    let manifest
-    let items
-    let resources
-    const log = ref("log ready")
+let log = ref("ready")
+let isUploaded = ref(false)
 
-    let upload = function () {
-      let form = document.getElementById("upload-form")
-      let formData = new FormData(form)
+let upload = function () {
+  const formElem = document.getElementById("upload-form") as HTMLFormElement
+  const formData = new FormData(formElem)
 
-      if (formData.get("cartridge").name == "") {
-        console.warn("can't submit an empty cartridge!");
-        this.log = "can't submit an empty cartridge!"
-        return
-      }
-
-      this.cartridge = formData.get("cartridge")
-      this.log = `uploading ${this.cartridge.name}`
-
-      fetch("/api/upload", {
-        method: 'POST',
-        body: formData
-      }).then(res => {
-        if (res.ok) {
-          return res.json()
-        } else {
-          console.error(res.err)
-          log = `internal server error on upload: ${res.err}`
-        }
-      }).then(data => {
-        console.log(data);
-        this.log = `loaded ${this.cartridge.name}`
-        this.manifest = reactive(JSON.parse(data.data))
-        this.items = reactive(JSON.parse(data.items))
-        this.resources = reactive(JSON.parse(data.resources))
-      }).catch(err => {
-        this.log = err
-        console.error(err);
-      })
-    }
-
-
-    return { cartridge, manifest, items, resources, log, upload }
-
+  if (formData.get("cartridge") == null) {
+    console.warn("can't submit an empty cartridge!");
+    log.value = "can't submit an empty cartridge!"
+    return
   }
-}
 
+  cartridge.name = (formData.get("cartridge") as File).name
+  log.value = `uploading ${cartridge.name}`
+
+  fetch("/api/upload", {
+    method: 'POST',
+    body: formData
+  }).then(res => {
+    return res.json()
+  }).then(data => {
+    console.log(data);
+    log.value = `loaded ${cartridge.name}`
+    isUploaded.value = true
+
+    manifest = JSON.parse(data.data)
+    items = JSON.parse(data.items)
+
+    //-- todo, here we have to get rid of the Item field of the returned struct... what to do?
+    for(let r of JSON.parse(data.resources)){
+      resources.push(r.Resource)
+    }
+  }).catch(err => {
+    log = ref(err)
+    console.error(err);
+  })
+}
 </script>
 
 <style>

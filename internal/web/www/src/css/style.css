@@ -20,10 +20,16 @@ input[type="file"], button{
 
 .item{
     margin-left: 5px;
-    margin-bottom: 80px;
+    margin-bottom: 4vh;
 }
 
 .resources {
     display: flex;
     flex-direction: column;
 }
+
+.resource {
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid black;
+  }
