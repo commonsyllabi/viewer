@@ -43,7 +43,46 @@ let resources = reactive<Array<ResourceType>>([{
   Title: "",
   Type: "",
   Identifier: "",
-  File: []
+  File: [],
+  Text: { Text: "" },
+  Attachments: {
+    Text: "",
+    Attachment: [{
+      Text: "",
+      Href: ""
+    }]
+  },
+  Gradable: {
+    Text: "",
+    PointsPossible: ""
+  },
+  SubmissionFormats: {
+    Text: "",
+    Format: [{
+      Text: "",
+      Type: ""
+    }]
+  },
+  
+  Description: "",
+  LaunchURL: "",
+  SecureLaunchURL: "",
+  Vendor: {
+    Text: "",
+    Name: "",
+    Description: "",
+    URL: ""
+  },
+
+  Assessment: {
+    Title: "",
+    Text: ""
+  },
+
+  URL: {
+    Text: "",
+    Href: ""
+  }
 }])
 
 let log = ref("yes")
@@ -76,7 +115,7 @@ let upload = function () {
     items = JSON.parse(data.items)
 
     //-- todo, here we have to get rid of the Item field of the returned struct... what to do?
-    for(let r of JSON.parse(data.resources)){
+    for (let r of JSON.parse(data.resources)) {
       resources.push(r.Resource)
     }
   }).catch(err => {
