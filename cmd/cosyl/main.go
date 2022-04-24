@@ -27,6 +27,7 @@ var (
 
 func main() {
 	flag.Parse()
+
 	if *debug {
 		fmt.Println("cosyl v0.1")
 	}
@@ -57,7 +58,6 @@ func main() {
 
 	if *items {
 		items, err := cc.Items()
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -83,7 +83,6 @@ func main() {
 
 	if *weblinks {
 		weblinks, err := cc.Weblinks()
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -95,7 +94,6 @@ func main() {
 
 	if *assignments {
 		assignments, err := cc.Assignments()
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -107,7 +105,6 @@ func main() {
 
 	if *topics {
 		topics, err := cc.Topics()
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -119,7 +116,6 @@ func main() {
 
 	if *qtis {
 		qtis, err := cc.QTIs()
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -131,7 +127,6 @@ func main() {
 
 	if *ltis {
 		ltis, err := cc.LTIs()
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -147,12 +142,11 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Print(obj)
+		fmt.Print(string(obj))
 	}
 
 	if *find != "" {
 		res, err := cc.Find(*find)
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -162,7 +156,6 @@ func main() {
 
 	if *file != "" {
 		file, err := cc.FindFile(*file)
-
 		if err != nil {
 			log.Fatal(err)
 		}

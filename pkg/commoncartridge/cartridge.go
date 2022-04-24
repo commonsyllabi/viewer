@@ -11,7 +11,7 @@ type Cartridge interface {
 	MarshalJSON() ([]byte, error)
 
 	//-- ParseManifest finds the imsmanifest.xml in the ZipReader and marshals it into a struct
-	ParseManifest() (types.Manifest, error)
+	Manifest() (types.Manifest, error)
 
 	// Dump returns all the contents of the cartridge as a string
 	Dump() []string

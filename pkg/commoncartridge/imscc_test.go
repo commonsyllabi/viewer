@@ -26,25 +26,9 @@ func TestLoadEmpty(t *testing.T) {
 	}
 }
 
-func TestParseManifest(t *testing.T) {
-	// declaring cc as Cartridge to test that the return value implements Cartridge interface
-	var cc Cartridge = load(t, singleTestFile)
-
-	manifest, err := cc.ParseManifest()
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if reflect.TypeOf(manifest).Kind() != reflect.Struct {
-		t.Errorf("Expecting struct type, got: %v", reflect.TypeOf(manifest).Kind())
-	}
-}
-
 func TestExactCartridge(t *testing.T) {
 	var cc Cartridge = load(t, singleTestFile)
-
-	manifest, err := cc.ParseManifest()
+	manifest, err := cc.Manifest()
 
 	if err != nil {
 		t.Errorf("Error parsing manifest: %v", err)
@@ -168,7 +152,7 @@ func TestParseManifestAll(t *testing.T) {
 			t.Errorf("Expecting struct type, got: %v", reflect.TypeOf(cc).Kind())
 		}
 
-		manifest, err := cc.ParseManifest()
+		manifest, err := cc.Manifest()
 
 		if err != nil {
 			t.Errorf("Error parsing manifest: %v", err)
