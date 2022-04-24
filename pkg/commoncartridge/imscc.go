@@ -18,7 +18,7 @@ import (
 type IMSCC struct {
 	Reader   zip.Reader
 	Path     string
-	Manifest types.Manifest
+	manifest types.Manifest
 }
 
 // Load returns a cartridge created from a given path and holds it into a zip.Reader
@@ -32,46 +32,18 @@ func Load(path string) (IMSCC, error) {
 
 	cc.Reader = r.Reader
 	cc.Path = path
-	cc.Manifest, err = cc.ParseManifest()
-	if err != nil {
-		return cc, err
-	}
+	cc.manifest, err = cc.parseManifest()
 
-	return cc, nil
+	return cc, err
 }
 
-// Parse Manifest finds and marshals the imsccmanifest.xml file into the Manifest struct
-func (cc IMSCC) ParseManifest() (types.Manifest, error) {
-
-	var manifest types.Manifest
-	var path string
-	for _, f := range cc.Reader.File {
-		if strings.Contains(f.Name, "imsmanifest.xml") {
-			path = f.Name
-			break
-		}
-	}
-
-	file, err := cc.Reader.Open(path)
-
-	if err != nil {
-		fmt.Printf("Error in opening manifest: %v\n", cc.Path)
-		return manifest, err
-	}
-
-	bytesArray, err := io.ReadAll(file)
-	if err != nil {
-		return manifest, err
-	}
-
-	xml.Unmarshal(bytesArray, &manifest)
-
-	return manifest, nil
+func (cc IMSCC) Manifest() (types.Manifest, error) {
+	return cc.manifest, nil
 }
 
 // Title returns the name of the cartridge
 func (cc IMSCC) Title() string {
-	return cc.Manifest.Metadata.Lom.General.Title.String.Text
+	return cc.manifest.Metadata.Lom.General.Title.String.Text
 }
 
 // Metadata is a user-friendly representation of the Metadata field of the Manifest
@@ -91,15 +63,15 @@ type Metadata struct {
 func (cc IMSCC) Metadata() (string, error) {
 
 	meta := Metadata{
-		cc.Manifest.Metadata.Lom.General.Title.String.Text,
-		cc.Manifest.Metadata.Schema,
-		cc.Manifest.Metadata.Schemaversion,
-		cc.Manifest.Metadata.Lom.General.Language,
-		cc.Manifest.Metadata.Lom.General.Description.String.Text,
-		cc.Manifest.Metadata.Lom.General.Keyword.String.Text,
-		cc.Manifest.Metadata.Lom.LifeCycle.Contribute.Date.DateTime,
-		cc.Manifest.Metadata.Lom.Rights.CopyrightAndOtherRestrictions.Value,
-		cc.Manifest.Metadata.Lom.Rights.Description.String,
+		cc.manifest.Metadata.Lom.General.Title.String.Text,
+		cc.manifest.Metadata.Schema,
+		cc.manifest.Metadata.Schemaversion,
+		cc.manifest.Metadata.Lom.General.Language,
+		cc.manifest.Metadata.Lom.General.Description.String.Text,
+		cc.manifest.Metadata.Lom.General.Keyword.String.Text,
+		cc.manifest.Metadata.Lom.LifeCycle.Contribute.Date.DateTime,
+		cc.manifest.Metadata.Lom.Rights.CopyrightAndOtherRestrictions.Value,
+		cc.manifest.Metadata.Lom.Rights.Description.String,
 	}
 
 	serialized, err := json.Marshal(meta)
@@ -123,7 +95,7 @@ func (cc IMSCC) Items() ([]FullItem, error) {
 	items := make([]FullItem, 0)
 
 	//-- A CC always have only one top level item, so we can directly jump to its children
-	for _, i := range cc.Manifest.Organizations.Organization.Item.Item {
+	for _, i := range cc.manifest.Organizations.Organization.Item.Item {
 
 		full, err := cc.traverseItems(i.Item)
 
@@ -146,7 +118,7 @@ func (cc IMSCC) traverseItems(items []types.Item) ([]FullItem, error) {
 		f.Item = i
 
 		//-- add all resources
-		for _, r := range cc.Manifest.Resources.Resource {
+		for _, r := range cc.manifest.Resources.Resource {
 			if strings.Contains(r.Identifier, i.Identifierref) {
 				f.Resources = append(f.Resources, r)
 			}
@@ -180,7 +152,7 @@ type FullResource struct {
 func (cc IMSCC) Resources() ([]FullResource, error) {
 	resources := make([]FullResource, 0)
 
-	for _, r := range cc.Manifest.Resources.Resource {
+	for _, r := range cc.manifest.Resources.Resource {
 		res := FullResource{}
 		found, err := cc.Find(r.Identifier)
 		res.Resource = found
@@ -205,7 +177,7 @@ func (cc *IMSCC) FindItem(id string) (types.Item, error) {
 
 	var item types.Item
 	var err error
-	for _, i := range cc.Manifest.Organizations.Organization.Item.Item {
+	for _, i := range cc.manifest.Organizations.Organization.Item.Item {
 		item, err = findItem(i.Item, id)
 
 		if err != nil {
@@ -393,7 +365,7 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 
 	//-- find the type, then marshal into the appropriate struct
 	//-- otherwise return the resource
-	for _, r := range cc.Manifest.Resources.Resource {
+	for _, r := range cc.manifest.Resources.Resource {
 
 		if r.Identifier == id {
 
@@ -487,7 +459,7 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 func (cc IMSCC) FindFile(id string) (fs.File, error) {
 	var file fs.File
 
-	for _, r := range cc.Manifest.Resources.Resource {
+	for _, r := range cc.manifest.Resources.Resource {
 		if r.Identifier == id {
 			//-- directly go through the child []File and read from the href there
 
@@ -512,7 +484,7 @@ func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
 		return paths, err
 	}
 
-	for _, r := range cc.Manifest.Resources.Resource {
+	for _, r := range cc.manifest.Resources.Resource {
 		match := re.Find([]byte(r.Type))
 
 		if match != nil {
@@ -525,6 +497,35 @@ func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
 	}
 
 	return paths, nil
+}
+
+// parseManifest finds and marshals the imsccmanifest.xml file into the Manifest struct
+func (cc IMSCC) parseManifest() (types.Manifest, error) {
+
+	var manifest types.Manifest
+	var path string
+	for _, f := range cc.Reader.File {
+		if strings.Contains(f.Name, "imsmanifest.xml") {
+			path = f.Name
+			break
+		}
+	}
+
+	file, err := cc.Reader.Open(path)
+
+	if err != nil {
+		fmt.Printf("Error in opening manifest: %v\n", cc.Path)
+		return manifest, err
+	}
+
+	bytesArray, err := io.ReadAll(file)
+	if err != nil {
+		return manifest, err
+	}
+
+	xml.Unmarshal(bytesArray, &manifest)
+
+	return manifest, nil
 }
 
 // Dump returns the string representation of the Manifest
@@ -540,7 +541,7 @@ func (cc IMSCC) Dump() []string {
 func (cc IMSCC) MarshalJSON() ([]byte, error) {
 	var obj []byte
 
-	obj, err := json.Marshal(cc.Manifest)
+	obj, err := json.Marshal(cc.manifest)
 	if err != nil {
 		return obj, err
 	}
