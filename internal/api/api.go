@@ -11,6 +11,7 @@ import (
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
@@ -70,6 +71,9 @@ func StartServer() {
 
 func setupRouter(debug bool) *gin.Engine {
 	router := gin.New()
+
+	//cors
+	router.Use(cors.Default())
 
 	if debug {
 		gin.SetMode(gin.DebugMode)
