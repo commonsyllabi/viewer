@@ -1,3 +1,5 @@
+# first pull nodejs, build yarn etc
+
 FROM golang:1.18-alpine AS go
 
 RUN apk update && apk add libreoffice

@@ -3,18 +3,15 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"regexp"
-	"strings"
 	"time"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
 )
@@ -22,7 +19,7 @@ import (
 type Config struct {
 	Port       string `yaml:"port"`
 	UploadsDir string `yaml:"uploadsDir"`
-	TmpDir     string `yaml:"tmpDir"`
+	FilesDir   string `yaml:"filesDir"`
 }
 
 func (cc *Config) loadConfig(path string) error {
@@ -44,20 +41,22 @@ func (cc *Config) loadConfig(path string) error {
 
 func (c *Config) defaults() {
 	c.Port = "2046"
-	c.UploadsDir = "uploads"
-	c.TmpDir = "tmp"
+	c.UploadsDir = "/tmp/uploads"
+	c.FilesDir = "/tmp/files"
 }
 
 var conf Config
 
 func StartServer() {
-	err := conf.loadConfig("internal/api/config.yml")
+	cwd, _ := os.Getwd()
+	err := conf.loadConfig(filepath.Join(cwd, "./internal/api/config.yml"))
+
 	if err != nil || conf.Port == "" {
 		zero.Log.Warn().Msgf("error loading config: %v", err)
 		conf.defaults()
 	}
 
-	router := setupRouter()
+	router := setupRouter(true)
 
 	server := &http.Server{
 		Addr:         ":" + conf.Port,
@@ -69,8 +68,12 @@ func StartServer() {
 	server.ListenAndServe()
 }
 
-func setupRouter() *gin.Engine {
+func setupRouter(debug bool) *gin.Engine {
 	router := gin.New()
+
+	if debug {
+		gin.SetMode(gin.DebugMode)
+	}
 
 	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
@@ -85,14 +88,23 @@ func setupRouter() *gin.Engine {
 			param.ErrorMessage,
 		)
 	}))
+
 	router.MaxMultipartMemory = 16 << 20 // 16 MiB for uploads
 	router.Use(gin.Recovery())
 
-	router.GET("/ping", handlePing)
-	router.POST("/upload", handleUpload)
-	router.GET("/resource/:id", handleResource)
-	router.GET("/file/:id", handleFile)
+	cwd, _ := os.Getwd()
+	publicPath := filepath.Join(cwd, "./internal/api/www/public")
 
+	router.Use(static.Serve("/", static.LocalFile(publicPath, false)))
+
+	router.GET("/ping", handlePing)
+
+	api := router.Group("/api")
+	{
+		api.POST("/upload", handleUpload)
+		api.GET("/resource/:id", handleResource)
+		api.GET("/file/:id", handleFile)
+	}
 	return router
 }
 
@@ -122,66 +134,76 @@ func handleFile(c *gin.Context) {
 		return
 	}
 
-	info, err := file.Stat()
+	c.Writer.WriteHeader(http.StatusOK)
+	c.Header("Content-Type", "application/octet-stream")
+	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting file info: %v", err)
+		zero.Log.Error().Msgf("error reading file into bytes: %v", err)
 		return
 	}
+	c.Writer.Write(bytes)
 
-	err = os.MkdirAll(conf.TmpDir, os.ModePerm)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
+	// info, err := file.Stat()
+	// if err != nil {
+	// 	c.String(http.StatusInternalServerError, err.Error())
+	// 	zero.Log.Error().Msgf("error getting file info: %v", err)
+	// 	return
+	// }
 
-	path := filepath.Join(conf.TmpDir, info.Name())
-	dst, err := os.Create(path)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error creating dest tmp file: %v", err)
-		return
-	}
+	// err = os.MkdirAll(conf.FilesDir, os.ModePerm)
+	// if err != nil {
+	// 	c.String(http.StatusInternalServerError, err.Error())
+	// 	return
+	// }
 
-	_, err = io.Copy(dst, file)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error writing file to tmp: %v", err)
-		return
-	}
+	// path := filepath.Join(conf.FilesDir, info.Name())
+	// dst, err := os.Create(path)
+	// if err != nil {
+	// 	c.String(http.StatusInternalServerError, err.Error())
+	// 	zero.Log.Error().Msgf("error creating dest tmp file: %v", err)
+	// 	return
+	// }
 
-	//-- handle doc to pdf conversion
-	ext := filepath.Ext(info.Name())
-	match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error parsing file extension: %v", err)
-		return
-	}
+	// _, err = io.Copy(dst, file)
+	// if err != nil {
+	// 	c.String(http.StatusInternalServerError, err.Error())
+	// 	zero.Log.Error().Msgf("error writing file to tmp: %v", err)
+	// 	return
+	// }
 
-	if match {
-		libreoffice, err := exec.LookPath("libreoffice")
+	// //-- handle doc to pdf conversion
+	// ext := filepath.Ext(info.Name())
+	// match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
+	// if err != nil {
+	// 	c.String(http.StatusInternalServerError, err.Error())
+	// 	zero.Log.Error().Msgf("error parsing file extension: %v", err)
+	// 	return
+	// }
 
-		if err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
-			zero.Log.Error().Msgf("error finding libreoffice: %v", err)
-			return
-		}
+	// if match {
+	// 	libreoffice, err := exec.LookPath("libreoffice")
 
-		cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", conf.TmpDir, path)
+	// 	if err != nil {
+	// 		c.String(http.StatusInternalServerError, err.Error())
+	// 		zero.Log.Error().Msgf("error finding libreoffice: %v", err)
+	// 		return
+	// 	}
 
-		err = cmd.Run()
-		if err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
-			zero.Log.Error().Msgf("error converting file to pdf: %v", err)
-			return
-		}
+	// 	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", conf.FilesDir, path)
 
-		path = strings.TrimSuffix(path, filepath.Ext(path)) + ".pdf"
+	// 	err = cmd.Run()
+	// 	if err != nil {
+	// 		c.String(http.StatusInternalServerError, err.Error())
+	// 		zero.Log.Error().Msgf("error converting file to pdf: %v", err)
+	// 		return
+	// 	}
 
-	}
+	// 	path = strings.TrimSuffix(path, filepath.Ext(path)) + ".pdf"
 
-	c.JSON(http.StatusOK, gin.H{"path": path})
+	// }
+
+	// c.JSON(http.StatusOK, gin.H{"path": path})
 }
 
 func handleResource(c *gin.Context) {
@@ -216,7 +238,6 @@ func handleResource(c *gin.Context) {
 }
 
 func handleUpload(c *gin.Context) {
-
 	file, err := c.FormFile("cartridge")
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())

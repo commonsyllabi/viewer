@@ -23,7 +23,7 @@ func TestLoadConfig(t *testing.T) {
 
 func TestHandlePing(t *testing.T) {
 	conf.defaults()
-	router := setupRouter()
+	router := setupRouter(false)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	res := httptest.NewRecorder()
@@ -39,10 +39,10 @@ func TestHandlePing(t *testing.T) {
 
 func TestHandleUpload(t *testing.T) {
 	conf.defaults()
-	router := setupRouter()
+	router := setupRouter(false)
 
 	body, writer := createFormData("cartridge", singleTestFile, t)
-	req, _ := http.NewRequest(http.MethodPost, "/upload", &body)
+	req, _ := http.NewRequest(http.MethodPost, "/api/upload", &body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res := httptest.NewRecorder()
 
@@ -74,10 +74,10 @@ func TestHandleUpload(t *testing.T) {
 
 func TestHandleUploadNoField(t *testing.T) {
 	conf.defaults()
-	router := setupRouter()
+	router := setupRouter(false)
 
 	body, writer := createFormData("bad_cartridge", singleTestFile, t)
-	req, _ := http.NewRequest(http.MethodPost, "/upload", &body)
+	req, _ := http.NewRequest(http.MethodPost, "/api/upload", &body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res := httptest.NewRecorder()
 
@@ -92,10 +92,10 @@ func TestHandleUploadNoField(t *testing.T) {
 
 func TestHandleUploadNoFile(t *testing.T) {
 	conf.defaults()
-	router := setupRouter()
+	router := setupRouter(false)
 
 	body, writer := createFormData("cartridge", "", t)
-	req, _ := http.NewRequest(http.MethodPost, "/upload", &body)
+	req, _ := http.NewRequest(http.MethodPost, "/api/upload", &body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res := httptest.NewRecorder()
 
@@ -110,9 +110,9 @@ func TestHandleUploadNoFile(t *testing.T) {
 
 func TestHandleFile(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter()
+	router := setupRouter(false)
 
-	req, _ := http.NewRequest(http.MethodGet, "/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
 
 	router.ServeHTTP(res, req)
@@ -122,21 +122,14 @@ func TestHandleFile(t *testing.T) {
 		t.Errorf("expected 200 response code, got %d", res.Code)
 	}
 
-	var response map[string]string
-	json.Unmarshal(res.Body.Bytes(), &response)
-	_, exists := response["path"]
-	if !exists {
-		t.Errorf("Expected to have a JSON object with a \"path\" field")
-	}
-
 	defer result.Body.Close()
 }
 
 func TestHandleFileNoID(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter()
+	router := setupRouter(false)
 
-	req, _ := http.NewRequest(http.MethodGet, "/file/WRONG-FILE?cartridge=test_01.imscc", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/file/WRONG-FILE?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
 
 	router.ServeHTTP(res, req)
@@ -148,9 +141,9 @@ func TestHandleFileNoID(t *testing.T) {
 
 func TestHandleFileNoCartridge(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter()
+	router := setupRouter(false)
 
-	req, _ := http.NewRequest(http.MethodGet, "/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=WRONG-CARTRIDGE.imscc", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=WRONG-CARTRIDGE.imscc", nil)
 	res := httptest.NewRecorder()
 
 	router.ServeHTTP(res, req)
@@ -162,9 +155,9 @@ func TestHandleFileNoCartridge(t *testing.T) {
 
 func TestHandleResource(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter()
+	router := setupRouter(false)
 
-	req, _ := http.NewRequest(http.MethodGet, "/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
 
 	router.ServeHTTP(res, req)
@@ -179,9 +172,9 @@ func TestHandleResource(t *testing.T) {
 
 func TestHandleResourceNoCartridge(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter()
+	router := setupRouter(false)
 
-	req, _ := http.NewRequest(http.MethodGet, "/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=MISSING_CARTRIDGE", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=MISSING_CARTRIDGE", nil)
 	res := httptest.NewRecorder()
 
 	router.ServeHTTP(res, req)
@@ -196,9 +189,9 @@ func TestHandleResourceNoCartridge(t *testing.T) {
 
 func TestHandleResourceNoID(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter()
+	router := setupRouter(false)
 
-	req, _ := http.NewRequest(http.MethodGet, "/resource/MALFORMED_ID?cartridge=test_01.imscc", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/resource/MALFORMED_ID?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
 
 	router.ServeHTTP(res, req)
