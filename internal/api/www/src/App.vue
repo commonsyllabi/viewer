@@ -9,23 +9,27 @@
   <div class="log">{{ log }}</div>
   <div v-if="isUploaded" class="cartridge">
     <div class="metadata">
-      <h2>Metadata</h2>
+      <h2 class="section-title-small">Metadata</h2>
       <div class="title">{{ manifest.Metadata.Lom.General.Title.String.Text }}</div>
     </div>
-    <div class="items">
-      <h2>Items</h2>
-      <div class="item" v-for="i in items">
-        <Item :item="i" :cartridge="cartridge.name" />
-        <hr />
+    <div class="navigator-container">
+      <div class="items">
+          <h2 class="section-title-small">Items</h2>
+          <!-- TODO: dont use index, bad prac -->
+          <div class="item" v-for="(i, index) in items" :key="index">
+            <Item :item="i" :cartridge="cartridge.name"/>
+            <hr />
+          </div>
+        </div>
+        <div class="resources">
+          <h2 class="section-title-small">Resources</h2>
+          <!-- TODO: dont use index, bad prac -->
+          <div class="resource" v-for="(r, index) in resources" :key="index">
+            <Resource :resource="r" :cartridge="cartridge.name" />
+          </div>
+        </div>
       </div>
     </div>
-    <div class="resources">
-      <h2>Resources</h2>
-      <div class="resource" v-for="r in resources">
-        <Resource :resource="r" :cartridge="cartridge.name" />
-      </div>
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -101,7 +105,7 @@ let upload = function () {
   cartridge.name = (formData.get("cartridge") as File).name
   log.value = `uploading ${cartridge.name}`
 
-  fetch("/api/upload", {
+  fetch("http://localhost:2046/api/upload", {
     method: 'POST',
     body: formData
   }).then(res => {
@@ -125,5 +129,50 @@ let upload = function () {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "./css/global-vars.scss";
+
+// page typograph
+
+.section-title-small {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+.upload {
+  border-bottom: 1px solid $grey;
+  box-sizing: border-box; 
+  padding: 1rem 0 2rem 0; 
+  form {
+    width: 100%;
+    #cartridge {
+      width: 100%;
+      border: 1px solid $grey;
+      border-radius: 4px;
+    }
+  }
+}
+.log {
+  border: 1px solid pink;
+  padding: 1rem 0; 
+}
+
+.navigator-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.cartridge {
+  border: 1px solid orange;
+  .metadata {
+    border: 1px solid red;
+  }
+  .items {
+    border: 1px solid blue;
+  }
+  .resources {
+    border: 1px solid yellow;
+  }
+}
 </style>
