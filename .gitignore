@@ -21,7 +21,7 @@ cmd/cosyl/*.imscc
 
 internal/api/uploads
 internal/api/tmp
-internal/web/www/public
+internal/api/web/www/public
 
 .env
 
