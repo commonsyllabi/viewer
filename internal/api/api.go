@@ -53,8 +53,8 @@ func (c *Config) defaults() {
 var conf Config
 
 func StartServer() error {
-	cwd, _ := os.Getwd()
-	err := conf.loadConfig(filepath.Join(cwd, "./internal/api/config.yml"))
+
+	err := conf.loadConfig("./internal/api/config.yml")
 
 	if err != nil || conf.Port == "" {
 		zero.Log.Warn().Msgf("error loading config: %v", err)
