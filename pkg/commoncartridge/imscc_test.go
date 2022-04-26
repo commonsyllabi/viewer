@@ -193,8 +193,8 @@ func TestItems(t *testing.T) {
 		t.Errorf("Expected FullResource[0].resource to have a type of 'Resource', got %s", reflect.TypeOf(items[0].Item))
 	}
 
-	if len(items) != 12 {
-		t.Errorf("Expected 12 items, got %d", len(items))
+	if len(items) != 2 {
+		t.Errorf("Expected 2 items, got %d", len(items))
 	}
 }
 

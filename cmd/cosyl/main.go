@@ -63,10 +63,8 @@ func main() {
 			log.Fatal(err)
 		}
 
-		// fmt.Printf("found %d items\n", len(items))
-		data, err := json.Marshal(items)
+		data, _ := json.Marshal(items)
 		fmt.Println(string(data))
-
 	}
 
 	if *resources {

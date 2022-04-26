@@ -482,10 +482,8 @@ func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
 		match := re.Find([]byte(r.Type))
 
 		if match != nil {
-			for _, f := range cc.Reader.File {
-				if !f.FileInfo().IsDir() && strings.Contains(f.Name, r.Identifier) {
-					paths = append(paths, f.Name)
-				}
+			for _, f := range r.File {
+				paths = append(paths, f.Href) //-- todo might need to check if the extension is xml?
 			}
 		}
 	}
