@@ -14,5 +14,7 @@ describe('Cartridge page', () => {
 
         cy.wait('@uploadCartridge')
         cy.get('#log').contains("uploaded")
+
+        cy.get('.resources').children('.resource').eq(120)
     })
 })

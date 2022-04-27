@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vue-tsc --noEmit && vite build --emptyOutDir",
     "watch": "vite build --watch --mode development --emptyOutDir",
     "preview": "vite preview",
-    "start": "yarn build && http-server -c-1 --silent",
+    "start": "yarn build & http-server -c-1 --silent",
     "test": "cypress run",
     "autotest": "start-server-and-test 8080 test"
   },
