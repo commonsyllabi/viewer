@@ -3,12 +3,15 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 const singleTestFile = "../../pkg/commoncartridge/test_files/test_01.imscc"
@@ -23,7 +26,7 @@ func TestLoadConfig(t *testing.T) {
 
 func TestHandlePing(t *testing.T) {
 	conf.defaults()
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	res := httptest.NewRecorder()
@@ -39,7 +42,7 @@ func TestHandlePing(t *testing.T) {
 
 func TestHandleUpload(t *testing.T) {
 	conf.defaults()
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	body, writer := createFormData("cartridge", singleTestFile, t)
 	req, _ := http.NewRequest(http.MethodPost, "/api/upload", &body)
@@ -74,7 +77,7 @@ func TestHandleUpload(t *testing.T) {
 
 func TestHandleUploadNoField(t *testing.T) {
 	conf.defaults()
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	body, writer := createFormData("bad_cartridge", singleTestFile, t)
 	req, _ := http.NewRequest(http.MethodPost, "/api/upload", &body)
@@ -92,7 +95,7 @@ func TestHandleUploadNoField(t *testing.T) {
 
 func TestHandleUploadNoFile(t *testing.T) {
 	conf.defaults()
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	body, writer := createFormData("cartridge", "", t)
 	req, _ := http.NewRequest(http.MethodPost, "/api/upload", &body)
@@ -110,13 +113,15 @@ func TestHandleUploadNoFile(t *testing.T) {
 
 func TestHandleFile(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
 
 	router.ServeHTTP(res, req)
 	result := res.Result()
+
+	fmt.Println(res.Body)
 
 	if res.Code != http.StatusOK {
 		t.Errorf("expected 200 response code, got %d", res.Code)
@@ -127,7 +132,7 @@ func TestHandleFile(t *testing.T) {
 
 func TestHandleFileNoID(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/file/WRONG-FILE?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
@@ -141,7 +146,7 @@ func TestHandleFileNoID(t *testing.T) {
 
 func TestHandleFileNoCartridge(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=WRONG-CARTRIDGE.imscc", nil)
 	res := httptest.NewRecorder()
@@ -155,7 +160,7 @@ func TestHandleFileNoCartridge(t *testing.T) {
 
 func TestHandleResource(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
@@ -172,7 +177,7 @@ func TestHandleResource(t *testing.T) {
 
 func TestHandleResourceNoCartridge(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/resource/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=MISSING_CARTRIDGE", nil)
 	res := httptest.NewRecorder()
@@ -189,7 +194,7 @@ func TestHandleResourceNoCartridge(t *testing.T) {
 
 func TestHandleResourceNoID(t *testing.T) {
 	TestHandleUpload(t)
-	router := setupRouter(false)
+	router := mustSetupRouter(false)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/resource/MALFORMED_ID?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
@@ -233,4 +238,12 @@ func mustOpen(f string) *os.File {
 		panic(err)
 	}
 	return r
+}
+
+func mustSetupRouter(debug bool) *gin.Engine {
+	router, err := setupRouter(debug)
+	if err != nil {
+		panic(err)
+	}
+	return router
 }

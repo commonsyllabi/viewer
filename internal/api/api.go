@@ -61,17 +61,10 @@ func StartServer() error {
 		conf.defaults()
 	}
 
-	err = os.MkdirAll(conf.FilesDir, os.ModePerm)
+	router, err := setupRouter(true)
 	if err != nil {
 		return err
 	}
-
-	err = os.MkdirAll(conf.UploadsDir, os.ModePerm)
-	if err != nil {
-		return err
-	}
-
-	router := setupRouter(true)
 
 	server := &http.Server{
 		Addr:         ":" + conf.Port,
@@ -85,11 +78,23 @@ func StartServer() error {
 	return nil
 }
 
-func setupRouter(debug bool) *gin.Engine {
+func setupRouter(debug bool) (*gin.Engine, error) {
 	router := gin.New()
 
 	if debug {
 		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	err := os.MkdirAll(conf.FilesDir, os.ModePerm)
+	if err != nil {
+		return router, err
+	}
+
+	err = os.MkdirAll(conf.UploadsDir, os.ModePerm)
+	if err != nil {
+		return router, err
 	}
 
 	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
@@ -122,7 +127,7 @@ func setupRouter(debug bool) *gin.Engine {
 		api.GET("/resource/:id", handleResource)
 		api.GET("/file/:id", handleFile)
 	}
-	return router
+	return router, nil
 }
 
 func handlePing(c *gin.Context) {
