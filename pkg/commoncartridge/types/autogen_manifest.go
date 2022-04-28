@@ -4,7 +4,7 @@ package types
 
 import "encoding/xml"
 
-// Manifest was generated 2022-03-29 17:51:56 by pierre on archpierre.
+// Manifest was generated 2022-04-28 15:32:52 by pierre on archpierre.
 type Manifest struct {
 	XMLName        xml.Name `xml:"manifest"`
 	Text           string   `xml:",chardata"`
@@ -74,11 +74,11 @@ type Manifest struct {
 			Text       string `xml:",chardata"`
 			Identifier string `xml:"identifier,attr"`
 			Structure  string `xml:"structure,attr"`
-			Item       Item `xml:"item"`
+			Item       Item   `xml:"item"`
 		} `xml:"organization"`
 	} `xml:"organizations"`
 	Resources struct {
-		Text     string `xml:",chardata"`
+		Text     string     `xml:",chardata"`
 		Resource []Resource `xml:"resource"`
 	} `xml:"resources"`
 }
