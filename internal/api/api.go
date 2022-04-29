@@ -115,7 +115,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 	router.Use(gin.Recovery())
 
 	cwd, _ := os.Getwd()
-	publicPath := filepath.Join(cwd, "./internal/api/www/public")
+	publicPath := filepath.Join(cwd, "./internal/www/public")
 
 	router.Use(static.Serve("/", static.LocalFile(publicPath, false)))
 
