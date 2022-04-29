@@ -127,6 +127,12 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		api.GET("/resource/:id", handleResource)
 		api.GET("/file/:id", handleFile)
 	}
+
+	// users := router.Group("/users")
+	// {
+	// 	users.POST("/", handlers.NewSyllabus)
+	// }
+
 	return router, nil
 }
 
