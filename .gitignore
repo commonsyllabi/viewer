@@ -25,6 +25,9 @@ internal/web/www/public/*
 internal/api/www/public/assets/*
 
 test_files
+internal/api/www/public
+internal/api/www/cypress/screenshots
+internal/api/www/cypress/videos
 
 .env
 

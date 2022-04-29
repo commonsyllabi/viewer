@@ -1,0 +1,5 @@
+{
+  "projectId": "hyi8ai",
+  "$schema": "https://on.cypress.io/cypress.schema.json",
+  "baseUrl": "http://localhost:8080"
+}

@@ -4,15 +4,21 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build --mode development --emptyOutDir",
+    "build": "vue-tsc --noEmit && vite build --emptyOutDir",
     "watch": "vite build --watch --mode development --emptyOutDir",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "yarn build & http-server -c-1 --silent",
+    "test": "cypress run",
+    "autotest": "start-server-and-test 8080 test"
   },
   "dependencies": {
     "vue": "^3.2.25"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.1",
+    "cypress": "^9.6.0",
+    "http-server": "^14.1.0",
+    "start-server-and-test": "^1.14.0",
     "typescript": "^4.6.3",
     "vite": "^2.9.5",
     "vue-tsc": "^0.34.9"
