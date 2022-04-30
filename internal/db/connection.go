@@ -15,9 +15,10 @@ var db *bun.DB
 
 func Connect(user, password, name, host string) error {
 	var db_url = "postgres://" + user + ":" + password + "@" + host + ":5432/" + name
+	zero.Log.Debug().Msgf("connecting db to %s", db_url)
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(db_url), pgdriver.WithInsecure(true)))
 	db = bun.NewDB(sqldb, pgdialect.New())
-	defer db.Close()
+	// defer db.Close()
 	ctx := context.Background()
 
 	zero.Log.Info().Msgf("Connected to database: %v", db_url)
@@ -30,7 +31,7 @@ func Connect(user, password, name, host string) error {
 	return nil
 }
 
-func AddNewSyllabus(syll models.Syllabus) (sql.Result, error) {
+func AddNewSyllabus(syll *models.Syllabus) (sql.Result, error) {
 	ctx := context.Background()
 	result, err := db.NewInsert().Model(syll).On("CONFLICT (id) DO UPDATE").Exec(ctx)
 	if err != nil {

@@ -129,7 +129,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		api.GET("/file/:id", handleFile)
 	}
 
-	users := router.Group("/users")
+	users := router.Group("/syllabi")
 	{
 		users.POST("/", handlers.NewSyllabus)
 	}
