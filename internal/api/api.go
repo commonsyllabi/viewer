@@ -129,9 +129,13 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		api.GET("/file/:id", handleFile)
 	}
 
-	users := router.Group("/syllabi")
+	syllabi := router.Group("/syllabi")
 	{
-		users.POST("/", handlers.NewSyllabus)
+		syllabi.GET("/", handlers.AllSyllabi)
+		syllabi.POST("/", handlers.NewSyllabus)
+		syllabi.POST("/:id", handlers.UpdateSyllabus)
+		syllabi.GET("/:id", handlers.GetSyllabus)
+		syllabi.DELETE("/:id", handlers.DeleteSyllabus)
 	}
 
 	return router, nil

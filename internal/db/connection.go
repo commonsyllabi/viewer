@@ -31,11 +31,42 @@ func Connect(user, password, name, host string) error {
 	return nil
 }
 
-func AddNewSyllabus(syll *models.Syllabus) (sql.Result, error) {
+func GetAllSyllabi() ([]models.Syllabus, error) {
 	ctx := context.Background()
-	result, err := db.NewInsert().Model(syll).On("CONFLICT (id) DO UPDATE").Exec(ctx)
+	syllabi := make([]models.Syllabus, 0)
+
+	err := db.NewSelect().Model(&syllabi).Scan(ctx, &syllabi)
+	return syllabi, err
+}
+
+func AddNewSyllabus(syll *models.Syllabus) (models.Syllabus, error) {
+	ctx := context.Background()
+
+	_, err := db.NewInsert().Model(syll).Exec(ctx)
+	return *syll, err
+}
+
+func UpdateSyllabus(id int, syll *models.Syllabus) (models.Syllabus, error) {
+	ctx := context.Background()
+	_, err := db.NewUpdate().Model(syll).WherePK().Exec(ctx)
 	if err != nil {
-		return result, err
+		return *syll, err
 	}
-	return result, nil
+	return *syll, nil
+}
+
+func GetSyllabus(id int) (models.Syllabus, error) {
+	ctx := context.Background()
+	table := new(models.Syllabus)
+	var syll models.Syllabus
+	err := db.NewSelect().Model(table).Where("id = ?", id).Scan(ctx, &syll)
+	return syll, err
+}
+
+func DeleteSyllabus(id int) error {
+	ctx := context.Background()
+	table := new(models.Syllabus)
+	_, err := db.NewDelete().Model(table).Where("id = ?", id).Exec(ctx)
+
+	return err
 }
