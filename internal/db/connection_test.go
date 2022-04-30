@@ -8,7 +8,7 @@ import (
 func TestConnect(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
-	err := Connect("postgres", "postgres", "postgres", "localhost")
+	err := Connect("cosyl", "cosyl", "cosyl", "localhost")
 
 	if err != nil {
 		t.Error(err)

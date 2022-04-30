@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/commonsyllabi/viewer/internal/api/handlers"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 	"github.com/gin-contrib/static"
@@ -128,10 +129,10 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		api.GET("/file/:id", handleFile)
 	}
 
-	// users := router.Group("/users")
-	// {
-	// 	users.POST("/", handlers.NewSyllabus)
-	// }
+	users := router.Group("/users")
+	{
+		users.POST("/", handlers.NewSyllabus)
+	}
 
 	return router, nil
 }

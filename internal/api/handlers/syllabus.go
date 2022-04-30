@@ -12,11 +12,15 @@ import (
 func NewSyllabus(c *gin.Context) {
 	syll := models.Syllabus{Id: 0, Title: "Others", Description: "They will always be there."}
 
-	err := db.AddNewSyllabus(syll)
+	_, err := db.AddNewSyllabus(syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error loading CC from disk: %v", err)
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id": "1",
+	})
 
 }

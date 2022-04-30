@@ -27,9 +27,15 @@ require (
 	github.com/onsi/ginkgo v1.14.2 // indirect
 	github.com/onsi/gomega v1.10.3 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
-	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e // indirect
-	golang.org/x/sys v0.0.0-20210923061019-b8560ed6a9b7 // indirect
+	github.com/uptrace/bun v1.1.4 // indirect
+	github.com/uptrace/bun/dialect/pgdialect v1.1.4 // indirect
+	github.com/uptrace/bun/driver/pgdriver v1.1.4 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
+	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
