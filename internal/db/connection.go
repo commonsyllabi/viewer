@@ -23,12 +23,9 @@ func Connect(user, password, name, host string) error {
 
 	zero.Log.Info().Msgf("Connected to database: %v", db_url)
 
+	//-- move the create table statements to another function.
 	_, err := db.NewCreateTable().Model((*models.Syllabus)(nil)).IfNotExists().Exec(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func GetAllSyllabi() ([]models.Syllabus, error) {
@@ -49,10 +46,7 @@ func AddNewSyllabus(syll *models.Syllabus) (models.Syllabus, error) {
 func UpdateSyllabus(id int, syll *models.Syllabus) (models.Syllabus, error) {
 	ctx := context.Background()
 	_, err := db.NewUpdate().Model(syll).WherePK().Exec(ctx)
-	if err != nil {
-		return *syll, err
-	}
-	return *syll, nil
+	return *syll, err
 }
 
 func GetSyllabus(id int) (models.Syllabus, error) {
