@@ -97,49 +97,43 @@ func (cc IMSCC) Items() ([]FullItem, error) {
 	//-- A CC always have only one top level item, so we can directly jump to its children
 	for _, i := range cc.manifest.Organizations.Organization.Item.Item {
 
-		full, err := cc.traverseItems(i.Item)
+		full, err := cc.traverseItems(i)
 
 		if err != nil {
 			return items, err
 		}
 
-		items = append(items, full...)
+		items = append(items, full)
 	}
 
 	return items, nil
 }
 
-func (cc IMSCC) traverseItems(items []types.Item) ([]FullItem, error) {
-	full := make([]FullItem, 0)
+func (cc IMSCC) traverseItems(current types.Item) (FullItem, error) {
 
-	// -- go through all children
-	for _, i := range items {
-		var f FullItem
-		f.Item = i
+	var f FullItem
+	f.Item = current
 
+	if current.Identifierref != "" {
 		//-- add all resources
 		for _, r := range cc.manifest.Resources.Resource {
-			if strings.Contains(r.Identifier, i.Identifierref) {
+			if strings.Contains(r.Identifier, current.Identifierref) {
 				f.Resources = append(f.Resources, r)
 			}
 		}
-
-		//-- if it has children, go through
-		if len(i.Item) > 0 {
-			children, err := cc.traverseItems(i.Item)
-
-			f.Children = append(f.Children, children...)
-
-			if err != nil {
-				return full, nil
-			}
-		}
-
-		full = append(full, f)
-
 	}
 
-	return full, nil
+	// -- go through all children
+	for _, i := range current.Item {
+
+		child, err := cc.traverseItems(i)
+		if err != nil {
+			return f, nil
+		}
+		f.Children = append(f.Children, child)
+	}
+
+	return f, nil
 }
 
 // FullResource is a union of a Resource and the Item that refers to it
@@ -488,10 +482,8 @@ func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
 		match := re.Find([]byte(r.Type))
 
 		if match != nil {
-			for _, f := range cc.Reader.File {
-				if !f.FileInfo().IsDir() && strings.Contains(f.Name, r.Identifier) {
-					paths = append(paths, f.Name)
-				}
+			for _, f := range r.File {
+				paths = append(paths, f.Href) //-- todo might need to check if the extension is xml?
 			}
 		}
 	}

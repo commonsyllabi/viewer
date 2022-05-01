@@ -19,9 +19,19 @@ function getFile(_evt: Event, _id: string) {
   fetch(`/api/file/${_id}?cartridge=${props.cartridge}`, {
     method: 'GET'
   })
-    .then(res => { return res.json() })
-    .then(body => {
-      previewPath.value = body.path
+    .then(res => { 
+      return res.blob().then(blob => {
+        return {
+          contentType: res.headers.get("Content-Type"),
+          raw: blob
+        }
+      })
+      // previewPath.value = createFileURL(res) 
+    })
+    .then(data => {
+      console.log(data);
+      
+      previewPath.value = URL.createObjectURL(data.raw)
     })
     .catch(err => console.error(err));
 }
@@ -30,46 +40,52 @@ function getFile(_evt: Event, _id: string) {
 <template>
   <div>
     <div v-if="props.resource.XMLName.Local === 'assignment'">
-      <Assignment :assignment="resource"/>
+      <Assignment :assignment="resource" />
     </div>
 
     <div v-if="props.resource.XMLName.Local === 'topic'">
-      <DiscussionTopic :topic="resource"/>
+      <DiscussionTopic :topic="resource" />
     </div>
 
     <div v-if="props.resource.XMLName.Local === 'webLink'">
-      <Weblink :weblink="resource"/>
+      <Weblink :weblink="resource" />
     </div>
 
     <div v-if="props.resource.XMLName.Local === 'questestinterop'">
-      <QTI :qti="resource"/>
+      <QTI :qti="resource" />
     </div>
 
     <div v-if="props.resource.XMLName.Local === 'cartridge_basiclti_link'">
-      <LTI :lti="resource"/>
+      <LTI :lti="resource" />
     </div>
 
     <div v-if="props.resource.XMLName.Local === 'resource'">
-        <div class="meta">
-      <div>
-        xml: <span class="resource-value">{{ props.resource.XMLName.Local }}</span>
-      </div>
-      <div>
-        type: <span class="resource-value">{{ props.resource.Type }}</span>
-      </div>
-      <div>
-        id: <span class="resource-value">{{ props.resource.Identifier }}</span>
-      </div>
-    </div>
-
-    <ol class="resource-files">
-      <li v-for="f in props.resource.File">
-        <div class="resource-file" @click="getFile($event, props.resource.Identifier)">{{ f.Href }}</div>
-        <div class="preview" v-if="previewPath != ''">
-          <iframe :src="previewPath" frameborder="0"></iframe>
+      <div class="meta">
+        <div>
+          xml:
+          <span class="resource-value">{{ props.resource.XMLName.Local }}</span>
         </div>
-      </li>
-    </ol>
+        <div>
+          type:
+          <span class="resource-value">{{ props.resource.Type }}</span>
+        </div>
+        <div>
+          id:
+          <span class="resource-value">{{ props.resource.Identifier }}</span>
+        </div>
+      </div>
+
+      <ol class="resource-files">
+        <li v-for="f in props.resource.File">
+          <div
+            class="resource-file"
+            @click="getFile($event, props.resource.Identifier)"
+          >{{ f.Href }}</div>
+          <div class="preview" v-if="previewPath != ''">
+            <iframe :src="previewPath" frameborder="0"></iframe>
+          </div>
+        </li>
+      </ol>
     </div>
   </div>
 </template>

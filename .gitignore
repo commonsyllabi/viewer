@@ -21,10 +21,9 @@ cmd/cosyl/*.imscc
 
 internal/api/uploads
 internal/api/tmp
-internal/web/www/public/*
-internal/api/www/public/assets/*
-
-test_files
+internal/www/public
+internal/www/cypress/screenshots
+internal/www/cypress/videos
 
 .env
 

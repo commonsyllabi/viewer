@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -13,7 +14,7 @@ import (
 var (
 	debug       = flag.Bool("d", false, "debug output")
 	metadata    = flag.Bool("m", false, "shows metadata as serialized json")
-	json        = flag.Bool("j", false, "dumps a serialized json representation")
+	as_json     = flag.Bool("j", false, "dumps a serialized json representation")
 	items       = flag.Bool("I", false, "lists all items, with their associated resources in the cartridge")
 	resources   = flag.Bool("r", false, "lists all resources in the cartridge")
 	weblinks    = flag.Bool("weblinks", false, "lists all weblinks in the cartridge")
@@ -62,8 +63,8 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("found %d items\n", len(items))
-		fmt.Printf("%+v\n", items)
+		data, _ := json.Marshal(items)
+		fmt.Println(string(data))
 	}
 
 	if *resources {
@@ -136,7 +137,7 @@ func main() {
 		}
 	}
 
-	if *json {
+	if *as_json {
 		obj, err := cc.MarshalJSON()
 		if err != nil {
 			log.Fatal(err)

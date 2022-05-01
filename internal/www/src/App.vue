@@ -2,11 +2,11 @@
   <h1>upload a common cartridge</h1>
   <div class="upload">
     <form action="/api/upload" method="post" id="upload-form">
-      <input type="file" name="cartridge" id="cartridge" />
+      <input type="file" name="cartridge" id="upload-file" />
     </form>
-    <button type="button" @click="upload()">upload</button>
+    <button id="upload-submit" type="button" @click="upload()">upload</button>
   </div>
-  <div class="log">{{ log }}</div>
+  <div id="log" class="log">{{ log }}</div>
   <div v-if="isUploaded" class="cartridge">
     <div class="metadata">
       <h2 class="section-title-small">Metadata</h2>
@@ -89,7 +89,7 @@ let resources = reactive<Array<ResourceType>>([{
   }
 }])
 
-let log = ref("yes")
+let log = ref("ready")
 let isUploaded = ref(false)
 
 let upload = function () {
@@ -112,7 +112,7 @@ let upload = function () {
     return res.json()
   }).then(data => {
     console.log(data);
-    log.value = `loaded ${cartridge.name}`
+    log.value = `uploaded ${cartridge.name}`
     isUploaded.value = true
 
     manifest = JSON.parse(data.data)

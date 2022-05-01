@@ -3,10 +3,15 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/fs"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
@@ -48,16 +53,19 @@ func (c *Config) defaults() {
 
 var conf Config
 
-func StartServer() {
-	cwd, _ := os.Getwd()
-	err := conf.loadConfig(filepath.Join(cwd, "./internal/api/config.yml"))
+func StartServer() error {
+
+	err := conf.loadConfig("./internal/api/config.yml")
 
 	if err != nil || conf.Port == "" {
 		zero.Log.Warn().Msgf("error loading config: %v", err)
 		conf.defaults()
 	}
 
-	router := setupRouter(true)
+	router, err := setupRouter(true)
+	if err != nil {
+		return err
+	}
 
 	server := &http.Server{
 		Addr:         ":" + conf.Port,
@@ -67,9 +75,11 @@ func StartServer() {
 	}
 
 	server.ListenAndServe()
+
+	return nil
 }
 
-func setupRouter(debug bool) *gin.Engine {
+func setupRouter(debug bool) (*gin.Engine, error) {
 	router := gin.New()
 
 	//cors
@@ -77,6 +87,18 @@ func setupRouter(debug bool) *gin.Engine {
 
 	if debug {
 		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	err := os.MkdirAll(conf.FilesDir, os.ModePerm)
+	if err != nil {
+		return router, err
+	}
+
+	err = os.MkdirAll(conf.UploadsDir, os.ModePerm)
+	if err != nil {
+		return router, err
 	}
 
 	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
@@ -97,7 +119,7 @@ func setupRouter(debug bool) *gin.Engine {
 	router.Use(gin.Recovery())
 
 	cwd, _ := os.Getwd()
-	publicPath := filepath.Join(cwd, "./internal/api/www/public")
+	publicPath := filepath.Join(cwd, "./internal/www/public")
 
 	router.Use(static.Serve("/", static.LocalFile(publicPath, false)))
 
@@ -109,7 +131,7 @@ func setupRouter(debug bool) *gin.Engine {
 		api.GET("/resource/:id", handleResource)
 		api.GET("/file/:id", handleFile)
 	}
-	return router
+	return router, nil
 }
 
 func handlePing(c *gin.Context) {
@@ -138,76 +160,74 @@ func handleFile(c *gin.Context) {
 		return
 	}
 
-	c.Writer.WriteHeader(http.StatusOK)
-	c.Header("Content-Type", "application/octet-stream")
+	//convert to PDF
+	info, err := file.Stat()
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error getting file info: %v", err)
+		return
+	}
+
+	ext := filepath.Ext(info.Name())
+	match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error parsing file extension: %v", err)
+		return
+	}
+
+	if match {
+		file, err = convertToPDF(file, info)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			zero.Log.Error().Msgf("error converting to PDF: %v", err)
+		}
+	}
+
 	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error reading file into bytes: %v", err)
 		return
 	}
+
+	c.Writer.WriteHeader(http.StatusOK)
+	mimeType := http.DetectContentType(bytes)
+	c.Header("Content-Type", mimeType)
 	c.Writer.Write(bytes)
+}
 
-	// info, err := file.Stat()
-	// if err != nil {
-	// 	c.String(http.StatusInternalServerError, err.Error())
-	// 	zero.Log.Error().Msgf("error getting file info: %v", err)
-	// 	return
-	// }
+// convertToPDF writes the original doc/docx/odt file to disk, then converts it to PDF, and returns the converted file
+func convertToPDF(file fs.File, info fs.FileInfo) (fs.File, error) {
+	var f fs.File
+	libreoffice, err := exec.LookPath("libreoffice")
 
-	// err = os.MkdirAll(conf.FilesDir, os.ModePerm)
-	// if err != nil {
-	// 	c.String(http.StatusInternalServerError, err.Error())
-	// 	return
-	// }
+	if err != nil {
+		return f, err
+	}
 
-	// path := filepath.Join(conf.FilesDir, info.Name())
-	// dst, err := os.Create(path)
-	// if err != nil {
-	// 	c.String(http.StatusInternalServerError, err.Error())
-	// 	zero.Log.Error().Msgf("error creating dest tmp file: %v", err)
-	// 	return
-	// }
+	path := filepath.Join(conf.FilesDir, info.Name())
+	dst, err := os.Create(path)
+	if err != nil {
+		return f, err
+	}
 
-	// _, err = io.Copy(dst, file)
-	// if err != nil {
-	// 	c.String(http.StatusInternalServerError, err.Error())
-	// 	zero.Log.Error().Msgf("error writing file to tmp: %v", err)
-	// 	return
-	// }
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		return f, err
+	}
 
-	// //-- handle doc to pdf conversion
-	// ext := filepath.Ext(info.Name())
-	// match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
-	// if err != nil {
-	// 	c.String(http.StatusInternalServerError, err.Error())
-	// 	zero.Log.Error().Msgf("error parsing file extension: %v", err)
-	// 	return
-	// }
+	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", conf.FilesDir, path)
 
-	// if match {
-	// 	libreoffice, err := exec.LookPath("libreoffice")
+	err = cmd.Run()
+	if err != nil {
+		return file, err
+	}
 
-	// 	if err != nil {
-	// 		c.String(http.StatusInternalServerError, err.Error())
-	// 		zero.Log.Error().Msgf("error finding libreoffice: %v", err)
-	// 		return
-	// 	}
+	path = strings.TrimSuffix(path, filepath.Ext(path)) + ".pdf"
+	file, err = os.Open(path)
 
-	// 	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", conf.FilesDir, path)
-
-	// 	err = cmd.Run()
-	// 	if err != nil {
-	// 		c.String(http.StatusInternalServerError, err.Error())
-	// 		zero.Log.Error().Msgf("error converting file to pdf: %v", err)
-	// 		return
-	// 	}
-
-	// 	path = strings.TrimSuffix(path, filepath.Ext(path)) + ".pdf"
-
-	// }
-
-	// c.JSON(http.StatusOK, gin.H{"path": path})
+	return file, err
 }
 
 func handleResource(c *gin.Context) {
