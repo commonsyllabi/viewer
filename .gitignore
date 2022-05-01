@@ -25,6 +25,8 @@ internal/www/public
 internal/www/cypress/screenshots
 internal/www/cypress/videos
 
+test_files/
+
 .env
 
 # Fontend .gitignore
