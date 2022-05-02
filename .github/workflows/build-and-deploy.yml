@@ -92,7 +92,7 @@ jobs:
         with:
           name: back-bundle
           retention-days: 1
-          path: ./main
+          path: ./cosyl
 
   upload-to-remote:
     name: "Upload front and backend to remote"
