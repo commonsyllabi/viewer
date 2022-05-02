@@ -109,7 +109,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: back-bundle
-      - name: 'Create env file'
+      - name: "Create env file"
         run: |
           touch .env
           echo DB_USER=cosyl >> .env
@@ -117,7 +117,7 @@ jobs:
           echo DB_NAME=cosyl >> .env
           echo DB_HOST=localhost >> .env
           cat .env
-      - name: copy frontend via SCP
+      - name: "SCP frontend"
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
@@ -125,7 +125,7 @@ jobs:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           source: "./internal/www/public"
           target: "/var/www/commonsyllabi"
-      - name: copy backend via SCP
+      - name: "SCP backend"
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
@@ -133,7 +133,7 @@ jobs:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           source: "./cosyl"
           target: "/var/www/commonsyllabi"
-      - name: copy env via SCP
+      - name: "SCP env"
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
@@ -141,14 +141,12 @@ jobs:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           source: "./.env"
           target: "/var/www/commonsyllabi"
-      - name: multiple command
+      - name: "Post-deploy remote actions"
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           script: |
-            whoami
-            ls -al
-
-# then do DO postdeploy stuff
+            cd /var/www/commonsyllabi
+            ./post-deploy.sh
