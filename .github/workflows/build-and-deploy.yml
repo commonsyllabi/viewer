@@ -141,11 +141,6 @@ jobs:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           source: "./.env"
           target: "/var/www/commonsyllabi"
-
-  execute-script-remote:
-     name: "Executes script on remote host"
-     runs-on: ubuntu-latest
-     steps:
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
@@ -161,6 +156,5 @@ jobs:
       - name: executing remote ssh commands using password
         run: |
           ssh enframed "echo \$HOME && touch ~/githubactions.md"
-
 
 # then do DO postdeploy stuff
