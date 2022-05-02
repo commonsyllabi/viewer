@@ -111,14 +111,14 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
-          name: id_rsa # optional
-          known_hosts: ${{ secrets.ENFRAMED_KNOWN_HOSTS }}
+          name: github-actions # optional
+          known_hosts: 'placeholder'
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
       - name: Uploading artifacts to remote
         run: |
-          scp front.zip ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/commonsyllabi
+          scp -i ~/.ssh/github-actions front.zip ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/commonsyllabi
           scp ./main ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/commonsyllabi
 
 # ssh everything to DO
