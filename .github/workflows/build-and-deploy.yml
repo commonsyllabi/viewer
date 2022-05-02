@@ -103,6 +103,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: front-bundle
+      - name: "Unzip frontend files"
         run: unzip front.zip && rm front.zip
       - name: Download backend artifact
         uses: actions/download-artifact@v2
