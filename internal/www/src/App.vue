@@ -1,10 +1,10 @@
 <template>
   <div class="container p-3">
-    <!-- upload -->
-    <div class="container py-4 mb-3 border rounded"> 
+    <!-- upload form -->
+    <div class="container pt-4 mb-3 border rounded"> 
       <form action="/api/upload" method="post" id="upload-form">
         <div class="form-group">
-          <label for="cartridgeInput" class="d-block  h5 mb-1">Upload a common cartridge (.imscc) file</label>
+          <label for="cartridgeInput" class="d-block  h5 mb-3">Upload a common cartridge (.imscc) file</label>
           <input type="file" name="cartridge" class="form-control-file d-block  mb-2" id="upload-file" />
           <button id="upload-submit" type="button" class="btn btn-primary  mb-3" @click="upload()">upload</button>
         </div>
@@ -16,33 +16,60 @@
       <pre>{{ log }}</pre>
     </div>
 
-    <!-- viewer -->
-    <!-- <div v-if="isUploaded" class="container cartridge"> -->
-    <div class="container cartridge">
-      <!-- file metadata -->
-      <div class="row">
-        <div class="metadata">
-          <h2 class="section-title-small">Metadata</h2>
-          <div class="title">
-            {{ manifest.Metadata.Lom.General.Title.String.Text }}
+    <!-- metadata viewer -->
+    <div class="row mb-3">
+      <div class="accordion" id="metadata-accordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeta" aria-expanded="true" aria-controls="collapseOne">
+              Cartridge Metadata
+            </button>
+          </h2>
+          <div id="collapseMeta" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#metadata-accordion">
+            <div class="accordion-body">
+                <!-- file metadata placeholder -->
+                <div v-if="!isUploaded" class="metadata-placeholder">
+                  <span class="text-muted"><em>metadata goes here</em></span>
+                </div>
+
+                <!-- file metadata -->
+                <div v-if="isUploaded" class="metadata">
+                  <div class="title">
+                    {{ manifest.Metadata.Lom.General.Title.String.Text }}
+                  </div>
+                </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- viewer -->
+    <!-- <div v-if="isUploaded" class="container cartridge"> -->
+    <div class="container border rounded mb-5 cartridge-viewer">
 
       <!-- file navigator -->
       <div class="row">
-        <div class="col items">
-          <h2 class="section-title-small">Items</h2>
+
+        <!-- items panel -->
+        <div class="col-6 overflow-scroll items-panel">
+          <h6 class="my-2">Items Index</h6>
+
+          <!-- items listing -->
           <!-- TODO: dont use index, bad prac -->
-          <div class="item" v-for="(i, index) in items" :key="index">
+          <div v-for="(i, index) in items" :key="index">
             <Item :item="i" :cartridge="cartridge.name" />
             <hr />
           </div>
         </div>
-        <div class="col resources">
-          <h2 class="section-title-small">Resources</h2>
+
+        <!-- resources panel -->
+        <div class="col-6  overflow-scroll resources-panel">
+          <h6 class="my-2">Resources Index</h6>
+
+          <!-- resources listing -->
           <!-- TODO: dont use index, bad prac -->
-          <div class="resource" v-for="(r, index) in resources" :key="index">
+          <div class="" v-for="(r, index) in resources" :key="index">
             <Resource :resource="r" :cartridge="cartridge.name" />
           </div>
         </div>
@@ -159,6 +186,7 @@ let upload = function () {
       console.error(err);
     });
 };
+
 </script>
 
 <style lang="scss">
@@ -172,18 +200,17 @@ let upload = function () {
   font-weight: 300;
 }
 
-
-
-.cartridge {
-  border: 1px solid orange;
-  .metadata {
-    border: 1px solid red;
+.cartridge-viewer {
+  // border: 1px solid orange;
+  height: 75vh;
+  .items-panel {
+    // border: 1px solid blue;
+    height: 75vh;
   }
-  .items {
-    border: 1px solid blue;
-  }
-  .resources {
-    border: 1px solid yellow;
+  .resources-panel {
+    // border: 1px solid red;
+    height: 75vh;
   }
 }
+
 </style>

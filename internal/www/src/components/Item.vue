@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import Resource from "./Resource.vue";
-import { ItemType } from "../js/types";
+  import { ref, computed } from "vue";
+  import Resource from "./Resource.vue";
+  import { ItemType } from "../js/types";
 
-const props = defineProps<{
-  item: ItemType;
-  cartridge: string;
-}>();
+  const props = defineProps<{
+    item: ItemType;
+    cartridge: string;
+  }>();
 
-const showResources = ref(false);
+  const showResources = ref(false);
 </script>
 
 <template>
+  <h6 class="fs-6 text-uppercase">Title:</h6>
   <h3>{{ props.item.Item.Title }}</h3>
 
   <div v-if="props.item.Children">
-    <h4>Children</h4>
+    <h6 class="fs-6 text-uppercase">Children:</h6>
     <div class="sub-item" v-for="child in props.item.Children">
       <div>{{ child.Item.Identifier }} - {{ child.Item.Title }}</div>
     </div>
