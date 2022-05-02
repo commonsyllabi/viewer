@@ -1,3 +1,4 @@
+// API is the package that takes care of loading the configuratio and setting up the router
 package api
 
 import (
@@ -19,45 +20,11 @@ import (
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"gopkg.in/yaml.v2"
 )
-
-type Config struct {
-	Port       string `yaml:"port"`
-	UploadsDir string `yaml:"uploadsDir"`
-	FilesDir   string `yaml:"filesDir"`
-	PublicDir  string `yaml:"./public"`
-}
-
-func (cc *Config) loadConfig(path string) error {
-	var c Config
-	cwd, _ := os.Getwd()
-	content, err := ioutil.ReadFile(filepath.Join(cwd, path))
-	if err != nil {
-		return err
-	}
-
-	err = yaml.Unmarshal(content, &c)
-	zero.Log.Debug().Msgf("%+v", c)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *Config) defaults() {
-	c.Port = "3046"
-	c.UploadsDir = "/tmp/uploads"
-	c.FilesDir = "/tmp/files"
-	c.PublicDir = "./internal/www/public"
-}
-
-var conf Config
 
 func StartServer() error {
 
-	err := conf.loadConfig("./internal/api/config.yml")
+	err := conf.load("./internal/api/config.yml")
 
 	if err != nil || conf.Port == "" {
 		zero.Log.Warn().Msgf("error loading config: %v", err)
@@ -90,12 +57,17 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	err := os.MkdirAll(conf.FilesDir, os.ModePerm)
+	err := os.MkdirAll(conf.TmpDir, os.ModePerm)
 	if err != nil {
 		return router, err
 	}
 
-	err = os.MkdirAll(conf.UploadsDir, os.ModePerm)
+	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
+	if err != nil {
+		return router, err
+	}
+
+	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.UploadsDir), os.ModePerm)
 	if err != nil {
 		return router, err
 	}
@@ -154,7 +126,7 @@ func handleFile(c *gin.Context) {
 
 	zero.Log.Info().Msgf("handleFile id: %v cartridge %v", id, cartridge)
 
-	inputFile := filepath.Join(conf.UploadsDir, cartridge)
+	inputFile := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -215,7 +187,7 @@ func convertToPDF(file fs.File, info fs.FileInfo) (fs.File, error) {
 		return f, err
 	}
 
-	path := filepath.Join(conf.FilesDir, info.Name())
+	path := filepath.Join(conf.TmpDir, conf.FilesDir, info.Name())
 	dst, err := os.Create(path)
 	if err != nil {
 		return f, err
@@ -226,7 +198,7 @@ func convertToPDF(file fs.File, info fs.FileInfo) (fs.File, error) {
 		return f, err
 	}
 
-	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", conf.FilesDir, path)
+	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", filepath.Join(conf.TmpDir, conf.FilesDir), path)
 
 	err = cmd.Run()
 	if err != nil {
@@ -245,7 +217,7 @@ func handleResource(c *gin.Context) {
 	cartridge := c.Query("cartridge")
 	zero.Log.Info().Msgf("GET handleResource id: %v cartridge %v", id, cartridge)
 
-	inputFile := filepath.Join(conf.UploadsDir, cartridge)
+	inputFile := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -278,13 +250,13 @@ func handleUpload(c *gin.Context) {
 		return
 	}
 
-	err = os.MkdirAll(conf.UploadsDir, os.ModePerm)
+	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.UploadsDir), os.ModePerm)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	dst := filepath.Join(conf.UploadsDir, file.Filename)
+	dst := filepath.Join(conf.TmpDir, conf.UploadsDir, file.Filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())

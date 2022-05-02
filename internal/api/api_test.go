@@ -17,7 +17,7 @@ import (
 const singleTestFile = "../../pkg/commoncartridge/test_files/test_01.imscc"
 
 func TestLoadConfig(t *testing.T) {
-	err := conf.loadConfig("../../internal/api/config.yml")
+	err := conf.load("../../internal/api/config.yml")
 
 	if err != nil {
 		t.Errorf("error loading conf file: %v", err)
