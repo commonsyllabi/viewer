@@ -141,6 +141,14 @@ jobs:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           source: "./.env"
           target: "/var/www/commonsyllabi"
+      - name: "SCP post-deploy.sh"
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          source: "./internal/post-deploy.sh"
+          target: "/var/www/commonsyllabi"
       - name: "Post-deploy remote actions"
         uses: appleboy/ssh-action@master
         with:
