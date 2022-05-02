@@ -11,16 +11,18 @@ import (
 
 var db *bun.DB
 
-func Connect(user, password, name, host string) error {
-	var db_url = "postgres://" + user + ":" + password + "@" + host + ":5432/" + name
-	zero.Log.Debug().Msgf("connecting db to %s", db_url)
-	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(db_url), pgdriver.WithInsecure(true)))
+func InitDB(user, password, name, host string) error {
+	var url = "postgres://" + user + ":" + password + "@" + host + ":5432/" + name
+	zero.Log.Debug().Msgf("Connecting: %s", url)
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(url), pgdriver.WithInsecure(true)))
 	db = bun.NewDB(sqldb, pgdialect.New())
-	// defer db.Close()
 
-	zero.Log.Info().Msgf("Connected to database: %v", db_url)
-
-	//-- move the create table statements to another function.
+	zero.Log.Info().Msgf("Connected: %v", url)
 	err := CreateSyllabusTable()
+	return err
+}
+
+func Shutdown() error {
+	err := db.Close()
 	return err
 }

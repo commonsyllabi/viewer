@@ -2,6 +2,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,12 +11,15 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/handlers"
+	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 	"github.com/gin-contrib/static"
@@ -26,7 +30,7 @@ func StartServer() error {
 
 	err := conf.load("./internal/api/config.yml")
 
-	if err != nil || conf.Port == "" {
+	if err != nil || conf.port == "" {
 		zero.Log.Warn().Msgf("error loading config: %v", err)
 		conf.defaults()
 	}
@@ -36,16 +40,31 @@ func StartServer() error {
 		return err
 	}
 
-	server := &http.Server{
-		Addr:         ":" + conf.Port,
+	s := &http.Server{
+		Addr:         ":" + conf.port,
 		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	server.ListenAndServe()
+	// from https://gist.github.com/ivan3bx/b0f14449803ce5b0aa72afaa1dfc75e1
+	go func() {
+		zero.Log.Info().Msgf("server starting on port %s", conf.port)
+		if err := s.ListenAndServe(); err != http.ErrServerClosed {
+			panic(err)
+		}
+	}()
 
-	return nil
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	<-c // block until signal received
+
+	zero.Log.Info().Msg("shutting down...")
+	s.Shutdown(context.Background())
+	err = models.Shutdown()
+
+	return err
 }
 
 func setupRouter(debug bool) (*gin.Engine, error) {
@@ -57,17 +76,17 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	err := os.MkdirAll(conf.TmpDir, os.ModePerm)
+	err := os.MkdirAll(conf.tmpDir, os.ModePerm)
 	if err != nil {
 		return router, err
 	}
 
-	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
+	err = os.MkdirAll(filepath.Join(conf.tmpDir, conf.filesDir), os.ModePerm)
 	if err != nil {
 		return router, err
 	}
 
-	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.UploadsDir), os.ModePerm)
+	err = os.MkdirAll(filepath.Join(conf.tmpDir, conf.uploadsDir), os.ModePerm)
 	if err != nil {
 		return router, err
 	}
@@ -90,7 +109,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 	router.Use(gin.Recovery())
 
 	cwd, _ := os.Getwd()
-	publicPath := filepath.Join(cwd, conf.PublicDir)
+	publicPath := filepath.Join(cwd, conf.publicDir)
 
 	router.Use(static.Serve("/", static.LocalFile(publicPath, false)))
 
@@ -126,7 +145,7 @@ func handleFile(c *gin.Context) {
 
 	zero.Log.Info().Msgf("handleFile id: %v cartridge %v", id, cartridge)
 
-	inputFile := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
+	inputFile := filepath.Join(conf.tmpDir, conf.uploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -187,7 +206,7 @@ func convertToPDF(file fs.File, info fs.FileInfo) (fs.File, error) {
 		return f, err
 	}
 
-	path := filepath.Join(conf.TmpDir, conf.FilesDir, info.Name())
+	path := filepath.Join(conf.tmpDir, conf.filesDir, info.Name())
 	dst, err := os.Create(path)
 	if err != nil {
 		return f, err
@@ -198,7 +217,7 @@ func convertToPDF(file fs.File, info fs.FileInfo) (fs.File, error) {
 		return f, err
 	}
 
-	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", filepath.Join(conf.TmpDir, conf.FilesDir), path)
+	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", filepath.Join(conf.tmpDir, conf.filesDir), path)
 
 	err = cmd.Run()
 	if err != nil {
@@ -217,7 +236,7 @@ func handleResource(c *gin.Context) {
 	cartridge := c.Query("cartridge")
 	zero.Log.Info().Msgf("GET handleResource id: %v cartridge %v", id, cartridge)
 
-	inputFile := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
+	inputFile := filepath.Join(conf.tmpDir, conf.uploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -250,13 +269,13 @@ func handleUpload(c *gin.Context) {
 		return
 	}
 
-	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.UploadsDir), os.ModePerm)
+	err = os.MkdirAll(filepath.Join(conf.tmpDir, conf.uploadsDir), os.ModePerm)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	dst := filepath.Join(conf.TmpDir, conf.UploadsDir, file.Filename)
+	dst := filepath.Join(conf.tmpDir, conf.uploadsDir, file.Filename)
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())

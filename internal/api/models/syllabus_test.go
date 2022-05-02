@@ -5,10 +5,7 @@ import (
 )
 
 func TestGetAllSyllabi(t *testing.T) {
-	err := seedDB(t)
-	if err != nil {
-		t.Error(err)
-	}
+	mustSeedDB(t)
 
 	syll, err := GetAllSyllabi()
 	if err != nil {
@@ -41,6 +38,8 @@ func TestGetSyllabus(t *testing.T) {
 }
 
 func TestUpdateSyllabus(t *testing.T) {
+	mustSeedDB(t)
+
 	syll := Syllabus{Title: "Test Title 1 (updated)", Description: "Test Description 1 (updated"}
 	updated, err := UpdateSyllabus(1, &syll)
 

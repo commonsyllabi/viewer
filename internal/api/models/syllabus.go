@@ -14,9 +14,9 @@ type Syllabus struct {
 
 func CreateSyllabusTable() error {
 	ctx := context.Background()
-	db.NewCreateTable().Model((*Syllabus)(nil)).IfNotExists().Exec(ctx)
+	_, err := db.NewCreateTable().Model((*Syllabus)(nil)).IfNotExists().Exec(ctx)
 
-	return nil
+	return err
 }
 
 func GetAllSyllabi() ([]Syllabus, error) {

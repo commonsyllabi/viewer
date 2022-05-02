@@ -11,22 +11,22 @@ import (
 
 // Config holds port numbers, target directories
 type Config struct {
-	Port       string `yaml:"port"`
-	TmpDir     string `yaml:"tmpDir"`
-	UploadsDir string `yaml:"uploadsDir"`
-	FilesDir   string `yaml:"filesDir"`
-	PublicDir  string `yaml:"publicDir"`
+	port       string `yaml:"port"`
+	tmpDir     string `yaml:"tmpDir"`
+	uploadsDir string `yaml:"uploadsDir"`
+	filesDir   string `yaml:"filesDir"`
+	publicDir  string `yaml:"publicDir"`
 }
 
 var conf Config
 
 // defaults is called if there is an error opening and parsing the config file
 func (c *Config) defaults() {
-	c.Port = "3046"
-	c.TmpDir = "/tmp/commonsyllabi"
-	c.UploadsDir = "uploads"
-	c.FilesDir = "files"
-	c.PublicDir = "./internal/www/public"
+	c.port = "3046"
+	c.tmpDir = "/tmp/commonsyllabi"
+	c.uploadsDir = "uploads"
+	c.filesDir = "files"
+	c.publicDir = "./internal/www/public"
 }
 
 // load tries to load a yaml file from disk, and marshals it
