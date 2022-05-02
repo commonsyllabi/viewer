@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import Resource from './Resource.vue'
-import {ItemType} from '../js/types'
+import { ref, computed } from "vue";
+import Resource from "./Resource.vue";
+import { ItemType } from "../js/types";
 
 const props = defineProps<{
-  item: ItemType,
-  cartridge: string
-}>()
+  item: ItemType;
+  cartridge: string;
+}>();
 
-const showResources = ref(false)
-
+const showResources = ref(false);
 </script>
 
 <template>
@@ -23,15 +22,19 @@ const showResources = ref(false)
   </div>
 
   <h4 @click="showResources = !showResources" class="resources">Resources</h4>
-  <ul v-if="showResources" class="sub-resource" v-for="res in props.item.Resources">
+  <ul
+    v-if="showResources"
+    class="sub-resource"
+    v-for="res in props.item.Resources"
+  >
     <li>
-      <Resource :resource="res" :cartridge="cartridge"/>
-      </li>
+      <Resource :resource="res" :cartridge="cartridge" />
+    </li>
   </ul>
 </template>
 
 <style scoped>
-  .resources{
-    cursor: pointer;
-  }
+.resources {
+  cursor: pointer;
+}
 </style>

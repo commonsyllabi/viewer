@@ -1,39 +1,39 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { ResourceType } from '../js/types'
+import { ref } from "vue";
+import { ResourceType } from "../js/types";
 
-import Assignment from './Assignment.vue'
-import DiscussionTopic from './DiscussionTopic.vue'
-import LTI from './LTI.vue'
-import QTI from './QTI.vue'
-import Weblink from './Weblink.vue'
+import Assignment from "./Assignment.vue";
+import DiscussionTopic from "./DiscussionTopic.vue";
+import LTI from "./LTI.vue";
+import QTI from "./QTI.vue";
+import Weblink from "./Weblink.vue";
 
 const props = defineProps<{
-  resource: ResourceType,
-  cartridge: string
-}>()
+  resource: ResourceType;
+  cartridge: string;
+}>();
 
-const previewPath = ref("")
+const previewPath = ref("");
 
 function getFile(_evt: Event, _id: string) {
   fetch(`/api/file/${_id}?cartridge=${props.cartridge}`, {
-    method: 'GET'
+    method: "GET",
   })
-    .then(res => { 
-      return res.blob().then(blob => {
+    .then((res) => {
+      return res.blob().then((blob) => {
         return {
           contentType: res.headers.get("Content-Type"),
-          raw: blob
-        }
-      })
-      // previewPath.value = createFileURL(res) 
+          raw: blob,
+        };
+      });
+      // previewPath.value = createFileURL(res)
     })
-    .then(data => {
+    .then((data) => {
       console.log(data);
-      
-      previewPath.value = URL.createObjectURL(data.raw)
+
+      previewPath.value = URL.createObjectURL(data.raw);
     })
-    .catch(err => console.error(err));
+    .catch((err) => console.error(err));
 }
 </script>
 
@@ -80,7 +80,9 @@ function getFile(_evt: Event, _id: string) {
           <div
             class="resource-file"
             @click="getFile($event, props.resource.Identifier)"
-          >{{ f.Href }}</div>
+          >
+            {{ f.Href }}
+          </div>
           <div class="preview" v-if="previewPath != ''">
             <iframe :src="previewPath" frameborder="0"></iframe>
           </div>

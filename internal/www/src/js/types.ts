@@ -1,83 +1,83 @@
 export interface ManifestType {
-    Metadata: {
-        Lom: {
-            General: {
-                Title: {
-                    String: {
-                        Text: ""
-                    }
-                }
-            }
-        }
-    }
+  Metadata: {
+    Lom: {
+      General: {
+        Title: {
+          String: {
+            Text: "";
+          };
+        };
+      };
+    };
+  };
 }
 
 export interface ResourceType {
-    //-- basic learning application resource / webcontent
-    XMLName: {
-        Local: string
-    },
-    Type: string,
-    Identifier: string,
-    File: Array<{
-        Href: string
-    }>,
+  //-- basic learning application resource / webcontent
+  XMLName: {
+    Local: string;
+  };
+  Type: string;
+  Identifier: string;
+  File: Array<{
+    Href: string;
+  }>;
 
-    //-- topic
-    Title: string,
-    Text: {
-        Text: string
-    },
-    Attachments: {
-        Text: string,
-        Attachment: Array<{
-            Text: string,
-            Href: string
-        }>
-    }
-    
-    //-- assignment
-    Gradable: {
-        Text: string
-        PointsPossible: string
-    },
-    SubmissionFormats: {
-        Text: string,
-        Format: Array<{
-            Text: string,
-            Type: string
-        }>
-    }
+  //-- topic
+  Title: string;
+  Text: {
+    Text: string;
+  };
+  Attachments: {
+    Text: string;
+    Attachment: Array<{
+      Text: string;
+      Href: string;
+    }>;
+  };
 
-    //-- LTI
-    Description: string,
-    LaunchURL: string,
-    SecureLaunchURL: string,
-    Vendor: {
-        Text : string,
-        Name: string,
-        Description: string,
-        URL: string
-    }
+  //-- assignment
+  Gradable: {
+    Text: string;
+    PointsPossible: string;
+  };
+  SubmissionFormats: {
+    Text: string;
+    Format: Array<{
+      Text: string;
+      Type: string;
+    }>;
+  };
 
-    //-- QTI
-    Assessment: {
-        Title: string,
-        Text: string
-    }
+  //-- LTI
+  Description: string;
+  LaunchURL: string;
+  SecureLaunchURL: string;
+  Vendor: {
+    Text: string;
+    Name: string;
+    Description: string;
+    URL: string;
+  };
 
-    //-- Weblink
-    URL: {
-        Text: string,
-        Href: string
-    }
+  //-- QTI
+  Assessment: {
+    Title: string;
+    Text: string;
+  };
+
+  //-- Weblink
+  URL: {
+    Text: string;
+    Href: string;
+  };
 }
 
 export interface ItemType {
-    Item: {
-        Identifier: string,
-        Title: string,
-    },
-    Children: Array<ItemType>,
-    Resources: Array<ResourceType>
+  Item: {
+    Identifier: string;
+    Title: string;
+  };
+  Children: Array<ItemType>;
+  Resources: Array<ResourceType>;
 }

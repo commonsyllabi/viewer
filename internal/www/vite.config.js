@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,11 +10,11 @@ export default defineConfig({
   //     }
   //   }
   // },
-  root: './src',
+  root: "./src",
   build: {
-    outDir: '../public'
+    outDir: "../public",
   },
   devServer: {
-  proxy: 'http://localhost:2046/',
-  }
-})
+    proxy: "http://localhost:2046/",
+  },
+});

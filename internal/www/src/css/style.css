@@ -1,36 +1,40 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    box-sizing: border-box;
+/* body {
+  margin: 0;
+  padding: 0;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  box-sizing: border-box;
 }
 
-header, main, footer{
-    width: 60vw;
-    margin:auto;
-    padding-top: 20px;
+header,
+main,
+footer {
+  width: 60vw;
+  margin: auto;
+  padding-top: 20px;
 }
 
-input[type="file"], button{
-    background-color: white;
-    border: 1px solid black;
-    margin-bottom: 10px;
-    padding: 10px;
-    cursor: pointer;
+input[type="file"],
+button {
+  background-color: white;
+  border: 1px solid black;
+  margin-bottom: 10px;
+  padding: 10px;
+  cursor: pointer;
 }
 
-.item{
-    margin-left: 5px;
-    margin-bottom: 4vh;
+.item {
+  margin-left: 5px;
+  margin-bottom: 4vh;
 }
 
 .resources {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .resource {
-    margin: 5px;
-    padding: 5px;
-    border: 1px solid black;
-  }
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid black;
+} */
