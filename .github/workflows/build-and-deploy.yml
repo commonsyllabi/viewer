@@ -141,6 +141,8 @@ jobs:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           source: "./.env"
           target: "/var/www/commonsyllabi"
+      - name: "Checkout main"
+        uses: actions/checkout@v3
       - name: "SCP post-deploy.sh"
         uses: appleboy/scp-action@master
         with:
