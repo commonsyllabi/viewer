@@ -7,7 +7,7 @@ env:
 
 jobs:
   build-frontend:
-    name: "Test and build front-end"
+    name: "Test and build Vue frontend"
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout main"
@@ -53,7 +53,7 @@ jobs:
           path: front.zip
 
   build-backend:
-    name: "Test and build go backend"
+    name: "Test and build Go backend"
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout main"
@@ -112,7 +112,7 @@ jobs:
         with:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           name: id_rsa # optional
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          known_hosts: ${{ secrets.ENFRAMED_KNOWN_HOSTS }}
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
