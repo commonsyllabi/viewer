@@ -2,7 +2,7 @@
 import { ResourceType } from "../js/types";
 
 const props = defineProps<{
-  topic: ResourceType;
+  topic: ResourceType
 }>();
 </script>
 

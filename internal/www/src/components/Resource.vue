@@ -9,8 +9,8 @@ import QTI from "./QTI.vue";
 import Weblink from "./Weblink.vue";
 
 const props = defineProps<{
-  resource: ResourceType;
-  cartridge: string;
+  resource: ResourceType,
+  cartridge: string
 }>();
 
 const previewPath = ref("");
@@ -83,8 +83,14 @@ function getFile(_evt: Event, _id: string) {
           >
             {{ f.Href }}
           </div>
-          <div class="preview" v-if="previewPath != ''">
-            <iframe :src="previewPath" frameborder="0"></iframe>
+          <div
+            v-if="previewPath != ''"
+            class="preview"
+          >
+            <iframe
+              :src="previewPath"
+              frameborder="0"
+            />
           </div>
         </li>
       </ol>

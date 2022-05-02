@@ -4,32 +4,47 @@
   import { ItemType } from "../js/types";
 
   const props = defineProps<{
-    item: ItemType;
-    cartridge: string;
+    item: ItemType,
+    cartridge: string
   }>();
 
   const showResources = ref(false);
 </script>
 
 <template>
-  <h6 class="fs-6 text-uppercase">Title:</h6>
+  <h6 class="fs-6 text-uppercase">
+    Title:
+  </h6>
   <h3>{{ props.item.Item.Title }}</h3>
 
   <div v-if="props.item.Children">
-    <h6 class="fs-6 text-uppercase">Children:</h6>
-    <div class="sub-item" v-for="child in props.item.Children">
+    <h6 class="fs-6 text-uppercase">
+      Children:
+    </h6>
+    <div
+      v-for="child in props.item.Children"
+      class="sub-item"
+    >
       <div>{{ child.Item.Identifier }} - {{ child.Item.Title }}</div>
     </div>
   </div>
 
-  <h4 @click="showResources = !showResources" class="resources">Resources</h4>
+  <h4
+    class="resources"
+    @click="showResources = !showResources"
+  >
+    Resources
+  </h4>
   <ul
+    v-for="res in props.item.Resources"
     v-if="showResources"
     class="sub-resource"
-    v-for="res in props.item.Resources"
   >
     <li>
-      <Resource :resource="res" :cartridge="cartridge" />
+      <Resource
+        :resource="res"
+        :cartridge="cartridge"
+      />
     </li>
   </ul>
 </template>

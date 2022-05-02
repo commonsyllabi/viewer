@@ -2,42 +2,88 @@
   <div class="container p-3">
     <!-- upload form -->
     <div class="container pt-4 mb-3 border rounded"> 
-      <form action="/api/upload" method="post" id="upload-form">
+      <form
+        id="upload-form"
+        action="/api/upload"
+        method="post"
+      >
         <div class="form-group">
-          <label for="cartridgeInput" class="d-block  h5 mb-3">Upload a common cartridge (.imscc) file</label>
-          <input type="file" name="cartridge" class="form-control-file d-block  mb-2" id="upload-file" />
-          <button id="upload-submit" type="button" class="btn btn-primary  mb-3" @click="upload()">upload</button>
+          <label
+            for="cartridgeInput"
+            class="d-block  h5 mb-3"
+          >Upload a common cartridge (.imscc) file</label>
+          <input
+            id="upload-file"
+            type="file"
+            name="cartridge"
+            class="form-control-file d-block  mb-2"
+          >
+          <button
+            id="upload-submit"
+            type="button"
+            class="btn btn-primary  mb-3"
+            @click="upload()"
+          >
+            upload
+          </button>
         </div>
       </form>
     </div>
 
     <!-- status log -->
-    <div id="log" class="container py-4 mb-3 border rounded text-light bg-dark">
+    <div
+      id="log"
+      class="container py-4 mb-3 border rounded text-light bg-dark"
+    >
       <pre>{{ log }}</pre>
     </div>
 
     <!-- metadata viewer -->
     <div class="row mb-3">
-      <div class="accordion" id="metadata-accordion">
+      <div
+        id="metadata-accordion"
+        class="accordion"
+      >
         <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeta" aria-expanded="true" aria-controls="collapseOne">
+          <h2
+            id="headingOne"
+            class="accordion-header"
+          >
+            <button
+              class="accordion-button"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseMeta"
+              aria-expanded="true"
+              aria-controls="collapseOne"
+            >
               Cartridge Metadata
             </button>
           </h2>
-          <div id="collapseMeta" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#metadata-accordion">
+          <div
+            id="collapseMeta"
+            class="accordion-collapse collapse show"
+            aria-labelledby="headingOne"
+            data-bs-parent="#metadata-accordion"
+          >
             <div class="accordion-body">
-                <!-- file metadata placeholder -->
-                <div v-if="!isUploaded" class="metadata-placeholder">
-                  <span class="text-muted"><em>metadata goes here</em></span>
-                </div>
+              <!-- file metadata placeholder -->
+              <div
+                v-if="!isUploaded"
+                class="metadata-placeholder"
+              >
+                <span class="text-muted"><em>metadata goes here</em></span>
+              </div>
 
-                <!-- file metadata -->
-                <div v-if="isUploaded" class="metadata">
-                  <div class="title">
-                    {{ manifest.Metadata.Lom.General.Title.String.Text }}
-                  </div>
+              <!-- file metadata -->
+              <div
+                v-if="isUploaded"
+                class="metadata"
+              >
+                <div class="title">
+                  {{ manifest.Metadata.Lom.General.Title.String.Text }}
                 </div>
+              </div>
             </div>
           </div>
         </div>
@@ -47,30 +93,45 @@
     <!-- viewer -->
     <!-- <div v-if="isUploaded" class="container cartridge"> -->
     <div class="container border rounded mb-5 cartridge-viewer">
-
       <!-- file navigator -->
       <div class="row">
-
         <!-- items panel -->
         <div class="col-6 overflow-scroll items-panel">
-          <h6 class="my-2">Items Index</h6>
+          <h6 class="my-2">
+            Items Who Knows Index
+          </h6>
 
           <!-- items listing -->
           <!-- TODO: dont use index, bad prac -->
-          <div v-for="(i, index) in items" :key="index">
-            <Item :item="i" :cartridge="cartridge.name" />
-            <hr />
+          <div
+            v-for="(i, index) in items"
+            :key="index"
+          >
+            <Item
+              :item="i"
+              :cartridge="cartridge.name"
+            />
+            <hr>
           </div>
         </div>
 
         <!-- resources panel -->
         <div class="col-6  overflow-scroll resources-panel">
-          <h6 class="my-2">Resources Index</h6>
+          <h6 class="my-2">
+            Resources Index
+          </h6>
 
           <!-- resources listing -->
           <!-- TODO: dont use index, bad prac -->
-          <div class="" v-for="(r, index) in resources" :key="index">
-            <Resource :resource="r" :cartridge="cartridge.name" />
+          <div
+            v-for="(r, index) in resources"
+            :key="index"
+            class=""
+          >
+            <Resource
+              :resource="r"
+              :cartridge="cartridge.name"
+            />
           </div>
         </div>
       </div>
@@ -79,11 +140,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { ManifestType, ItemType, ResourceType } from "./js/types";
 
 import Resource from './components/Resource.vue'
 import Item from './components/Item.vue'
+
+import { stub } from './js/stub'
 
 let cartridge = reactive({ name: "" });
 let manifest = reactive<ManifestType>({
@@ -186,6 +249,19 @@ let upload = function () {
       console.error(err);
     });
 };
+
+onMounted( () => {
+    isUploaded.value = true;
+
+    manifest = JSON.parse(stub.data);
+    items = JSON.parse(stub.items);
+
+    //-- todo, here we have to get rid of the Item field of the returned struct... what to do?
+    for (let r of JSON.parse(stub.resources)) {
+      resources.push(r.Resource);
+    }
+});
+
 
 </script>
 
