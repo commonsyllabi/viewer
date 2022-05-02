@@ -50,7 +50,7 @@ func (c *Config) defaults() {
 	c.Port = "3046"
 	c.UploadsDir = "/tmp/uploads"
 	c.FilesDir = "/tmp/files"
-	c.PublicDir = "./public"
+	c.PublicDir = "./internal/www/public"
 }
 
 var conf Config

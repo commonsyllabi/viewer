@@ -109,6 +109,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: back-bundle
+      - name: 'Create env file'
+        run: |
+          touch .env
+          echo DB_USER=cosyl >> .env
+          echo DB_PASSWORD=cosyl >> .env
+          echo DB_NAME=cosyl >> .env
+          echo DB_HOST=localhost >> .env
+          cat .env
       - name: copy frontend via SCP
         uses: appleboy/scp-action@master
         with:
@@ -125,5 +133,13 @@ jobs:
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
           source: "./cosyl"
           target: "/var/www/commonsyllabi"
+      - name: copy env via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          source: "./.env"
+          target: "/var/www/commonsyllabi"
 
-# then do DO stuff
+# then do DO postdeploy stuff
