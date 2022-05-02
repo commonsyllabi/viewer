@@ -86,7 +86,7 @@ jobs:
       # - name: "Run tests" # test depends on uninstalled system dependencies
       #   run: go test ./...
       - name: "Build binary"
-        run: go build -o main internal/main.go
+        run: go build -o ./cosyl internal/main.go
       - name: "Bundle and upload"
         uses: actions/upload-artifact@v3
         with:
@@ -123,8 +123,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
-          source: "./main"
+          source: "./cosyl"
           target: "/var/www/commonsyllabi"
 
-# ssh everything to DO
 # then do DO stuff
