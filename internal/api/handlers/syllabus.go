@@ -6,13 +6,12 @@ import (
 	"strconv"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
-	"github.com/commonsyllabi/viewer/internal/db"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/gin-gonic/gin"
 )
 
 func AllSyllabi(c *gin.Context) {
-	syllabi, err := db.GetAllSyllabi()
+	syllabi, err := models.GetAllSyllabi()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting syllabi: %v", err)
@@ -37,7 +36,7 @@ func NewSyllabus(c *gin.Context) {
 		return
 	}
 
-	_, err = db.AddNewSyllabus(&syll)
+	_, err = models.AddNewSyllabus(&syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error creating syllabus: %v", err)
@@ -69,7 +68,7 @@ func UpdateSyllabus(c *gin.Context) {
 		return
 	}
 
-	_, err = db.UpdateSyllabus(id, &syll)
+	_, err = models.UpdateSyllabus(id, &syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error updating syllabus %d: %v", id, err)
@@ -94,7 +93,7 @@ func GetSyllabus(c *gin.Context) {
 		return
 	}
 
-	result, err := db.GetSyllabus(id)
+	result, err := models.GetSyllabus(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
@@ -119,7 +118,7 @@ func DeleteSyllabus(c *gin.Context) {
 		return
 	}
 
-	err = db.DeleteSyllabus(id)
+	err = models.DeleteSyllabus(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
