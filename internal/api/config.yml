@@ -1,3 +1,4 @@
-port: 2046
+port: 3046
 uploadsDir: uploads
 filesDir: tmp
+publicDir: "./public"

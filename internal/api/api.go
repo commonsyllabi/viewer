@@ -26,6 +26,7 @@ type Config struct {
 	Port       string `yaml:"port"`
 	UploadsDir string `yaml:"uploadsDir"`
 	FilesDir   string `yaml:"filesDir"`
+	PublicDir  string `yaml:"./public"`
 }
 
 func (cc *Config) loadConfig(path string) error {
@@ -46,9 +47,10 @@ func (cc *Config) loadConfig(path string) error {
 }
 
 func (c *Config) defaults() {
-	c.Port = "2046"
+	c.Port = "3046"
 	c.UploadsDir = "/tmp/uploads"
 	c.FilesDir = "/tmp/files"
+	c.PublicDir = "./public"
 }
 
 var conf Config
@@ -116,7 +118,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 	router.Use(gin.Recovery())
 
 	cwd, _ := os.Getwd()
-	publicPath := filepath.Join(cwd, "./internal/www/public")
+	publicPath := filepath.Join(cwd, conf.PublicDir)
 
 	router.Use(static.Serve("/", static.LocalFile(publicPath, false)))
 
