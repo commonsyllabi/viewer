@@ -1,0 +1,125 @@
+on:
+  push:
+    branches:
+      - api
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  build-frontend:
+    name: "Test and build front-end"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout main"
+        uses: actions/checkout@v3
+      - name: "Setup node"
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - name: "Install system dependencies"
+        run: |
+          apt update
+          apt install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: "Install package dependencies"
+        run: |
+          npm install --global yarn
+          yarn
+        working-directory: ./internal/www
+      - name: "Build files"
+        run: yarn build
+        working-directory: ./internal/www
+      - name: "Test front-end"
+        run: yarn autotest
+        working-directory: ./internal/www
+      - name: "Zip built files"
+        run: zip -r -9 front.zip ./internal/www/public
+      - name: "Bundle and upload"
+        uses: actions/upload-artifact@v3
+        with:
+          name: front-bundle
+          retention-days: 1
+          path: front.zip
+
+  build-backend:
+    name: "Test and build go backend"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout main"
+        uses: actions/checkout@v3
+      # - name: "Install dependencies" # hangs on postgres install
+      #   run: |
+      #     sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+      #     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      #     apt update
+      #     DEBIAN_FRONTEND=noninteractive apt install -y libreoffice
+      #     DEBIAN_FRONTEND=noninteractive apt install -y postgresql
+      #     sudo -iu postgres
+      #     createuser test
+      #     createdb test
+      - name: "Setup Go"
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.18"
+      - name: "Setup modules cache"
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: "Install modules"
+        run: go mod download
+      # - name: "Run tests" # test depends on uninstalled system dependencies
+      #   run: go test ./...
+      - name: "Build binary"
+        run: go build -o main internal/main.go
+      - name: "Bundle and upload"
+        uses: actions/upload-artifact@v3
+        with:
+          name: back-bundle
+          retention-days: 1
+          path: ./main
+
+  upload-to-remote:
+    name: "Upload front and backend to remote"
+    runs-on: ubuntu-latest
+    needs: [build-frontend, build-backend]
+    steps:
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: front-bundle
+      - name: Download backend artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: back-bundle
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          name: id_rsa # optional
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+      - name: Uploading artifacts to remote
+        run: |
+          scp front.zip ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/commonsyllabi
+          scp ./main ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/commonsyllabi
+
+# ssh everything to DO
+# then do DO stuff

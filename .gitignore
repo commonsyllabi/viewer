@@ -26,6 +26,7 @@ internal/www/cypress/screenshots
 internal/www/cypress/videos
 
 .env
+.github/.secrets
 
 # Fontend .gitignore
 # Logs
