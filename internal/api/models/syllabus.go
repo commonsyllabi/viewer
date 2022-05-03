@@ -6,13 +6,13 @@ import (
 )
 
 type Syllabus struct {
-	Id          int64 `bun:",pk,autoincrement"`
-	Title       string
-	Description string
-	Contributor Contributor
+	ID          int64        `bun:"id,pk,autoincrement"`
+	Title       string       `form:"title" json:"title"`
+	Description string       `form:"description" json:"description"`
+	Attachments []Attachment `bun:"rel:has-many"`
 }
 
-func CreateSyllabusTable() error {
+func CreateSyllabiTable() error {
 	ctx := context.Background()
 	_, err := db.NewCreateTable().Model((*Syllabus)(nil)).IfNotExists().Exec(ctx)
 
@@ -42,16 +42,15 @@ func UpdateSyllabus(id int, syll *Syllabus) (Syllabus, error) {
 
 func GetSyllabus(id int) (Syllabus, error) {
 	ctx := context.Background()
-	table := new(Syllabus)
 	var syll Syllabus
-	err := db.NewSelect().Model(table).Where("id = ?", id).Scan(ctx, &syll)
+	err := db.NewSelect().Model(&syll).Where("id = ?", id).Relation("Attachments").Scan(ctx)
 	return syll, err
 }
 
 func DeleteSyllabus(id int) error {
 	ctx := context.Background()
 	table := new(Syllabus)
-	_, err := db.NewDelete().Model(table).Where("id = ?", id).Exec(ctx)
+	_, err := db.NewDelete().Model(table).Where("id = ?", id).Exec(ctx) //-- what to do with dangling attachments?
 
 	return err
 }

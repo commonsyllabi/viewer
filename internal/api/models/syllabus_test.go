@@ -17,6 +17,7 @@ func TestGetAllSyllabi(t *testing.T) {
 	}
 }
 
+// -- todo: handle when the response is empty
 func TestAddNewSyllabus(t *testing.T) {
 	syll := Syllabus{Title: "Test Title 2", Description: "Test Description 2"}
 	_, err := AddNewSyllabus(&syll)
@@ -32,8 +33,8 @@ func TestGetSyllabus(t *testing.T) {
 		t.Error(err)
 	}
 
-	if syll.Id != 1 {
-		t.Errorf("Expecting ID to be 1, got %d", syll.Id)
+	if syll.ID != 1 {
+		t.Errorf("Expecting ID to be 1, got %d", syll.ID)
 	}
 }
 

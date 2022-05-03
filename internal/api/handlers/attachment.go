@@ -11,42 +11,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AllSyllabi(c *gin.Context) {
-	syllabi, err := models.GetAllSyllabi()
+func AllAttachments(c *gin.Context) {
+	attachments, err := models.GetAllAttachments()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting syllabi: %v", err)
+		zero.Log.Error().Msgf("error getting attachments: %v", err)
 		return
 	}
 
-	bytes, err := json.Marshal(syllabi)
+	bytes, err := json.Marshal(attachments)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
+		zero.Log.Error().Msgf("error marshalling attachments: %v", err)
 		return
 	}
 
 	c.JSON(http.StatusOK, string(bytes))
 }
 
-func NewSyllabus(c *gin.Context) {
-
-	// save the actual syllabus
-	var syll models.Syllabus
-	err := c.Bind(&syll)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	syll, err = models.AddNewSyllabus(&syll)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error creating syllabus: %v", err)
-		return
-	}
-
-	// get the attachments
+func NewAttachment(c *gin.Context) {
 	var attachments []models.Attachment
 	form, _ := c.MultipartForm()
 	files := form.File["attachments[]"]
@@ -65,21 +48,13 @@ func NewSyllabus(c *gin.Context) {
 		}
 
 		attachment := models.Attachment{
-			Name:       f.Filename,
-			SyllabusID: syll.ID,
-			File:       bytes,
-			Type:       http.DetectContentType(bytes),
+			Name: f.Filename,
+			File: bytes,
+			Type: http.DetectContentType(bytes),
 		}
 
 		att, _ := models.AddNewAttachment(&attachment)
 		attachments = append(attachments, att)
-	}
-
-	s, err := json.Marshal(syll)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
-		return
 	}
 
 	a, err := json.Marshal(attachments)
@@ -89,13 +64,10 @@ func NewSyllabus(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"syllabus":    string(s),
-		"attachments": string(a),
-	})
+	c.JSON(http.StatusOK, gin.H{"attachments": string(a)})
 }
 
-func UpdateSyllabus(c *gin.Context) {
+func UpdateAttachment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
@@ -103,31 +75,31 @@ func UpdateSyllabus(c *gin.Context) {
 		return
 	}
 
-	var syll models.Syllabus
-	err = c.Bind(&syll)
+	var att models.Attachment
+	err = c.Bind(&att)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	_, err = models.UpdateSyllabus(id, &syll)
+	_, err = models.UpdateAttachment(id, &att)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error updating syllabus %d: %v", id, err)
+		zero.Log.Error().Msgf("error updating attachment %d: %v", id, err)
 		return
 	}
 
-	bytes, err := json.Marshal(syll)
+	bytes, err := json.Marshal(att)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
+		zero.Log.Error().Msgf("error marshalling attachment: %v", err)
 		return
 	}
 
 	c.JSON(http.StatusOK, string(bytes))
 }
 
-func GetSyllabus(c *gin.Context) {
+func GetAttachment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
@@ -135,24 +107,24 @@ func GetSyllabus(c *gin.Context) {
 		return
 	}
 
-	result, err := models.GetSyllabus(id)
+	result, err := models.GetAttachment(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
+		zero.Log.Error().Msgf("error getting Attachment %d: %v", id, err)
 		return
 	}
 
 	bytes, err := json.Marshal(result)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
+		zero.Log.Error().Msgf("error marshalling Attachment: %v", err)
 		return
 	}
 
 	c.JSON(http.StatusOK, string(bytes))
 }
 
-func DeleteSyllabus(c *gin.Context) {
+func DeleteAttachment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
@@ -160,10 +132,10 @@ func DeleteSyllabus(c *gin.Context) {
 		return
 	}
 
-	err = models.DeleteSyllabus(id)
+	err = models.DeleteAttachment(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
+		zero.Log.Error().Msgf("error getting Attachment %d: %v", id, err)
 		return
 	}
 

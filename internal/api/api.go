@@ -131,6 +131,15 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		syllabi.DELETE("/:id", handlers.DeleteSyllabus)
 	}
 
+	attachments := router.Group("/attachments")
+	{
+		attachments.GET("/", handlers.AllAttachments)
+		attachments.POST("/", handlers.NewAttachment)
+		attachments.POST("/:id", handlers.UpdateAttachment)
+		attachments.GET("/:id", handlers.GetAttachment)
+		attachments.DELETE("/:id", handlers.DeleteAttachment)
+	}
+
 	return router, nil
 }
 

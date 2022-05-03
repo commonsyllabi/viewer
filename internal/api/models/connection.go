@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
@@ -18,7 +19,26 @@ func InitDB(user, password, name, host string) error {
 	db = bun.NewDB(sqldb, pgdialect.New())
 
 	zero.Log.Info().Msgf("Connected: %v", url)
-	err := CreateSyllabusTable()
+	err := setupTables(true)
+	return err
+}
+
+func setupTables(reset bool) error {
+	ctx := context.Background()
+	if reset {
+		db.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
+		db.NewDropTable().Model(&Contributor{}).IfExists().Exec(ctx)
+		db.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
+	}
+
+	if err := CreateSyllabiTable(); err != nil {
+		return err
+	}
+	if err := CreateContributorsTable(); err != nil {
+		return err
+	}
+	err := CreateAttachmentsTable()
+
 	return err
 }
 
