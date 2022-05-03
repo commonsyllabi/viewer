@@ -92,6 +92,12 @@ func TestLoadCorrect(t *testing.T) {
 
 func TestLoadAll(t *testing.T) {
 	cwd, _ := os.Getwd()
+
+	_, err := os.Stat(filepath.Join(cwd, allTestFilesDir))
+	if os.IsNotExist(err) {
+		t.Skip("dump folder does not exist, skipping")
+	}
+
 	files, err := ioutil.ReadDir(filepath.Join(cwd, allTestFilesDir))
 
 	if err != nil {
@@ -118,49 +124,10 @@ func TestLoadAll(t *testing.T) {
 		}
 
 		if cc.Title() == "" {
-			t.Error("Cartridge Title should not be empty!")
+			t.Errorf("expected non-empty string for title, got %v", cc.Title())
 		}
 
 		fmt.Printf("Parsed %d/%d - %s\n", i, len(files), cc.Title())
-	}
-}
-
-func TestParseManifestAll(t *testing.T) {
-	cwd, _ := os.Getwd()
-	files, err := ioutil.ReadDir(filepath.Join(cwd, allTestFilesDir))
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	fmt.Printf("testing %d cartridges\n", len(files))
-	var i int = 0
-	for _, file := range files {
-		i++
-		if file.IsDir() {
-			continue
-		}
-
-		cc, err := Load(filepath.Join(allTestFilesDir, file.Name()))
-
-		if err != nil {
-			t.Error(err)
-		}
-
-		var empty IMSCC
-		if reflect.DeepEqual(cc, empty) {
-			t.Errorf("Expecting struct type, got: %v", reflect.TypeOf(cc).Kind())
-		}
-
-		manifest, err := cc.Manifest()
-
-		if err != nil {
-			t.Errorf("Error parsing manifest: %v", err)
-		}
-
-		if reflect.TypeOf(manifest).Kind() != reflect.Struct {
-			t.Errorf("Expecting struct type, got: %v", reflect.TypeOf(manifest).Kind())
-		}
 	}
 }
 

@@ -28,6 +28,7 @@ internal/www/cypress/videos
 test_files/
 
 .env
+.github/.secrets
 
 # Fontend .gitignore
 # Logs

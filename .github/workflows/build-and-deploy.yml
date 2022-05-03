@@ -1,0 +1,162 @@
+on:
+  push:
+    branches:
+      - main
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  build-frontend:
+    name: "Test and build Vue frontend"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout main"
+        uses: actions/checkout@v3
+      - name: "Setup node"
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - name: "Install system dependencies"
+        run: |
+          sudo apt update
+          sudo apt install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: "Install package dependencies"
+        run: |
+          npm install --global yarn
+          yarn
+        working-directory: ./internal/www
+      - name: "Build files"
+        run: yarn build
+        working-directory: ./internal/www
+      - name: "Test front-end"
+        run: yarn autotest
+        working-directory: ./internal/www
+      - name: "Zip built files"
+        run: zip -r -9 front.zip ./internal/www/public
+      - name: "Bundle and upload"
+        uses: actions/upload-artifact@v3
+        with:
+          name: front-bundle
+          retention-days: 1
+          path: front.zip
+
+  build-backend:
+    name: "Test and build Go backend"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout main"
+        uses: actions/checkout@v3
+      # - name: "Install dependencies" # hangs on postgres install
+      #   run: |
+      #     sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+      #     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      #     apt update
+      #     DEBIAN_FRONTEND=noninteractive apt install -y libreoffice
+      #     DEBIAN_FRONTEND=noninteractive apt install -y postgresql
+      #     sudo -iu postgres
+      #     createuser test
+      #     createdb test
+      - name: "Setup Go"
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.18"
+      - name: "Setup modules cache"
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: "Install modules"
+        run: go mod download
+      # - name: "Run tests" # test depends on uninstalled system dependencies
+      #   run: go test ./...
+      - name: "Build binary"
+        run: go build -o ./cosyl internal/main.go
+      - name: "Bundle and upload"
+        uses: actions/upload-artifact@v3
+        with:
+          name: back-bundle
+          retention-days: 1
+          path: ./cosyl
+
+  upload-to-remote:
+    name: "Upload front and backend to remote"
+    runs-on: ubuntu-latest
+    needs: [build-frontend, build-backend]
+    steps:
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: front-bundle
+      - name: "Unzip frontend files"
+        run: unzip front.zip && rm front.zip
+      - name: Download backend artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: back-bundle
+      - name: "Create env file"
+        run: |
+          touch .env
+          echo DB_USER=cosyl >> .env
+          echo DB_PASSWORD=cosyl >> .env
+          echo DB_NAME=cosyl >> .env
+          echo DB_HOST=localhost >> .env
+          cat .env
+      - name: "SCP frontend"
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          source: "./internal/www/public"
+          target: "/var/www/commonsyllabi"
+      - name: "SCP backend"
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          source: "./cosyl"
+          target: "/var/www/commonsyllabi"
+      - name: "SCP env"
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          source: "./.env"
+          target: "/var/www/commonsyllabi"
+      - name: "Checkout main"
+        uses: actions/checkout@v3
+      - name: "SCP post-deploy.sh"
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          source: "./internal/post-deploy.sh"
+          target: "/var/www/commonsyllabi"
+      - name: "Post-deploy remote actions"
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.ENFRAMED_SSH_SECRET }}
+          script: |
+            cd /var/www/commonsyllabi
+            ./post-deploy.sh
