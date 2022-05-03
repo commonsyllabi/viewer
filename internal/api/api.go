@@ -22,6 +22,7 @@ import (
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
@@ -69,6 +70,10 @@ func StartServer() error {
 
 func setupRouter(debug bool) (*gin.Engine, error) {
 	router := gin.New()
+
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+	}))
 
 	if debug {
 		gin.SetMode(gin.DebugMode)

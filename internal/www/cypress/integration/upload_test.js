@@ -5,7 +5,7 @@
 describe('Cartridge page', () => {
     it('uploads a cartridge', () => {
         cy.intercept('POST', '/api/upload', { fixture: 'test_01_upload_response.json' }).as('uploadCartridge')
-        cy.visit('/')
+        cy.visit('/cartridge.html')
 
         cy.get('#upload-file').selectFile("cypress/fixtures/test_01.imscc")
         cy.get('#upload-submit').click()
