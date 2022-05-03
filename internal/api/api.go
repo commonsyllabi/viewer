@@ -71,9 +71,7 @@ func StartServer() error {
 func setupRouter(debug bool) (*gin.Engine, error) {
 	router := gin.New()
 
-	router.Use(cors.New(cors.Config{
-		AllowAllOrigins: true,
-	}))
+	router.Use(cors.Default())
 
 	if debug {
 		gin.SetMode(gin.DebugMode)

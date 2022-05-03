@@ -4,11 +4,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 
-const msg = "Hello!"
+const msg = ref("Hello!")
+const HOST = import.meta.env.DEV ? "http://localhost:3046": ""
+
 onMounted(() => {
-    fetch('http://localhost:3046/syllabi/',
+    
+    fetch(`${HOST}/syllabi/`,
     {
         method: 'GET'
     })
@@ -17,6 +20,10 @@ onMounted(() => {
     })
     .then(data => {
         console.log(data);
+        if (data.length > 0) 
+            msg.value = "No syllabi :("
+        else
+            msg.value = `There are ${data.length} syllabi.`
         
     })
     .catch(err => {
