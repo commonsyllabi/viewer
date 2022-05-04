@@ -5,10 +5,9 @@
         <div class="syllabi">
             <ul>
                 <li v-for="syllabus in syllabi">
-                hey
-                    <!-- <div>{{ syllabus.ID }}</div>
+                    <div>{{ syllabus.ID }}</div>
                     <div>{{ syllabus.title }}</div>
-                    <div>{{ syllabus.description }}</div> -->
+                    <div>{{ syllabus.description }}</div>
                 </li>
             </ul>
         </div>
@@ -17,10 +16,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
+import { SyllabusType } from './js/types';
 
 const msg = ref("Hello!")
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
-const syllabi = reactive([])
+const syllabi = new Array<SyllabusType>()
 
 onMounted(() => {
     fetch(`${HOST}/syllabi/`,

@@ -230,7 +230,7 @@ let submit = () => {
   const formElem = document.getElementById("submit-form") as HTMLFormElement;
   const formData = new FormData(formElem);
 
-  if (validateSubmssion(formData)) {
+  if (validateSubmission(formData)) {
     console.warn("can't submit an empty title or description!");
     log.value = "can't submit an empty title or description!";
     return;
@@ -249,7 +249,7 @@ let submit = () => {
   })
 }
 
-let validateSubmssion = (_data : FormData) => {
+let validateSubmission = (_data : FormData) => {
   if(_data == null)
     return false
   else if (_data.get("title") != undefined || _data.get("description") != undefined)

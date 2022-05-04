@@ -1,3 +1,27 @@
+export interface SyllabusType {
+  ID: number,
+  description: string,
+  title: string,
+  Attachments: Array<AttachmentType>,
+
+}
+
+export interface AttachmentType {
+  ID: number,
+  Name: string,
+  Type: string,
+  File: string,
+  SyllabusID: number,
+  Syllabus: SyllabusType
+}
+
+export interface ContributorType {
+  ID: number,
+  Name: string,
+  Email: string,
+  Syllabi: Array<SyllabusType>
+}
+
 export interface ManifestType {
   Metadata: {
     Lom: {
