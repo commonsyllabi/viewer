@@ -33,6 +33,7 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style lang="scss">
+@import "./css/global-vars.scss";
 
 </style>
