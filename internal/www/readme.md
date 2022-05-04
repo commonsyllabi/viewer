@@ -35,3 +35,16 @@ yarn test
 ```
 
 Or alternatively, `yarn autotest` combines `start` and `test`
+
+### Database
+
+The API connects to a Postgres database called `cosyl`, with username `cosyl` and password `cosyl`. These are being set in the .env file, along with the `DB_HOST`.
+
+`DB_HOST` is the hostname of where Postgres runs. Locally, this is `localhost`. When running with Docker, it's `db` (the `name` set in `docker-compose.yml`).
+
+If you change the username, password or db name, you need to make sure the new users and databases are created.  You can do it with `psql` locally, and by removing the data volume of the docker image, with
+
+```
+docker-compose down --volumes
+docker-compose build
+```

@@ -4,15 +4,15 @@ services:
     user: postgres
     container_name: db
     environment:
-      POSTGRES_USER: $${DB_USER}
-      POSTGRES_PASSWORD: $${DB_PASSWORD}
-      POSTGRES_DB: $${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres && psql -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} && psql -U ${DB_USER}" ]
       interval: 5s
       timeout: 3s
       retries: 3
@@ -26,7 +26,7 @@ services:
       db:
         condition: service_healthy
     ports:
-     - 3046:3046
+     - $PORT:$PORT
     restart: always
     tmpfs:
       - /tmp
