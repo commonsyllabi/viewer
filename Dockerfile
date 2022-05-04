@@ -1,7 +1,7 @@
 FROM node:16-alpine as node
 
 RUN mkdir /dist
-COPY ./internal/api/www /dist
+COPY ./internal/www /dist
 WORKDIR /dist
 RUN yarn && yarn build
 
@@ -14,7 +14,7 @@ RUN update-ms-fonts
 RUN mkdir /app
 COPY . /app
 WORKDIR /app
-COPY --from=node /dist/public/ internal/api/www/public/
+COPY --from=node /dist/public/ internal/www/public/
 
 RUN go mod download
 RUN go build -o main internal/main.go

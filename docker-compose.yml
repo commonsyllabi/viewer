@@ -4,9 +4,9 @@ services:
     user: postgres
     container_name: db
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: $${DB_USER}
+      POSTGRES_PASSWORD: $${DB_PASSWORD}
+      POSTGRES_DB: $${DB_NAME}
     ports:
       - 5432:5432
     volumes:
@@ -26,7 +26,7 @@ services:
       db:
         condition: service_healthy
     ports:
-     - 2046:2046
+     - 3046:3046
     restart: always
     tmpfs:
       - /tmp
