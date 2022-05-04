@@ -18,7 +18,7 @@ This runs the Go backend on a port defined by `config.go`, either read from `con
 
 ### To Test
 
-Tests are written in the `integration` folder, and can use dummy data as request responses (ajax, fetch, axios, etc.), in the `fixtures` folder.
+Tests are written in the `integration` folder, and can use dummy data as request responses (ajax, fetch, axios, etc.), from the `fixtures` folder.
 
 Open cypress:
 
@@ -26,7 +26,7 @@ Open cypress:
 yarn run cypress open
 ```
 
-Serve the frontend on `localhost:8080` (_note:_ this server does not work for reloading, only used for testing):
+Serve the frontend on `localhost:8080` (_note:_ this server does not work for reloading, and is only used for testing):
 
 ```
 yarn start
@@ -50,5 +50,5 @@ If you change the username, password or db name, you need to make sure the new u
 
 ```
 docker-compose down --volumes
-docker-compose build
+docker-compose build # this rebuilds the db image with the env user, then the volume with the env name
 ```
