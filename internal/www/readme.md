@@ -1,12 +1,12 @@
 # CC Viewer Frontend
 
-To start the frontend (_note:_ manual reload needed):
+To start the frontend:
 
 ```
-yarn watch
+yarn dev
 ```
 
-This would start site on localhost:2046
+This would start site on `localhost:3000`
 
 To start the server, from root of project:
 
@@ -14,7 +14,11 @@ To start the server, from root of project:
 go run internal/main.go
 ```
 
+This runs the Go backend on a port defined by `config.go`, either read from `config.yml` or set to `2046` in the `defaults` method.
+
 ### To Test
+
+Tests are written in the `integration` folder, and can use dummy data as request responses (ajax, fetch, axios, etc.), in the `fixtures` folder.
 
 Open cypress:
 
@@ -22,7 +26,7 @@ Open cypress:
 yarn run cypress open
 ```
 
-Start frontend on `localhost:8080` (_note:_ this server does not work for reloading):
+Serve the frontend on `localhost:8080` (_note:_ this server does not work for reloading, only used for testing):
 
 ```
 yarn start
@@ -34,7 +38,7 @@ Run the tests:
 yarn test
 ```
 
-Or alternatively, `yarn autotest` combines `start` and `test`
+Or alternatively, `yarn autotest` combines `start` and `test`. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.
 
 ### Database
 
