@@ -12,7 +12,12 @@
           <input type="text" name="description" id="description" />
         </div>
 
-        <button id="course-submit" type="button" class="btn btn-primary mb-4" @click="submit()">submit</button>
+        <button
+          id="course-submit"
+          type="button"
+          class="btn btn-primary mb-4"
+          @click="submit()"
+        >submit</button>
       </form>
     </div>
     <!-- upload form -->
@@ -124,64 +129,9 @@ import Item from './components/Item.vue'
 import { stub } from './js/stub'
 
 let cartridge = reactive({ name: "" });
-let manifest = reactive<ManifestType>({
-  Metadata: { Lom: { General: { Title: { String: { Text: "" } } } } },
-});
-let items = reactive<Array<ItemType>>([
-  { Item: { Identifier: "", Title: "" }, Children: [], Resources: [] },
-]);
-let resources = reactive<Array<ResourceType>>([
-  {
-    XMLName: { Local: "" },
-    Title: "",
-    Type: "",
-    Identifier: "",
-    File: [],
-    Text: { Text: "" },
-    Attachments: {
-      Text: "",
-      Attachment: [
-        {
-          Text: "",
-          Href: "",
-        },
-      ],
-    },
-    Gradable: {
-      Text: "",
-      PointsPossible: "",
-    },
-    SubmissionFormats: {
-      Text: "",
-      Format: [
-        {
-          Text: "",
-          Type: "",
-        },
-      ],
-    },
-
-    Description: "",
-    LaunchURL: "",
-    SecureLaunchURL: "",
-    Vendor: {
-      Text: "",
-      Name: "",
-      Description: "",
-      URL: "",
-    },
-
-    Assessment: {
-      Title: "",
-      Text: "",
-    },
-
-    URL: {
-      Text: "",
-      Href: "",
-    },
-  },
-]);
+let manifest = new Object() as ManifestType;
+let items = new Array<ItemType>()
+let resources = new Array<ResourceType>()
 
 let log = ref("ready");
 let isUploaded = ref(false);
@@ -212,8 +162,8 @@ let upload = function () {
       log.value = `uploaded ${cartridge.name}`;
       isUploaded.value = true;
 
-      manifest = JSON.parse(data.data);
-      items = JSON.parse(data.items);
+      Object.assign(manifest, JSON.parse(data.data))
+      Object.assign(items, JSON.parse(data.items))
 
       //-- todo, here we have to get rid of the Item field of the returned struct... what to do?
       for (let r of JSON.parse(data.resources)) {
@@ -236,25 +186,25 @@ let submit = () => {
     return;
   }
 
-  fetch(`${HOST}/syllabi/`,{
+  fetch(`${HOST}/syllabi/`, {
     method: "POST",
     body: formData,
   })
-  .then(res => {
-    res.json()
-  })
-  .then(data => {
-    console.log(data)
-    log.value = "submitted syllabus!"
-  })
+    .then(res => {
+      res.json()
+    })
+    .then(data => {
+      console.log(data)
+      log.value = "submitted syllabus!"
+    })
 }
 
-let validateSubmission = (_data : FormData) => {
-  if(_data == null)
+let validateSubmission = (_data: FormData) => {
+  if (_data == null)
     return false
   else if (_data.get("title") != undefined || _data.get("description") != undefined)
     return false
-  else if(_data.get("title") != null || _data.get("description") != null)
+  else if (_data.get("title") != null || _data.get("description") != null)
     return false
 
   const title = _data.get("title") as string
@@ -265,16 +215,16 @@ let validateSubmission = (_data : FormData) => {
   return true
 }
 
-onMounted(() => {
-  isUploaded.value = true;
+// onMounted(() => {
+//   isUploaded.value = true;
 
-  Object.assign(manifest, JSON.parse(stub.data))
-  Object.assign(items, JSON.parse(stub.items))
+//   Object.assign(manifest, JSON.parse(stub.data))
+//   Object.assign(items, JSON.parse(stub.items))
 
-  for (let r of JSON.parse(stub.resources)) {
-    resources.push(r.Resource);
-  }
-});
+//   for (let r of JSON.parse(stub.resources)) {
+//     resources.push(r.Resource);
+//   }
+// });
 
 
 </script>
