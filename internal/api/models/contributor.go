@@ -11,7 +11,7 @@ type Contributor struct {
 
 func CreateContributorsTable() error {
 	ctx := context.Background()
-	_, err := db.NewCreateTable().Model((*Contributor)(nil)).IfNotExists().Exec(ctx)
+	_, err := DB.NewCreateTable().Model((*Contributor)(nil)).IfNotExists().Exec(ctx)
 
 	return err
 }

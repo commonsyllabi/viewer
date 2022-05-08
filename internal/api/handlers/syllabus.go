@@ -31,9 +31,23 @@ func AllSyllabi(c *gin.Context) {
 
 func NewSyllabus(c *gin.Context) {
 
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.String(http.StatusBadRequest, "error parsing form %v", err)
+		zero.Log.Error().Msgf("error parsing form: %v", err)
+		return
+	}
+
+	//-- sanitizing
+	if c.PostForm("title") == "" || c.PostForm("description") == "" {
+		c.String(http.StatusBadRequest, "Cannot have empty title or description")
+		zero.Log.Error().Msg("Cannot have empty title or description")
+		return
+	}
+
 	// save the actual syllabus
 	var syll models.Syllabus
-	err := c.Bind(&syll)
+	err = c.Bind(&syll)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -46,33 +60,36 @@ func NewSyllabus(c *gin.Context) {
 		return
 	}
 
-	// get the attachments
 	var attachments []models.Attachment
-	form, _ := c.MultipartForm()
-	files := form.File["attachments[]"]
-	for _, f := range files {
-		file, err := f.Open()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+	hasAttachments := c.PostForm("attachments[]")
+	if hasAttachments != "" {
+		files := form.File["attachments[]"]
+		for _, f := range files {
+			file, err := f.Open()
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
 
-		bytes, err := ioutil.ReadAll(file)
-		if err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
-			zero.Log.Error().Msgf("error reading file into bytes: %v", err)
-			return
-		}
+			bytes, err := ioutil.ReadAll(file)
+			if err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
+				zero.Log.Error().Msgf("error reading file into bytes: %v", err)
+				return
+			}
 
-		attachment := models.Attachment{
-			Name:       f.Filename,
-			SyllabusID: syll.ID,
-			File:       bytes,
-			Type:       http.DetectContentType(bytes),
-		}
+			attachment := models.Attachment{
+				Name:       f.Filename,
+				SyllabusID: syll.ID,
+				File:       bytes,
+				Type:       http.DetectContentType(bytes),
+			}
 
-		att, _ := models.AddNewAttachment(&attachment)
-		attachments = append(attachments, att)
+			att, _ := models.AddNewAttachment(&attachment)
+			attachments = append(attachments, att)
+		}
+	} else {
+		zero.Log.Warn().Msgf("No attachments found on new syllabus: %v", err)
 	}
 
 	s, err := json.Marshal(syll)
