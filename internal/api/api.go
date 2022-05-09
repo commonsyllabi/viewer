@@ -131,7 +131,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 	{
 		syllabi.GET("/", handlers.AllSyllabi)
 		syllabi.POST("/", handlers.NewSyllabus)
-		syllabi.POST("/:id", handlers.UpdateSyllabus)
+		syllabi.PATCH("/:id", handlers.UpdateSyllabus)
 		syllabi.GET("/:id", handlers.GetSyllabus)
 		syllabi.DELETE("/:id", handlers.DeleteSyllabus)
 	}
@@ -140,7 +140,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 	{
 		attachments.GET("/", handlers.AllAttachments)
 		attachments.POST("/", handlers.NewAttachment)
-		attachments.POST("/:id", handlers.UpdateAttachment)
+		attachments.PATCH("/:id", handlers.UpdateAttachment)
 		attachments.GET("/:id", handlers.GetAttachment)
 		attachments.DELETE("/:id", handlers.DeleteAttachment)
 	}

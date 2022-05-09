@@ -131,7 +131,7 @@ func TestUpdateSyllabus(t *testing.T) {
 		Header: make(http.Header),
 	}
 
-	c.Request.Method = "POST"
+	c.Request.Method = "PATCH"
 	c.Request.Header.Set("Content-Type", w.FormDataContentType())
 	c.Request.Body = io.NopCloser(&body)
 	c.Params = []gin.Param{
@@ -155,6 +155,47 @@ func TestUpdateSyllabus(t *testing.T) {
 
 	if syll.Title != "Updated" {
 		t.Errorf("Expected to have updated title, got %v", syll.Title)
+	}
+}
+
+func TestUpdateSyllabusPartial(t *testing.T) {
+	mustSeedDB(t)
+
+	var body bytes.Buffer
+	w := multipart.NewWriter(&body)
+	w.WriteField("description", "Updated")
+	w.Close()
+
+	res := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(res)
+	c.Request = &http.Request{
+		Header: make(http.Header),
+	}
+
+	c.Request.Method = "PATCH"
+	c.Request.Header.Set("Content-Type", w.FormDataContentType())
+	c.Request.Body = io.NopCloser(&body)
+	c.Params = []gin.Param{
+		{
+			Key:   "id",
+			Value: "1",
+		},
+	}
+
+	UpdateSyllabus(c)
+
+	if res.Code != 200 {
+		t.Errorf("Expected 200, got %v: %v", res.Code, res.Body)
+	}
+
+	var syll models.Syllabus
+	err := c.Bind(&syll)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if syll.Description != "Updated" {
+		t.Errorf("Expected to have updated description, got %v", syll.Description)
 	}
 }
 

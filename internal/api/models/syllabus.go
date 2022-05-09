@@ -38,7 +38,7 @@ func AddNewSyllabus(syll *Syllabus) (Syllabus, error) {
 
 func UpdateSyllabus(id int, syll *Syllabus) (Syllabus, error) {
 	ctx := context.Background()
-	_, err := DB.NewUpdate().Model(syll).WherePK().Exec(ctx)
+	_, err := DB.NewUpdate().Model(syll).OmitZero().Where("id = ?", id).Exec(ctx)
 	return *syll, err
 }
 
