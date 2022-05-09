@@ -10,30 +10,30 @@ import (
 	"github.com/uptrace/bun/driver/pgdriver"
 )
 
-var DB *bun.DB
+var db *bun.DB
 
-func InitDB(user, password, name, host string) error {
+func InitDB(user, password, name, host string) (*bun.DB, error) {
 	var url = "postgres://" + user + ":" + password + "@" + host + ":5432/" + name
 	zero.Log.Debug().Msgf("Connecting: %s", url)
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(url), pgdriver.WithInsecure(true)))
-	DB = bun.NewDB(sqldb, pgdialect.New())
+	db = bun.NewDB(sqldb, pgdialect.New())
 
-	err := DB.Ping()
+	err := db.Ping()
 	if err != nil {
-		return err
+		return db, err
 	}
 
 	zero.Log.Info().Msgf("Connected: %v", url)
-	err = setupTables(true)
-	return err
+	err = SetupTables(true)
+	return db, err
 }
 
-func setupTables(reset bool) error {
+func SetupTables(reset bool) error {
 	ctx := context.Background()
 	if reset {
-		DB.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
-		DB.NewDropTable().Model(&Contributor{}).IfExists().Exec(ctx)
-		DB.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
+		db.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
+		db.NewDropTable().Model(&Contributor{}).IfExists().Exec(ctx)
+		db.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
 	}
 
 	if err := CreateSyllabiTable(); err != nil {
@@ -48,6 +48,6 @@ func setupTables(reset bool) error {
 }
 
 func Shutdown() error {
-	err := DB.Close()
+	err := db.Close()
 	return err
 }

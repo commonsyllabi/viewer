@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"context"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -237,25 +236,18 @@ func TestDeleteSyllabus(t *testing.T) {
 }
 
 func mustSeedDB(t *testing.T) {
-	models.InitDB("test", "test", "test", "localhost")
-	ctx := context.Background()
+	_, err := models.InitDB("test", "test", "test", "localhost")
+	if err != nil {
+		panic(err)
+	}
 
-	models.DB.NewDropTable().Model(&models.Syllabus{}).IfExists().Exec(ctx)
-	_, err := models.DB.NewCreateTable().Model((*models.Syllabus)(nil)).IfNotExists().Exec(ctx)
-
+	err = models.SetupTables(true)
 	if err != nil {
 		panic(err)
 	}
 
 	syll := models.Syllabus{Title: "Test Title 1", Description: "Test Description 1"}
 	_, err = models.AddNewSyllabus(&syll)
-	if err != nil {
-		panic(err)
-	}
-
-	models.DB.NewDropTable().Model(&models.Attachment{}).IfExists().Exec(ctx)
-	_, err = models.DB.NewCreateTable().Model((*models.Attachment)(nil)).IfNotExists().Exec(ctx)
-
 	if err != nil {
 		panic(err)
 	}

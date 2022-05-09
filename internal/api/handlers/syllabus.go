@@ -30,7 +30,6 @@ func AllSyllabi(c *gin.Context) {
 }
 
 func NewSyllabus(c *gin.Context) {
-
 	form, err := c.MultipartForm()
 	if err != nil {
 		c.String(http.StatusBadRequest, "error parsing form %v", err)

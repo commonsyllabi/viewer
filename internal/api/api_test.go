@@ -11,6 +11,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/commonsyllabi/viewer/internal/api/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -241,6 +242,10 @@ func mustOpen(f string) *os.File {
 }
 
 func mustSetupRouter(debug bool) *gin.Engine {
+	_, err := models.InitDB("test", "test", "test", "localhost")
+	if err != nil {
+		panic(err)
+	}
 	router, err := setupRouter(debug)
 	if err != nil {
 		panic(err)

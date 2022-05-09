@@ -3,3 +3,4 @@ tmpDir: "/tmp/commonsyllabi"
 uploadsDir: uploads
 filesDir: tmp
 publicDir: "./public"
+debug: true

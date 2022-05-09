@@ -1,6 +1,8 @@
 package models
 
-import "context"
+import (
+	"context"
+)
 
 type Contributor struct {
 	ID      int64 `bun:"id,pk,autoincrement"`
@@ -11,7 +13,7 @@ type Contributor struct {
 
 func CreateContributorsTable() error {
 	ctx := context.Background()
-	_, err := DB.NewCreateTable().Model((*Contributor)(nil)).IfNotExists().Exec(ctx)
+	_, err := db.NewCreateTable().Model((*Contributor)(nil)).IfNotExists().Exec(ctx)
 
 	return err
 }

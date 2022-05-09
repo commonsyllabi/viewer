@@ -18,7 +18,10 @@ func main() {
 	zero.InitLog(0)
 	zero.Log.Info().Msg("Starting CoSyl")
 
-	models.InitDB(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"))
+	_, err = models.InitDB(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"))
+	if err != nil {
+		zero.Log.Fatal().Msgf("Error initializing D: %v", err)
+	}
 	err = api.StartServer()
 	if err != nil {
 		zero.Log.Fatal().Msgf("Error starting server: %v", err)

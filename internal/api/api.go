@@ -38,7 +38,7 @@ func StartServer() error {
 
 	zero.Log.Debug().Msgf("config: %-v", conf)
 
-	router, err := setupRouter(false)
+	router, err := setupRouter(conf.Debug)
 	if err != nil {
 		return err
 	}

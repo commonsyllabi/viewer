@@ -10,7 +10,7 @@ import (
 func TestInitDB(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
-	err := InitDB("cosyl", "cosyl", "cosyl", "localhost")
+	_, err := InitDB("cosyl", "cosyl", "cosyl", "localhost")
 
 	if err != nil {
 		t.Error(err)
@@ -21,8 +21,8 @@ func mustSeedDB(t *testing.T) {
 	InitDB("test", "test", "test", "localhost")
 	ctx := context.Background()
 
-	DB.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
-	_, err := DB.NewCreateTable().Model((*Syllabus)(nil)).IfNotExists().Exec(ctx)
+	db.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
+	_, err := db.NewCreateTable().Model((*Syllabus)(nil)).IfNotExists().Exec(ctx)
 
 	if err != nil {
 		panic(err)
@@ -34,8 +34,8 @@ func mustSeedDB(t *testing.T) {
 		panic(err)
 	}
 
-	DB.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
-	_, err = DB.NewCreateTable().Model((*Attachment)(nil)).IfNotExists().Exec(ctx)
+	db.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
+	_, err = db.NewCreateTable().Model((*Attachment)(nil)).IfNotExists().Exec(ctx)
 
 	if err != nil {
 		panic(err)

@@ -15,6 +15,7 @@ type Config struct {
 	UploadsDir string `yaml:"uploadsDir"`
 	FilesDir   string `yaml:"filesDir"`
 	PublicDir  string `yaml:"publicDir"`
+	Debug      bool   `yaml:"debug"`
 }
 
 var conf Config
@@ -26,6 +27,7 @@ func (c *Config) defaults() {
 	c.UploadsDir = "uploads"
 	c.FilesDir = "files"
 	c.PublicDir = "./internal/www/public"
+	c.Debug = true
 }
 
 // load tries to load a yaml file from disk, and marshals it
