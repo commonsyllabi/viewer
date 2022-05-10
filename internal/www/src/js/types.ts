@@ -30,7 +30,12 @@ export interface ManifestType {
           String: {
             Text: "";
           };
-        };
+        },
+        Description: {
+          String: {
+            Text: "";
+          }
+        }
       };
     };
   };

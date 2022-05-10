@@ -1,15 +1,15 @@
 <template>
   <div class="container p-3">
-    <div class="container pt-4 mb-3 border rounded">
+    <div class="container pt-4 mb-3 border rounded" v-if="isUploaded">
       <form id="submit-form" action="/syllabi/" method="POST">
         <div>
           <label for="title">Title of the course</label>
-          <input type="text" name="title" id="title" />
+          <input type="text" name="title" id="title" v-model="syllabus.title" />
         </div>
 
         <div>
           <label for="description">Description of the course</label>
-          <input type="text" name="description" id="description" />
+          <input type="text" name="description" id="description" v-model="syllabus.description" />
         </div>
 
         <button
@@ -128,6 +128,9 @@ import Item from './components/Item.vue'
 
 import { stub } from './js/stub'
 
+//-- form fields
+const syllabus = reactive({ title: "", description: "" })
+
 let cartridge = reactive({ name: "" });
 let manifest = new Object() as ManifestType;
 let items = new Array<ItemType>()
@@ -158,7 +161,6 @@ let upload = function () {
       return res.json();
     })
     .then((data) => {
-      console.log(data);
       log.value = `uploaded ${cartridge.name}`;
       isUploaded.value = true;
 
@@ -169,6 +171,11 @@ let upload = function () {
       for (let r of JSON.parse(data.resources)) {
         resources.push(r.Resource);
       }
+
+      console.log(manifest, items, resources)
+
+      syllabus.title = manifest.Metadata.Lom.General.Title.String.Text
+      syllabus.description = manifest.Metadata.Lom.General.Description.String.Text
     })
     .catch((err) => {
       log = ref(err);
@@ -177,8 +184,17 @@ let upload = function () {
 };
 
 let submit = () => {
+  const pformElem = document.getElementById("upload-form") as HTMLFormElement;
+  const pformData = new FormData(pformElem);
+
   const formElem = document.getElementById("submit-form") as HTMLFormElement;
   const formData = new FormData(formElem);
+
+
+  formData.set('attachments[]', pformData.get('cartridge') as FormDataEntryValue)
+  formData.forEach((v, k) => {
+    console.log(k, v)
+  })
 
   if (validateSubmission(formData)) {
     console.warn("can't submit an empty title or description!");
