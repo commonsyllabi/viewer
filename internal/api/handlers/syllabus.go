@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -60,35 +61,35 @@ func NewSyllabus(c *gin.Context) {
 	}
 
 	var attachments []models.Attachment
-	hasAttachments := c.PostForm("attachments[]")
-	if hasAttachments != "" {
-		files := form.File["attachments[]"]
-		for _, f := range files {
-			file, err := f.Open()
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
+	files := form.File["attachments"]
 
-			bytes, err := ioutil.ReadAll(file)
-			if err != nil {
-				c.String(http.StatusInternalServerError, err.Error())
-				zero.Log.Error().Msgf("error reading file into bytes: %v", err)
-				return
-			}
+	fmt.Printf("%-v", files)
 
-			attachment := models.Attachment{
-				Name:       f.Filename,
-				SyllabusID: syll.ID,
-				File:       bytes,
-				Type:       http.DetectContentType(bytes),
-			}
+	zero.Log.Warn().Msgf("%d attachments found on new syllabus", len(files))
 
-			att, _ := models.AddNewAttachment(&attachment)
-			attachments = append(attachments, att)
+	for _, f := range files {
+		file, err := f.Open()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
 		}
-	} else {
-		zero.Log.Warn().Msgf("No attachments found on new syllabus: %v", err)
+
+		bytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			zero.Log.Error().Msgf("error reading file into bytes: %v", err)
+			return
+		}
+
+		attachment := models.Attachment{
+			Name:       f.Filename,
+			SyllabusID: syll.ID,
+			File:       bytes,
+			Type:       http.DetectContentType(bytes),
+		}
+
+		att, _ := models.AddNewAttachment(&attachment)
+		attachments = append(attachments, att)
 	}
 
 	s, err := json.Marshal(syll)
