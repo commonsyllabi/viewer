@@ -2,5 +2,5 @@ port: 3046
 tmpDir: "/tmp/commonsyllabi"
 uploadsDir: uploads
 filesDir: tmp
-publicDir: "./public"
+publicDir: "internal/www/public"
 debug: true

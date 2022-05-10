@@ -74,6 +74,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 	router := gin.New()
 
 	router.Use(cors.Default())
+	router.LoadHTMLGlob("internal/api/templates/*")
 
 	if debug {
 		gin.SetMode(gin.DebugMode)

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -57,8 +56,6 @@ func NewSyllabus(c *gin.Context) {
 	}
 
 	syll.Email = string(hashed)
-
-	fmt.Println(syll)
 
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -164,21 +161,27 @@ func GetSyllabus(c *gin.Context) {
 		return
 	}
 
-	result, err := models.GetSyllabus(id)
+	syll, err := models.GetSyllabus(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
 		return
 	}
 
-	bytes, err := json.Marshal(result)
+	bytes, err := json.Marshal(syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, string(bytes))
+	// nice separation of response body https://stackoverflow.com/a/56722847/4665412
+	if c.GetHeader("Content-Type") == "application/json" {
+		c.JSON(http.StatusOK, string(bytes))
+	} else {
+		c.HTML(http.StatusOK, "cartridge.tmpl", syll)
+	}
+
 }
 
 func DeleteSyllabus(c *gin.Context) {
