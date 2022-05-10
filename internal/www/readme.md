@@ -1,20 +1,36 @@
 # CC Viewer Frontend
 
-To start the frontend:
+### To start the server
 
-```
-yarn dev
-```
-
-This would start site on `localhost:3000`
-
-To start the server, from root of project:
+From root of project:
 
 ```
 go run internal/main.go
 ```
 
 This runs the Go backend on a port defined by `config.go`, either read from `config.yml` or set to `2046` in the `defaults` method.
+
+
+### To start the frontend:
+
+There are two cases: the pages rendered client-side (such as `www/src/cartridge.html`with Vue embedded, and pages rendered server-side (such as `api/templates/syllabus.tmpl`).
+
+To work on the client-side pages, you can run:
+
+```
+yarn dev
+```
+
+This would start site on `localhost:3000`, and has hot-reload enabled.
+
+To work on the server-side pages, you can run 
+
+```
+yarn watch
+```
+
+This would make the files available to `localhost:{server_port}`, but doesn't have hot-reload enabled, since the HTML templates are rendered by the go app.
+
 
 ### To Test
 

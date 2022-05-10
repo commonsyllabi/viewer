@@ -1,3 +1,4 @@
+{{ define "Syllabus" }}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,9 +21,18 @@
         <div class="container p-3">
             <h1>{{ .Title }}</h1>
             <p>{{ .Description }}</p>
+            <h2>Attachments</h2>
+            <div>
+                <ol>
+                    {{ range .Attachments }}
+                    <li> {{ .Name }} </li>
+                    {{ end }}
+                </ol>
+            </div>
         </div>
     </main>
     <footer></footer>
 </body>
 
 </html>
+{{ end }}

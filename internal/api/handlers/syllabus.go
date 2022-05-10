@@ -179,7 +179,7 @@ func GetSyllabus(c *gin.Context) {
 	if c.GetHeader("Content-Type") == "application/json" {
 		c.JSON(http.StatusOK, string(bytes))
 	} else {
-		c.HTML(http.StatusOK, "cartridge.tmpl", syll)
+		c.HTML(http.StatusOK, "Syllabus", syll)
 	}
 
 }
