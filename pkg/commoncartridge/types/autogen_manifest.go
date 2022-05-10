@@ -4,7 +4,7 @@ package types
 
 import "encoding/xml"
 
-// Manifest was generated 2022-04-28 15:32:52 by pierre on archpierre.
+// Manifest was generated 2022-05-10 19:56:34 by pierre on archpierre.
 type Manifest struct {
 	XMLName        xml.Name `xml:"manifest"`
 	Text           string   `xml:",chardata"`
@@ -53,6 +53,14 @@ type Manifest struct {
 						Text     string `xml:",chardata"`
 						DateTime string `xml:"dateTime"`
 					} `xml:"date"`
+					Entity struct {
+						Text   string `xml:",chardata"`
+						String string `xml:"string"`
+					} `xml:"entity"`
+					Role struct {
+						Text   string `xml:",chardata"`
+						String string `xml:"string"`
+					} `xml:"role"`
 				} `xml:"contribute"`
 			} `xml:"lifeCycle"`
 			Rights struct {
