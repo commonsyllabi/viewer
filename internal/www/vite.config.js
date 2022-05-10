@@ -24,6 +24,11 @@ export default defineConfig({
       input: {
         home: fileURLToPath(new URL('./src/index.html', import.meta.url)),
         cartridge: fileURLToPath(new URL('./src/cartridge.html', import.meta.url)),
+      },
+      output: {
+        entryFileNames: `assets/[name].js`,
+        chunkFileNames: `assets/[name].js`,
+        assetFileNames: `assets/[name].[ext]`
       }
     }
   }
