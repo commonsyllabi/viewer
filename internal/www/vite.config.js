@@ -24,6 +24,7 @@ export default defineConfig({
       input: {
         home: fileURLToPath(new URL('./src/index.html', import.meta.url)),
         cartridge: fileURLToPath(new URL('./src/cartridge.html', import.meta.url)),
+        syllabus: fileURLToPath(new URL('./src/syllabus.html', import.meta.url)),
       },
       output: {
         entryFileNames: `assets/[name].js`,
