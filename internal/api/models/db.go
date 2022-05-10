@@ -24,7 +24,7 @@ func InitDB(user, password, name, host string) (*bun.DB, error) {
 	}
 
 	zero.Log.Info().Msgf("Connected: %v", url)
-	err = SetupTables(true)
+	err = SetupTables(false)
 	return db, err
 }
 

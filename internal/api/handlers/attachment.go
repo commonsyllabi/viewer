@@ -114,14 +114,22 @@ func GetAttachment(c *gin.Context) {
 		return
 	}
 
-	bytes, err := json.Marshal(result)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling Attachment: %v", err)
-		return
-	}
+	if c.Query("type") == "file" {
+		c.Writer.WriteHeader(http.StatusOK)
+		c.Header("Content-Disposition", "attachment; filename="+result.Name)
+		mimeType := http.DetectContentType(result.File)
+		c.Header("Content-Type", mimeType)
+		c.Writer.Write(result.File)
+	} else {
+		bytes, err := json.Marshal(result)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			zero.Log.Error().Msgf("error marshalling Attachment: %v", err)
+			return
+		}
 
-	c.JSON(http.StatusOK, string(bytes))
+		c.JSON(http.StatusOK, string(bytes))
+	}
 }
 
 func DeleteAttachment(c *gin.Context) {
