@@ -26,7 +26,6 @@ func TestLoadConfig(t *testing.T) {
 }
 
 func TestHandlePing(t *testing.T) {
-	conf.defaults()
 	router := mustSetupRouter(false)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
@@ -42,7 +41,6 @@ func TestHandlePing(t *testing.T) {
 }
 
 func TestHandleUpload(t *testing.T) {
-	conf.defaults()
 	router := mustSetupRouter(false)
 
 	body, writer := createFormData("cartridge", singleTestFile, t)
@@ -77,7 +75,6 @@ func TestHandleUpload(t *testing.T) {
 }
 
 func TestHandleUploadNoField(t *testing.T) {
-	conf.defaults()
 	router := mustSetupRouter(false)
 
 	body, writer := createFormData("bad_cartridge", singleTestFile, t)
@@ -95,7 +92,6 @@ func TestHandleUploadNoField(t *testing.T) {
 }
 
 func TestHandleUploadNoFile(t *testing.T) {
-	conf.defaults()
 	router := mustSetupRouter(false)
 
 	body, writer := createFormData("cartridge", "", t)
@@ -242,6 +238,9 @@ func mustOpen(f string) *os.File {
 }
 
 func mustSetupRouter(debug bool) *gin.Engine {
+	conf.defaults()
+	conf.TemplatesDir = "../../internal/api/templates"
+
 	_, err := models.InitDB("test", "test", "test", "localhost")
 	if err != nil {
 		panic(err)

@@ -33,6 +33,7 @@ func TestNewSyllabus(t *testing.T) {
 	w := multipart.NewWriter(&body)
 	w.WriteField("title", "Test Syllabus Handling")
 	w.WriteField("description", "This is a test for the syllabus handling")
+	w.WriteField("email", "name@host.com")
 	w.Close()
 
 	res := httptest.NewRecorder()
@@ -59,6 +60,7 @@ func TestNewSyllabusWrongValue(t *testing.T) {
 	w := multipart.NewWriter(&body)
 	w.WriteField("title", "")
 	w.WriteField("description", "This is a test for the syllabus handling")
+	w.WriteField("email", "name@host.com")
 	w.Close()
 
 	res := httptest.NewRecorder()
@@ -85,6 +87,7 @@ func TestNewSyllabusSingleAttachment(t *testing.T) {
 	w := multipart.NewWriter(&body)
 	w.WriteField("title", "Test Syllabus Handling")
 	w.WriteField("description", "This is a test for the syllabus handling")
+	w.WriteField("email", "name@host.com")
 
 	var fw io.Writer
 	file := mustOpen(singleTestFile)

@@ -10,12 +10,13 @@ import (
 
 // Config holds port numbers, target directories
 type Config struct {
-	Port       string `yaml:"port"`
-	TmpDir     string `yaml:"tmpDir"`
-	UploadsDir string `yaml:"uploadsDir"`
-	FilesDir   string `yaml:"filesDir"`
-	PublicDir  string `yaml:"publicDir"`
-	Debug      bool   `yaml:"debug"`
+	Port         string `yaml:"port"`
+	TmpDir       string `yaml:"tmpDir"`
+	UploadsDir   string `yaml:"uploadsDir"`
+	FilesDir     string `yaml:"filesDir"`
+	PublicDir    string `yaml:"publicDir"`
+	TemplatesDir string `yaml:"templatesDir"`
+	Debug        bool   `yaml:"debug"`
 }
 
 var conf Config
@@ -27,6 +28,7 @@ func (c *Config) defaults() {
 	c.UploadsDir = "uploads"
 	c.FilesDir = "files"
 	c.PublicDir = "./internal/www/public"
+	c.TemplatesDir = "./internal/api/templates"
 	c.Debug = true
 }
 

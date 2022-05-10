@@ -3,4 +3,5 @@ tmpDir: "/tmp/commonsyllabi"
 uploadsDir: uploads
 filesDir: tmp
 publicDir: "internal/www/public"
+templatesDir: "internal/api/templates"
 debug: true
