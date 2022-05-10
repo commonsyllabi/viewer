@@ -12,6 +12,16 @@
           <input type="text" name="description" id="description" v-model="syllabus.description" />
         </div>
 
+        <div>
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" v-model="syllabus.email" />
+        </div>
+
+        <div>
+          <label for="email">Confirm email</label>
+          <input type="email" name="email-conf" id="email-conf" />
+        </div>
+
         <button
           id="course-submit"
           type="button"
@@ -129,7 +139,11 @@ import Item from './components/Item.vue'
 import { stub } from './js/stub'
 
 //-- form fields
-const syllabus = reactive({ title: "", description: "" })
+const syllabus = reactive({
+  title: "",
+  description: "",
+  email: ""
+})
 
 let cartridge = reactive({ name: "" });
 let manifest = new Object() as ManifestType;
@@ -184,6 +198,12 @@ let upload = function () {
 };
 
 let submit = () => {
+
+  if (isInvalidEmail()){
+    log.value = "please make sure that the emails are matching!"
+    return
+  }
+
   const pformElem = document.getElementById("upload-form") as HTMLFormElement;
   const pformData = new FormData(pformElem);
 
@@ -191,7 +211,7 @@ let submit = () => {
   const formData = new FormData(formElem);
 
 
-  formData.set('attachments[]', pformData.get('cartridge') as FormDataEntryValue)
+  formData.set('attachments', pformData.get('cartridge') as FormDataEntryValue)
   formData.forEach((v, k) => {
     console.log(k, v)
   })
@@ -213,6 +233,17 @@ let submit = () => {
       console.log(data)
       log.value = "submitted syllabus!"
     })
+}
+
+let isInvalidEmail = (): boolean => {
+  const e1 = document.getElementById("email") as HTMLInputElement
+  const e2 = document.getElementById("email-conf") as HTMLInputElement
+  if (!e1 || !e2)
+    return true
+  if (e1.value != e2.value)
+    return true
+
+  return false
 }
 
 let validateSubmission = (_data: FormData) => {
