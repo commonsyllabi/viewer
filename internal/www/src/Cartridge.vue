@@ -211,7 +211,7 @@ let submit = () => {
   const formData = new FormData(formElem);
 
 
-  formData.set('attachments', pformData.get('cartridge') as FormDataEntryValue)
+  formData.set('attachments[]', pformData.get('cartridge') as FormDataEntryValue)
   formData.forEach((v, k) => {
     console.log(k, v)
   })

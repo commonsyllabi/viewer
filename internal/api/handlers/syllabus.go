@@ -10,6 +10,7 @@ import (
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func AllSyllabi(c *gin.Context) {
@@ -31,25 +32,38 @@ func AllSyllabi(c *gin.Context) {
 }
 
 func NewSyllabus(c *gin.Context) {
-	form, err := c.MultipartForm()
-	if err != nil {
-		c.String(http.StatusBadRequest, "error parsing form %v", err)
-		zero.Log.Error().Msgf("error parsing form: %v", err)
-		return
-	}
 
 	//-- sanitizing
-	if c.PostForm("title") == "" || c.PostForm("description") == "" {
-		c.String(http.StatusBadRequest, "Cannot have empty title or description")
-		zero.Log.Error().Msg("Cannot have empty title or description")
+	if c.PostForm("title") == "" || c.PostForm("description") == "" || c.PostForm("email") == "" {
+		c.String(http.StatusBadRequest, "Cannot have empty title, description or email")
+		zero.Log.Error().Msg("Cannot have empty title, description or email")
 		return
 	}
 
 	// save the actual syllabus
 	var syll models.Syllabus
-	err = c.Bind(&syll)
+	err := c.Bind(&syll)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	//-- hash the email
+	hashed, err := bcrypt.GenerateFromPassword([]byte(syll.Email), bcrypt.DefaultCost)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error hashing email: %v", err)
+		return
+	}
+
+	syll.Email = string(hashed)
+
+	fmt.Println(syll)
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.String(http.StatusBadRequest, "error parsing form %v", err)
+		zero.Log.Error().Msgf("error parsing form: %v", err)
 		return
 	}
 
@@ -61,9 +75,7 @@ func NewSyllabus(c *gin.Context) {
 	}
 
 	var attachments []models.Attachment
-	files := form.File["attachments"]
-
-	fmt.Printf("%-v", files)
+	files := form.File["attachments[]"]
 
 	zero.Log.Warn().Msgf("%d attachments found on new syllabus", len(files))
 
