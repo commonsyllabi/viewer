@@ -5,8 +5,9 @@
         <div class="syllabi">
             <ul>
                 <li v-for="syllabus in syllabi">
-                    <div>{{ syllabus.ID }}</div>
-                    <div>{{ syllabus.title }}</div>
+                    <div>
+                        <a :href="'/syllabi/' + syllabus.ID">{{ syllabus.title }}</a>
+                    </div>
                     <div>{{ syllabus.description }}</div>
                 </li>
             </ul>
@@ -18,7 +19,7 @@
 import { ref, onMounted, reactive } from 'vue';
 import { SyllabusType } from './js/types';
 
-const msg = ref("Hello!")
+const msg = ref("")
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
 const syllabi = new Array<SyllabusType>()
 
