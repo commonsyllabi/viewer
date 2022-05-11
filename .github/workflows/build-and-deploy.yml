@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-      - name: Cache node modules
+      - name: Cache node modules #-- this only makes sense if one runs a lot of actions frequently
         uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
@@ -67,7 +67,7 @@ jobs:
       #     DEBIAN_FRONTEND=noninteractive apt install -y postgresql
       #     sudo -iu postgres
       #     createuser test
-      #     createdb test
+      #     createdb test #-- tests should be done with sqlite anyways
       - name: "Setup Go"
         uses: actions/setup-go@v3
         with:
@@ -110,7 +110,7 @@ jobs:
         with:
           name: back-bundle
       - name: "Create env file"
-        run: |
+        run: | #-- commit the env file for now?
           touch .env
           echo DB_USER=cosyl >> .env
           echo DB_PASSWORD=cosyl >> .env
@@ -149,7 +149,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
-          source: "./internal/post-deploy.sh"
+          source: "./internal/post-deploy.sh" #-- have multiple sources as filelist and one target
           target: "/var/www/commonsyllabi"
       - name: "Post-deploy remote actions"
         uses: appleboy/ssh-action@master
@@ -157,6 +157,6 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
-          script: |
+          script: | #-- either make it executable or source it, or at least
             cd /var/www/commonsyllabi
             ./post-deploy.sh
