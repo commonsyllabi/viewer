@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/handlers"
+	"github.com/commonsyllabi/viewer/internal/api/mailer"
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
@@ -127,6 +128,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		api.POST("/upload", handleUpload)
 		api.GET("/resource/:id", handleResource)
 		api.GET("/file/:id", handleFile)
+		api.POST("/request-email", mailer.HandleEmailRequest)
 	}
 
 	syllabi := router.Group("/syllabi")
@@ -136,6 +138,8 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		syllabi.PATCH("/:id", handlers.UpdateSyllabus)
 		syllabi.GET("/:id", handlers.GetSyllabus)
 		syllabi.DELETE("/:id", handlers.DeleteSyllabus)
+
+		syllabi.GET("/edit/:id", handlers.DisplayMagicLink)
 	}
 
 	attachments := router.Group("/attachments")

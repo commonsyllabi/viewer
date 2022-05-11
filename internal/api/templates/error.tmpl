@@ -1,4 +1,4 @@
-{{ define "Syllabus" }}
+{{ define "Error" }}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,23 +18,10 @@
 <body>
     <header>commonsyllabi - <a href="/">home</a></header>
     <main>
-        <div class="container p-3" id="syllabus" syll_id="{{ .ID }}">
-            <h1>{{ .Title }}</h1>
-            <p>{{ .Description }}</p>
-            <h2>Attachments</h2>
-            <div>
-                <ol>
-                    {{ range .Attachments }}
-                    <li>
-                        <a href="/attachments/{{ .ID }}?type=file" target="_blank">{{ .Name }}</a>
-                    </li>
-                    {{ end }}
-                </ol>
-            </div>
-            <hr>
-            <div id="form">
-
-            </div>
+        <div class="container p-3">
+            <h1>Woops!</h1>
+            <p>There was an error getting what you asked for.</p>
+            <p>{{ .msg }}</p>
         </div>
     </main>
     <footer></footer>

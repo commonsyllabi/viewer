@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -163,7 +164,9 @@ func GetSyllabus(c *gin.Context) {
 
 	syll, err := models.GetSyllabus(id)
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		c.HTML(http.StatusOK, "Error", gin.H{
+			"msg": "We couldn't find the syllabus.",
+		})
 		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
 		return
 	}
@@ -184,6 +187,52 @@ func GetSyllabus(c *gin.Context) {
 
 }
 
+func DisplayMagicLink(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.HTML(http.StatusOK, "Error", gin.H{
+			"msg": "The ID of the resource you're asking for is invalid.",
+		})
+		zero.Log.Error().Msgf("error parsing the ID param: %v", err)
+		return
+	}
+
+	token := c.Query("token")
+	if id == 0 || token == "" {
+		c.HTML(http.StatusOK, "Error", gin.H{
+			"msg": "The ID of the resource you're asking for is invalid.",
+		})
+		zero.Log.Error().Msgf("invalid values for ID (%v) or token (%v)", id, token)
+		return
+	}
+
+	syll, err := models.GetSyllabus(id)
+	if err != nil {
+		c.HTML(http.StatusOK, "Error", gin.H{
+			"msg": "We could not find the syllabus you are looking for.",
+		})
+		zero.Log.Warn().Msgf("error getting syllabus: %v", err)
+		return
+	}
+
+	magic_token, err := models.GetTokenSyllabus(id)
+	if err != nil {
+		c.HTML(http.StatusOK, "Error", gin.H{
+			"msg": "The link you're trying to access has expired.",
+		})
+		zero.Log.Warn().Msgf("error getting magic token: %v", err.Error())
+		return
+	}
+
+	if token == base64.URLEncoding.EncodeToString(magic_token.Token) {
+		c.HTML(http.StatusOK, "MagicSyllabus", syll)
+	} else {
+		c.HTML(http.StatusOK, "Error", gin.H{
+			"msg": "You're trying to access a protected resource.",
+		})
+	}
+}
+
 func DeleteSyllabus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -198,6 +247,8 @@ func DeleteSyllabus(c *gin.Context) {
 		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
 		return
 	}
+
+	//-- delete any associated token
 
 	c.JSON(http.StatusOK, gin.H{
 		"id": id,

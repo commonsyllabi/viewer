@@ -34,12 +34,16 @@ func SetupTables(reset bool) error {
 		db.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
 		db.NewDropTable().Model(&Contributor{}).IfExists().Exec(ctx)
 		db.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
+		db.NewDropTable().Model(&MagicToken{}).IfExists().Exec(ctx)
 	}
 
 	if err := CreateSyllabiTable(); err != nil {
 		return err
 	}
 	if err := CreateContributorsTable(); err != nil {
+		return err
+	}
+	if err := CreateMagicTokenTable(); err != nil {
 		return err
 	}
 	err := CreateAttachmentsTable()

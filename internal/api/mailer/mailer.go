@@ -1,0 +1,68 @@
+package mailer
+
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/base64"
+	"fmt"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/commonsyllabi/viewer/internal/api/models"
+	zero "github.com/commonsyllabi/viewer/internal/logger"
+	"github.com/gin-gonic/gin"
+	"github.com/mailgun/mailgun-go/v4"
+)
+
+const DOMAIN = "post.enframed.net"
+
+func HandleEmailRequest(c *gin.Context) {
+	id, err := strconv.Atoi(c.PostForm("id"))
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error getting syllabus by email: %v", err)
+		return
+	}
+	email := c.PostForm("email")
+
+	syll, err := models.GetSyllabus(id)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error getting syllabus by email: %v", err)
+		return
+	}
+
+	hasher := sha256.New()
+	hasher.Write([]byte(syll.Title))
+	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusID: syll.ID}
+	token, err = models.AddNewToken(&token)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error setting magic token: %v", err)
+		return
+	}
+
+	mg := mailgun.NewMailgun(DOMAIN, os.Getenv("MAILGUN_PRIVATE_API_KEY"))
+	mg.SetAPIBase("https://api.eu.mailgun.net/v3") //-- rgpd mon amour
+
+	sender := "Common Syllabi <cosyl@post.enframed.net>"
+	subject := "Common Syllabi - Your Syllabus"
+	body := fmt.Sprintf("Hi!\nHere is your magic link for syllabus: %d - %s\nlink: http://%s:%s/syllabi/edit/%d?token=%s", syll.ID, syll.Title, "localhost", "3046", syll.ID, base64.URLEncoding.EncodeToString(token.Token))
+	recipient := email
+
+	message := mg.NewMessage(sender, subject, body, recipient)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	resp, mg_id, err := mg.Send(ctx, message)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		zero.Log.Error().Msgf("error sending email: %v", err)
+		return
+	}
+
+	zero.Log.Debug().Msgf("ID: %s Resp: %s\n", mg_id, resp)
+	c.String(http.StatusOK, "sending email to: %v", email)
+}
