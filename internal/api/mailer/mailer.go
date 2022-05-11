@@ -18,7 +18,7 @@ import (
 
 const DOMAIN = "post.enframed.net"
 
-func HandleEmailRequest(c *gin.Context) {
+func HandleMagicLink(c *gin.Context) {
 	id, err := strconv.Atoi(c.PostForm("id"))
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -54,8 +54,14 @@ func HandleEmailRequest(c *gin.Context) {
 
 	message := mg.NewMessage(sender, subject, body, recipient)
 
+	if gin.Mode() == gin.TestMode {
+		c.JSON(http.StatusOK, message)
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
+
 	resp, mg_id, err := mg.Send(ctx, message)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())

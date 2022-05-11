@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -182,7 +183,14 @@ func GetSyllabus(c *gin.Context) {
 	if c.GetHeader("Content-Type") == "application/json" {
 		c.JSON(http.StatusOK, string(bytes))
 	} else {
-		c.HTML(http.StatusOK, "Syllabus", syll)
+		if gin.Mode() == gin.TestMode {
+			c.JSON(http.StatusOK, string(bytes))
+			return
+		} else {
+			c.HTML(http.StatusOK, "Syllabus", syll)
+			return
+		}
+
 	}
 
 }
@@ -190,7 +198,7 @@ func GetSyllabus(c *gin.Context) {
 func DisplayMagicLink(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.HTML(http.StatusOK, "Error", gin.H{
+		c.HTML(http.StatusBadRequest, "Error", gin.H{
 			"msg": "The ID of the resource you're asking for is invalid.",
 		})
 		zero.Log.Error().Msgf("error parsing the ID param: %v", err)
@@ -198,8 +206,9 @@ func DisplayMagicLink(c *gin.Context) {
 	}
 
 	token := c.Query("token")
+	fmt.Println(id)
 	if id == 0 || token == "" {
-		c.HTML(http.StatusOK, "Error", gin.H{
+		c.HTML(http.StatusBadRequest, "Error", gin.H{
 			"msg": "The ID of the resource you're asking for is invalid.",
 		})
 		zero.Log.Error().Msgf("invalid values for ID (%v) or token (%v)", id, token)
@@ -208,7 +217,7 @@ func DisplayMagicLink(c *gin.Context) {
 
 	syll, err := models.GetSyllabus(id)
 	if err != nil {
-		c.HTML(http.StatusOK, "Error", gin.H{
+		c.HTML(http.StatusInternalServerError, "Error", gin.H{
 			"msg": "We could not find the syllabus you are looking for.",
 		})
 		zero.Log.Warn().Msgf("error getting syllabus: %v", err)
@@ -217,7 +226,7 @@ func DisplayMagicLink(c *gin.Context) {
 
 	magic_token, err := models.GetTokenSyllabus(id)
 	if err != nil {
-		c.HTML(http.StatusOK, "Error", gin.H{
+		c.HTML(http.StatusInternalServerError, "Error", gin.H{
 			"msg": "The link you're trying to access has expired.",
 		})
 		zero.Log.Warn().Msgf("error getting magic token: %v", err.Error())
@@ -225,9 +234,14 @@ func DisplayMagicLink(c *gin.Context) {
 	}
 
 	if token == base64.URLEncoding.EncodeToString(magic_token.Token) {
+		if gin.Mode() == gin.TestMode {
+			c.JSON(http.StatusOK, token)
+			return
+		}
+
 		c.HTML(http.StatusOK, "MagicSyllabus", syll)
 	} else {
-		c.HTML(http.StatusOK, "Error", gin.H{
+		c.HTML(http.StatusForbidden, "Error", gin.H{
 			"msg": "You're trying to access a protected resource.",
 		})
 	}
@@ -248,7 +262,7 @@ func DeleteSyllabus(c *gin.Context) {
 		return
 	}
 
-	//-- delete any associated token
+	//-- TODO delete any associated token
 
 	c.JSON(http.StatusOK, gin.H{
 		"id": id,

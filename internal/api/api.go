@@ -128,7 +128,7 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		api.POST("/upload", handleUpload)
 		api.GET("/resource/:id", handleResource)
 		api.GET("/file/:id", handleFile)
-		api.POST("/request-email", mailer.HandleEmailRequest)
+		api.POST("/magic-link", mailer.HandleMagicLink)
 	}
 
 	syllabi := router.Group("/syllabi")

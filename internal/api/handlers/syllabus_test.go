@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 
@@ -201,6 +204,58 @@ func TestUpdateSyllabusPartial(t *testing.T) {
 	}
 }
 
+func TestGetSyllabus(t *testing.T) {
+	mustSeedDB(t)
+	gin.SetMode(gin.TestMode)
+
+	res := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(res)
+	c.Request = &http.Request{
+		Header: make(http.Header),
+	}
+
+	c.Request.Method = "GET"
+	c.Params = []gin.Param{
+		{
+			Key:   "id",
+			Value: "1",
+		},
+	}
+	GetSyllabus(c)
+	if res.Code != 200 {
+		t.Errorf("Expected 200, got %v", res.Code)
+	}
+}
+
+func TestDisplayMagicLink(t *testing.T) {
+	mustSeedDB(t)
+	gin.SetMode(gin.TestMode)
+	token, err := models.GetTokenSyllabus(1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	res := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(res)
+	c.Request = &http.Request{
+		Header: make(http.Header),
+	}
+
+	c.Request.Method = "GET"
+	c.Params = []gin.Param{
+		{
+			Key:   "id",
+			Value: "1",
+		},
+	}
+	c.Request.URL, _ = url.Parse("?token=" + base64.URLEncoding.EncodeToString(token.Token))
+
+	DisplayMagicLink(c)
+	if res.Code != 200 {
+		t.Errorf("Expected 200, got %v: %v", res.Code, res)
+	}
+}
+
 func TestDeleteSyllabus(t *testing.T) {
 	mustSeedDB(t)
 
@@ -251,6 +306,14 @@ func mustSeedDB(t *testing.T) {
 
 	syll := models.Syllabus{Title: "Test Title 1", Description: "Test Description 1"}
 	_, err = models.AddNewSyllabus(&syll)
+	if err != nil {
+		panic(err)
+	}
+
+	hasher := sha256.New()
+	hasher.Write([]byte(syll.Title))
+	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusID: syll.ID}
+	token, err = models.AddNewToken(&token)
 	if err != nil {
 		panic(err)
 	}

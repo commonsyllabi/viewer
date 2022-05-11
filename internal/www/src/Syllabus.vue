@@ -4,7 +4,7 @@
             <b>Is this your syllabus?</b>
         </p>
         <p>Enter the email address that you used in order to receive an edit link.</p>
-        <form action="/api/request-email" method="POST" id="request-email">
+        <form action="/api/magic-link" method="POST" id="request-email">
             <input name="email" type="email" v-model="email" autocomplete="email" />
             <input type="number" name="id" v-model="id" hidden />
             <button @click="submit()" type="button">request</button>
