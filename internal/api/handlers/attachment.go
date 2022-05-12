@@ -15,14 +15,14 @@ func AllAttachments(c *gin.Context) {
 	attachments, err := models.GetAllAttachments()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting attachments: %v", err)
+		zero.Errorf("error getting attachments: %v", err)
 		return
 	}
 
 	bytes, err := json.Marshal(attachments)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling attachments: %v", err)
+		zero.Errorf("error marshalling attachments: %v", err)
 		return
 	}
 
@@ -43,7 +43,7 @@ func NewAttachment(c *gin.Context) {
 		bytes, err := ioutil.ReadAll(file)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
-			zero.Log.Error().Msgf("error reading file into bytes: %v", err)
+			zero.Errorf("error reading file into bytes: %v", err)
 			return
 		}
 
@@ -60,7 +60,7 @@ func NewAttachment(c *gin.Context) {
 	a, err := json.Marshal(attachments)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling attachments: %v", err)
+		zero.Errorf("error marshalling attachments: %v", err)
 		return
 	}
 
@@ -71,7 +71,7 @@ func UpdateAttachment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
-		zero.Log.Error().Msgf("not a valid id %d", id)
+		zero.Errorf("not a valid id %d", id)
 		return
 	}
 
@@ -85,14 +85,14 @@ func UpdateAttachment(c *gin.Context) {
 	_, err = models.UpdateAttachment(id, &att)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error updating attachment %d: %v", id, err)
+		zero.Errorf("error updating attachment %d: %v", id, err)
 		return
 	}
 
 	bytes, err := json.Marshal(att)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling attachment: %v", err)
+		zero.Errorf("error marshalling attachment: %v", err)
 		return
 	}
 
@@ -103,14 +103,14 @@ func GetAttachment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
-		zero.Log.Error().Msgf("not a valid id %d", id)
+		zero.Errorf("not a valid id %d", id)
 		return
 	}
 
 	result, err := models.GetAttachment(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting Attachment %d: %v", id, err)
+		zero.Errorf("error getting Attachment %d: %v", id, err)
 		return
 	}
 
@@ -124,7 +124,7 @@ func GetAttachment(c *gin.Context) {
 		bytes, err := json.Marshal(result)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
-			zero.Log.Error().Msgf("error marshalling Attachment: %v", err)
+			zero.Errorf("error marshalling Attachment: %v", err)
 			return
 		}
 
@@ -136,14 +136,14 @@ func DeleteAttachment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
-		zero.Log.Error().Msgf("not a valid id %d", id)
+		zero.Errorf("not a valid id %d", id)
 		return
 	}
 
 	err = models.DeleteAttachment(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting Attachment %d: %v", id, err)
+		zero.Errorf("error getting Attachment %d: %v", id, err)
 		return
 	}
 

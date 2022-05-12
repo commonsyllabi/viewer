@@ -14,7 +14,7 @@ var db *bun.DB
 
 func InitDB(user, password, name, host string) (*bun.DB, error) {
 	var url = "postgres://" + user + ":" + password + "@" + host + ":5432/" + name
-	zero.Log.Debug().Msgf("Connecting: %s", url)
+	zero.Debugf("Connecting: %s", url)
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(url), pgdriver.WithInsecure(true)))
 	db = bun.NewDB(sqldb, pgdialect.New())
 
@@ -23,7 +23,7 @@ func InitDB(user, password, name, host string) (*bun.DB, error) {
 		return db, err
 	}
 
-	zero.Log.Info().Msgf("Connected: %v", url)
+	zero.Infof("Connected: %v", url)
 	err = SetupTables(false)
 	return db, err
 }

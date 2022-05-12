@@ -22,7 +22,7 @@ func HandleMagicLink(c *gin.Context) {
 	id, err := strconv.Atoi(c.PostForm("id"))
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting syllabus by email: %v", err)
+		zero.Errorf("error getting syllabus by email: %v", err)
 		return
 	}
 	email := c.PostForm("email")
@@ -30,7 +30,7 @@ func HandleMagicLink(c *gin.Context) {
 	syll, err := models.GetSyllabus(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting syllabus by email: %v", err)
+		zero.Errorf("error getting syllabus by email: %v", err)
 		return
 	}
 
@@ -40,7 +40,7 @@ func HandleMagicLink(c *gin.Context) {
 	token, err = models.AddNewToken(&token)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error setting magic token: %v", err)
+		zero.Errorf("error setting magic token: %v", err)
 		return
 	}
 
@@ -65,10 +65,10 @@ func HandleMagicLink(c *gin.Context) {
 	resp, mg_id, err := mg.Send(ctx, message)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error sending email: %v", err)
+		zero.Errorf("error sending email: %v", err)
 		return
 	}
 
-	zero.Log.Debug().Msgf("ID: %s Resp: %s\n", mg_id, resp)
+	zero.Debugf("ID: %s Resp: %s\n", mg_id, resp)
 	c.String(http.StatusOK, "sending email to: %v", email)
 }

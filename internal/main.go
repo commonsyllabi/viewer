@@ -16,7 +16,7 @@ func main() {
 	}
 
 	zero.InitLog(0)
-	zero.Log.Info().Msg("Starting CoSyl")
+	zero.Info("Starting CoSyl")
 
 	_, err = models.InitDB(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"))
 	if err != nil {

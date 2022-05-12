@@ -18,14 +18,14 @@ func AllSyllabi(c *gin.Context) {
 	syllabi, err := models.GetAllSyllabi()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting syllabi: %v", err)
+		zero.Errorf("error getting syllabi: %v", err)
 		return
 	}
 
 	bytes, err := json.Marshal(syllabi)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
+		zero.Errorf("error marshalling syllabus: %v", err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func NewSyllabus(c *gin.Context) {
 	//-- sanitizing
 	if c.PostForm("title") == "" || c.PostForm("description") == "" || c.PostForm("email") == "" {
 		c.String(http.StatusBadRequest, "Cannot have empty title, description or email")
-		zero.Log.Error().Msg("Cannot have empty title, description or email")
+		zero.Error("Cannot have empty title, description or email")
 		return
 	}
 
@@ -53,7 +53,7 @@ func NewSyllabus(c *gin.Context) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(syll.Email), bcrypt.DefaultCost)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error hashing email: %v", err)
+		zero.Errorf("error hashing email: %v", err)
 		return
 	}
 
@@ -62,21 +62,21 @@ func NewSyllabus(c *gin.Context) {
 	form, err := c.MultipartForm()
 	if err != nil {
 		c.String(http.StatusBadRequest, "error parsing form %v", err)
-		zero.Log.Error().Msgf("error parsing form: %v", err)
+		zero.Errorf("error parsing form: %v", err)
 		return
 	}
 
 	syll, err = models.AddNewSyllabus(&syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error creating syllabus: %v", err)
+		zero.Errorf("error creating syllabus: %v", err)
 		return
 	}
 
 	var attachments []models.Attachment
 	files := form.File["attachments[]"]
 
-	zero.Log.Warn().Msgf("%d attachments found on new syllabus", len(files))
+	zero.Warnf("%d attachments found on new syllabus", len(files))
 
 	for _, f := range files {
 		file, err := f.Open()
@@ -88,7 +88,7 @@ func NewSyllabus(c *gin.Context) {
 		bytes, err := ioutil.ReadAll(file)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
-			zero.Log.Error().Msgf("error reading file into bytes: %v", err)
+			zero.Errorf("error reading file into bytes: %v", err)
 			return
 		}
 
@@ -106,14 +106,14 @@ func NewSyllabus(c *gin.Context) {
 	s, err := json.Marshal(syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
+		zero.Errorf("error marshalling syllabus: %v", err)
 		return
 	}
 
 	a, err := json.Marshal(attachments)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling attachments: %v", err)
+		zero.Errorf("error marshalling attachments: %v", err)
 		return
 	}
 
@@ -127,7 +127,7 @@ func UpdateSyllabus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
-		zero.Log.Error().Msgf("not a valid id %d", id)
+		zero.Errorf("not a valid id %d", id)
 		return
 	}
 
@@ -141,14 +141,14 @@ func UpdateSyllabus(c *gin.Context) {
 	_, err = models.UpdateSyllabus(id, &syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error updating syllabus %d: %v", id, err)
+		zero.Errorf("error updating syllabus %d: %v", id, err)
 		return
 	}
 
 	bytes, err := json.Marshal(syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
+		zero.Errorf("error marshalling syllabus: %v", err)
 		return
 	}
 
@@ -159,7 +159,7 @@ func GetSyllabus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
-		zero.Log.Error().Msgf("not a valid id %d", id)
+		zero.Errorf("not a valid id %d", id)
 		return
 	}
 
@@ -168,14 +168,14 @@ func GetSyllabus(c *gin.Context) {
 		c.HTML(http.StatusOK, "Error", gin.H{
 			"msg": "We couldn't find the syllabus.",
 		})
-		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
+		zero.Errorf("error getting syllabus %d: %v", id, err)
 		return
 	}
 
 	bytes, err := json.Marshal(syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error marshalling syllabus: %v", err)
+		zero.Errorf("error marshalling syllabus: %v", err)
 		return
 	}
 
@@ -201,7 +201,7 @@ func DisplayMagicLink(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "Error", gin.H{
 			"msg": "The ID of the resource you're asking for is invalid.",
 		})
-		zero.Log.Error().Msgf("error parsing the ID param: %v", err)
+		zero.Errorf("error parsing the ID param: %v", err)
 		return
 	}
 
@@ -211,7 +211,7 @@ func DisplayMagicLink(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "Error", gin.H{
 			"msg": "The ID of the resource you're asking for is invalid.",
 		})
-		zero.Log.Error().Msgf("invalid values for ID (%v) or token (%v)", id, token)
+		zero.Errorf("invalid values for ID (%v) or token (%v)", id, token)
 		return
 	}
 
@@ -220,7 +220,7 @@ func DisplayMagicLink(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "Error", gin.H{
 			"msg": "We could not find the syllabus you are looking for.",
 		})
-		zero.Log.Warn().Msgf("error getting syllabus: %v", err)
+		zero.Warnf("error getting syllabus: %v", err)
 		return
 	}
 
@@ -229,7 +229,7 @@ func DisplayMagicLink(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "Error", gin.H{
 			"msg": "The link you're trying to access has expired.",
 		})
-		zero.Log.Warn().Msgf("error getting magic token: %v", err.Error())
+		zero.Warnf("error getting magic token: %v", err.Error())
 		return
 	}
 
@@ -251,14 +251,14 @@ func DeleteSyllabus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
-		zero.Log.Error().Msgf("not a valid id %d", id)
+		zero.Errorf("not a valid id %d", id)
 		return
 	}
 
 	err = models.DeleteSyllabus(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting syllabus %d: %v", id, err)
+		zero.Errorf("error getting syllabus %d: %v", id, err)
 		return
 	}
 
