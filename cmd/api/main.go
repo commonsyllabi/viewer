@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/commonsyllabi/viewer/internal/api"
@@ -12,7 +13,15 @@ func main() {
 	zero.InitLog(0)
 	zero.Info("Starting CoSyl")
 
-	_, err := models.InitDB(os.Getenv("DATABASE_URL"))
+	// config should be loaded in main
+	fmt.Println(os.Environ())
+
+	url := os.Getenv("DATABASE_URL")
+	if url == "" {
+		zero.Log.Fatal().Msg("Missing env DATABASE_URL")
+	}
+
+	_, err := models.InitDB(url)
 	if err != nil {
 		zero.Log.Fatal().Msgf("Error initializing D: %v", err)
 	}
