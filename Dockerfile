@@ -17,5 +17,5 @@ WORKDIR /app
 COPY --from=node /dist/public/ internal/www/public/
 
 RUN go mod download
-RUN go build -o main internal/main.go
-CMD ["/app/main"]
+RUN go build -o api cmd/api/main.go
+CMD ["/app/api"]
