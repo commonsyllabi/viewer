@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
@@ -49,7 +50,11 @@ func TestGetMagicLink(t *testing.T) {
 }
 
 func mustSeedDB(t *testing.T) {
-	_, err := models.InitDB("postgres://test:test@localhost:5432/test")
+	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
+	if databaseTestURL == "" {
+		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
+	}
+	_, err := models.InitDB(databaseTestURL)
 	if err != nil {
 		panic(err)
 	}

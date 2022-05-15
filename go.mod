@@ -6,7 +6,6 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.7
-	github.com/joho/godotenv v1.4.0
 	github.com/mailgun/mailgun-go/v4 v4.6.1
 	github.com/rs/zerolog v1.26.1
 	github.com/uptrace/bun v1.1.4
