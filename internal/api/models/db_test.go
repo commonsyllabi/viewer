@@ -3,15 +3,18 @@ package models
 import (
 	"context"
 	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
+
+var databaseTestURL string
 
 func TestInitDB(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 	// todo: pass this as an env variable for tests, connecting to the same docker-compose db hosts, but different postgres databases
-	_, err := InitDB("postgres://cosyl:cosyl@localhost:5432/cosyl")
+	_, err := InitDB(databaseTestURL)
 
 	if err != nil {
 		t.Error(err)
@@ -19,7 +22,11 @@ func TestInitDB(t *testing.T) {
 }
 
 func mustSeedDB(t *testing.T) {
-	InitDB("postgres://cosyl:cosyl@localhost:5432/cosyl")
+	databaseTestURL = os.Getenv("DATABASE_TEST_URL")
+	if databaseTestURL == "" {
+		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
+	}
+	InitDB(databaseTestURL)
 	ctx := context.Background()
 
 	//-- truncate table deletes all rows in a table
@@ -38,7 +45,6 @@ func mustSeedDB(t *testing.T) {
 
 	db.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
 	_, err = db.NewCreateTable().Model((*Attachment)(nil)).IfNotExists().Exec(ctx)
-
 	if err != nil {
 		panic(err)
 	}

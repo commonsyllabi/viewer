@@ -22,7 +22,6 @@ COPY internal /app/internal
 
 WORKDIR /app
 COPY --from=node /dist/public/ ./www/public
-RUN find /app/cmd
 RUN go mod download
 RUN go build -o bin/api ./cmd/api/main.go
 CMD ["/app/bin/api"]

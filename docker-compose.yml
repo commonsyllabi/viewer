@@ -26,9 +26,12 @@ services:
       db:
         condition: service_healthy
     ports:
-     - 3046:3046
+     - ${PORT}:${PORT}
     environment:
       DATABASE_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
+      DATABASE_TEST_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/test"
+      PORT: ${PORT}
+      DEBUG: ${DEBUG}
     restart: always
     tmpfs:
       - /tmp

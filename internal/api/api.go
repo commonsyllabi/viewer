@@ -28,24 +28,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func StartServer() error {
+var conf Config
 
-	err := conf.load("./internal/api/config.yml")
-
-	if err != nil || conf.Port == "" {
-		zero.Warnf("error loading config: %v", err)
-		conf.defaults()
-	}
-
-	zero.Debugf("config: %-v", conf)
-
-	router, err := setupRouter(conf.Debug)
+// StartServer gets his port and debug in the environment, registers the router, and registers the database closing on exit.
+func StartServer(port string, debug bool, c Config) error {
+	conf = c
+	router, err := setupRouter(debug)
 	if err != nil {
 		return err
 	}
 
 	s := &http.Server{
-		Addr:         ":" + conf.Port,
+		Addr:         ":" + port,
 		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -53,16 +47,16 @@ func StartServer() error {
 
 	// from https://gist.github.com/ivan3bx/b0f14449803ce5b0aa72afaa1dfc75e1
 	go func() {
-		zero.Infof("server starting on port %s", conf.Port)
+		zero.Infof("server starting on port %s", port)
 		if err := s.ListenAndServe(); err != http.ErrServerClosed {
 			panic(err)
 		}
 	}()
 
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	ch := make(chan os.Signal, 2)
+	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 
-	<-c // block until signal received
+	<-ch // block until signal received
 
 	zero.Info("shutting down...")
 	s.Shutdown(context.Background())
@@ -71,6 +65,7 @@ func StartServer() error {
 	return err
 }
 
+// setupRouter registers all route groups
 func setupRouter(debug bool) (*gin.Engine, error) {
 	router := gin.New()
 
@@ -158,6 +153,7 @@ func handlePing(c *gin.Context) {
 	c.String(200, "pong")
 }
 
+// handleFile takes a file ID and a given cartridge as query parameter, and returns a file stream
 func handleFile(c *gin.Context) {
 
 	id := c.Param("id")
@@ -281,6 +277,7 @@ func handleResource(c *gin.Context) {
 	c.JSON(http.StatusOK, string(data))
 }
 
+// handleUpload expects a Common Cartridge-compliant file, saves it to disk, and creates an IMSCC instance from the file to return manifest, items and resources in JSON format.
 func handleUpload(c *gin.Context) {
 	file, err := c.FormFile("cartridge")
 	if err != nil {

@@ -18,10 +18,12 @@ import (
 const singleTestFile = "../../pkg/commoncartridge/test_files/test_01.imscc"
 
 func TestLoadConfig(t *testing.T) {
-	err := conf.load("../../internal/api/config.yml")
+	err := conf.LoadConf("../../internal/api/config.yml")
 
 	if err != nil {
-		t.Errorf("error loading conf file: %v", err)
+		if conf.TmpDir != "/tmp/commonsyllabi" {
+			t.Errorf("error loading conf file: %v", err)
+		}
 	}
 }
 
@@ -238,11 +240,17 @@ func mustOpen(f string) *os.File {
 }
 
 func mustSetupRouter(debug bool) *gin.Engine {
-	conf.defaults()
+	conf.DefaultConf()
 	conf.TemplatesDir = "../../internal/api/templates"
 
+	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
+	if databaseTestURL == "" {
+		fmt.Println("didn't get db test url from env, defaulting to postgres://cosyl:cosyl@localhost:5432/test")
+		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
+	}
+
 	//-- todo see db_test
-	_, err := models.InitDB("postgres://test:test@localhost:5432/test")
+	_, err := models.InitDB(databaseTestURL)
 	if err != nil {
 		panic(err)
 	}
