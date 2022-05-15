@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+//-- to not recreate the whole table everytime, one can also do all transactions, and then rollback rather than commit at the end of each test
 func TestGetAllSyllabi(t *testing.T) {
 	mustSeedDB(t)
 

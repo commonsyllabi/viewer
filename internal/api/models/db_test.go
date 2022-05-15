@@ -21,6 +21,7 @@ func mustSeedDB(t *testing.T) {
 	InitDB("test", "test", "test", "localhost")
 	ctx := context.Background()
 
+	//-- truncate table deletes all rows in a table
 	db.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
 	_, err := db.NewCreateTable().Model((*Syllabus)(nil)).IfNotExists().Exec(ctx)
 
