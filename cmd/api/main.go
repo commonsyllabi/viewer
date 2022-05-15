@@ -22,7 +22,7 @@ func main() {
 		zero.InitLog(1)
 	}
 
-	zero.Info("Starting CoSyl")
+	zero.Info("starting cosyl")
 
 	var conf api.Config
 	conf.DefaultConf()

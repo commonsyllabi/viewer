@@ -14,7 +14,7 @@ import (
 var db *bun.DB
 
 func InitDB(url string) (*bun.DB, error) {
-	zero.Debugf("Connecting: %s", url) //-- todo this should not be logged
+	zero.Debugf("connecting: %s", url) //-- todo this should not be logged
 	sslMode := false
 	if strings.HasSuffix(url, "sslmode=require") {
 		sslMode = true
@@ -29,7 +29,7 @@ func InitDB(url string) (*bun.DB, error) {
 		return db, err
 	}
 
-	zero.Infof("Connected: %v", url) //should not be logged
+	zero.Infof("connected: %v", url) //should not be logged
 	err = SetupTables(false)
 	return db, err
 }
