@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/commonsyllabi/viewer/internal/api"
@@ -14,7 +13,6 @@ func main() {
 	zero.Info("Starting CoSyl")
 
 	// config should be loaded in main
-	fmt.Println(os.Environ())
 
 	url := os.Getenv("DATABASE_URL")
 	if url == "" {

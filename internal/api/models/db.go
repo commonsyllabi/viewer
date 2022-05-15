@@ -30,7 +30,7 @@ func InitDB(url string) (*bun.DB, error) {
 	}
 
 	zero.Infof("Connected: %v", url) //should not be logged
-	err = SetupTables(true)
+	err = SetupTables(false)
 	return db, err
 }
 

@@ -27,7 +27,7 @@ func (c *Config) defaults() {
 	c.TmpDir = "/tmp/commonsyllabi"
 	c.UploadsDir = "uploads"
 	c.FilesDir = "files"
-	c.PublicDir = "./internal/www/public"
+	c.PublicDir = "./www/public"
 	c.TemplatesDir = "./internal/api/templates"
 	c.Debug = true
 }

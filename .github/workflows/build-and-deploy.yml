@@ -36,15 +36,15 @@ jobs:
         run: |
           npm install --global yarn
           yarn
-        working-directory: ./internal/www
+        working-directory: ./www
       - name: "Build files"
         run: yarn build
-        working-directory: ./internal/www
+        working-directory: ./www
       - name: "Test front-end"
         run: yarn autotest
-        working-directory: ./internal/www
+        working-directory: ./www
       - name: "Zip built files"
-        run: zip -r -9 front.zip ./internal/www/public
+        run: zip -r -9 front.zip ./www/public
       - name: "Bundle and upload"
         uses: actions/upload-artifact@v3
         with:
@@ -123,7 +123,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.ENFRAMED_SSH_SECRET }}
-          source: "./internal/www/public"
+          source: "./www/public"
           target: "/var/www/commonsyllabi"
       - name: "SCP backend"
         uses: appleboy/scp-action@master
