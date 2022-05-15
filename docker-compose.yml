@@ -28,7 +28,7 @@ services:
     ports:
      - 3046:3046
     environment:
-      DB_HOST: db
+      DATABASE_URL: "postgres:${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
     restart: always
     tmpfs:
       - /tmp
@@ -38,6 +38,7 @@ services:
 volumes:
   pgdata:
 
+# ideally we don't need this
 networks:
   internal:
     driver: bridge

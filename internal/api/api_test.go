@@ -241,7 +241,8 @@ func mustSetupRouter(debug bool) *gin.Engine {
 	conf.defaults()
 	conf.TemplatesDir = "../../internal/api/templates"
 
-	_, err := models.InitDB("test", "test", "test", "localhost")
+	//-- todo see db_test
+	_, err := models.InitDB("postgres://test:test@localhost:5432/test")
 	if err != nil {
 		panic(err)
 	}

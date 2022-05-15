@@ -10,7 +10,8 @@ import (
 func TestInitDB(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
-	_, err := InitDB("cosyl", "cosyl", "cosyl", "localhost")
+	// todo: pass this as an env variable for tests, connecting to the same docker-compose db hosts, but different postgres databases
+	_, err := InitDB("postgres://cosyl:cosyl@localhost:5432/cosyl")
 
 	if err != nil {
 		t.Error(err)
@@ -18,7 +19,7 @@ func TestInitDB(t *testing.T) {
 }
 
 func mustSeedDB(t *testing.T) {
-	InitDB("test", "test", "test", "localhost")
+	InitDB("postgres://cosyl:cosyl@localhost:5432/cosyl")
 	ctx := context.Background()
 
 	//-- truncate table deletes all rows in a table

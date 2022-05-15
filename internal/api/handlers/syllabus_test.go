@@ -294,7 +294,7 @@ func TestDeleteSyllabus(t *testing.T) {
 }
 
 func mustSeedDB(t *testing.T) {
-	_, err := models.InitDB("test", "test", "test", "localhost")
+	_, err := models.InitDB("postgres://test:test@localhost:5432/test")
 	if err != nil {
 		panic(err)
 	}
