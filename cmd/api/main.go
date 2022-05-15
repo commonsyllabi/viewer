@@ -9,7 +9,19 @@ import (
 )
 
 func main() {
-	zero.InitLog(0)
+	debug := false
+	switch os.Getenv("DEBUG") {
+	case "true":
+		debug = true
+		zero.InitLog(0)
+	case "false":
+		debug = false
+		zero.InitLog(1)
+	default:
+		zero.Log.Warn().Msg("Missing env DEBUG, defaulting to false")
+		zero.InitLog(1)
+	}
+
 	zero.Info("Starting CoSyl")
 
 	var conf api.Config
@@ -29,16 +41,6 @@ func main() {
 	_, err := models.InitDB(url)
 	if err != nil {
 		zero.Log.Fatal().Msgf("Error initializing D: %v", err)
-	}
-
-	debug := false
-	switch os.Getenv("DEBUG") {
-	case "true":
-		debug = true
-	case "false":
-		debug = false
-	default:
-		zero.Log.Warn().Msg("Missing env DEBUG, defaulting to false")
 	}
 
 	err = api.StartServer(port, debug, conf)

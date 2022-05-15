@@ -7,8 +7,9 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - 5432:5432
+      PGPORT: ${DB_PORT}
+    expose:
+      - "5433"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -28,9 +29,10 @@ services:
     ports:
      - ${PORT}:${PORT}
     environment:
-      DATABASE_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
-      DATABASE_TEST_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/test"
+      DATABASE_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}"
+      DATABASE_TEST_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/test"
       PORT: ${PORT}
+      DB_PORT: ${DB_PORT}
       DEBUG: ${DEBUG}
     restart: always
     tmpfs:

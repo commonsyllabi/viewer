@@ -254,7 +254,7 @@ func mustSetupRouter(debug bool) *gin.Engine {
 	if err != nil {
 		panic(err)
 	}
-	router, err := setupRouter(debug)
+	router, err := setupRouter()
 	if err != nil {
 		panic(err)
 	}

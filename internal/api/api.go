@@ -33,7 +33,14 @@ var conf Config
 // StartServer gets his port and debug in the environment, registers the router, and registers the database closing on exit.
 func StartServer(port string, debug bool, c Config) error {
 	conf = c
-	router, err := setupRouter(debug)
+
+	if debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	router, err := setupRouter()
 	if err != nil {
 		return err
 	}
@@ -66,18 +73,11 @@ func StartServer(port string, debug bool, c Config) error {
 }
 
 // setupRouter registers all route groups
-func setupRouter(debug bool) (*gin.Engine, error) {
+func setupRouter() (*gin.Engine, error) {
 	router := gin.New()
 
 	router.Use(cors.Default())
-	fmt.Println(conf.TemplatesDir + "/*")
 	router.LoadHTMLGlob(conf.TemplatesDir + "/*")
-
-	if debug {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
 
 	err := os.MkdirAll(conf.TmpDir, os.ModePerm)
 	if err != nil {
