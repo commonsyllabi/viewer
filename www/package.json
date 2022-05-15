@@ -11,9 +11,9 @@
     "build": "vue-tsc --noEmit && vite build --emptyOutDir",
     "watch": "vite build --watch --mode development --emptyOutDir",
     "preview": "vite preview",
-    "start": "yarn build & (cd ../ && env DATABASE_URL=\"postgres://test:test@localhost:5432/test\" go run cmd/api/main.go)",
+    "start": "yarn build & (cd ../ && godotenv -f .env go run cmd/api/main.go)",
     "test": "cypress run",
-    "autotest": "start-server-and-test 8080 'cypress run -q'"
+    "autotest": "start-server-and-test 3046 'cypress run -q'"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix",
