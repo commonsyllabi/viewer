@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/uptrace/bun"
@@ -13,8 +14,14 @@ import (
 var db *bun.DB
 
 func InitDB(url string) (*bun.DB, error) {
-	zero.Debugf("Connecting: %s", url)
-	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(url), pgdriver.WithInsecure(true)))
+	zero.Debugf("Connecting: %s", url) //-- todo this should not be logged
+	sslMode := false
+	if strings.HasSuffix(url, "sslmode=require") {
+		sslMode = true
+	}
+
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(url), pgdriver.WithInsecure(!sslMode)))
+
 	db = bun.NewDB(sqldb, pgdialect.New())
 
 	err := db.Ping()
@@ -22,7 +29,7 @@ func InitDB(url string) (*bun.DB, error) {
 		return db, err
 	}
 
-	zero.Infof("Connected: %v", url)
+	zero.Infof("Connected: %v", url) //should not be logged
 	err = SetupTables(true)
 	return db, err
 }
