@@ -79,7 +79,61 @@ func TestNewSyllabusWrongValue(t *testing.T) {
 	NewSyllabus(c)
 
 	if res.Code != 400 {
-		t.Errorf("Expected 200, got %v: %v", res.Code, res.Body)
+		t.Errorf("Expected 400, got %v: %v", res.Code, res.Body)
+	}
+}
+
+func TestNewSyllabusShortEmail(t *testing.T) {
+	mustSeedDB(t)
+
+	var body bytes.Buffer
+	w := multipart.NewWriter(&body)
+	w.WriteField("title", "")
+	w.WriteField("description", "This is a test for the syllabus handling")
+	w.WriteField("email", "a@b.fr")
+	w.Close()
+
+	res := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(res)
+	c.Request = &http.Request{
+		Header: make(http.Header),
+	}
+
+	c.Request.Method = "POST"
+	c.Request.Header.Set("Content-Type", w.FormDataContentType())
+	c.Request.Body = io.NopCloser(&body)
+
+	NewSyllabus(c)
+
+	if res.Code != 400 {
+		t.Errorf("Expected 400, got %v: %v", res.Code, res.Body)
+	}
+}
+
+func TestNewSyllabusWrongEmail(t *testing.T) {
+	mustSeedDB(t)
+
+	var body bytes.Buffer
+	w := multipart.NewWriter(&body)
+	w.WriteField("title", "")
+	w.WriteField("description", "This is a test for the syllabus handling")
+	w.WriteField("email", "obviously not an email")
+	w.Close()
+
+	res := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(res)
+	c.Request = &http.Request{
+		Header: make(http.Header),
+	}
+
+	c.Request.Method = "POST"
+	c.Request.Header.Set("Content-Type", w.FormDataContentType())
+	c.Request.Body = io.NopCloser(&body)
+
+	NewSyllabus(c)
+
+	if res.Code != 400 {
+		t.Errorf("Expected 400, got %v: %v", res.Code, res.Body)
 	}
 }
 

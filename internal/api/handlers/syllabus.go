@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/mail"
 	"strconv"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
@@ -34,16 +35,16 @@ func AllSyllabi(c *gin.Context) {
 
 func NewSyllabus(c *gin.Context) {
 
-	//-- sanitizing
-	if c.PostForm("title") == "" || c.PostForm("description") == "" || c.PostForm("email") == "" {
-		c.String(http.StatusBadRequest, "Cannot have empty title, description or email")
-		zero.Error("Cannot have empty title, description or email")
+	err := sanitizeInput(c)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		zero.Error(err.Error())
 		return
 	}
 
 	// save the actual syllabus
 	var syll models.Syllabus
-	err := c.Bind(&syll)
+	err = c.Bind(&syll)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -267,4 +268,39 @@ func DeleteSyllabus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"id": id,
 	})
+}
+
+func sanitizeInput(c *gin.Context) error {
+	var err error
+
+	if c.PostForm("title") == "" || c.PostForm("description") == "" || c.PostForm("email") == "" {
+		zero.Error("Cannot have empty title, description or email")
+		err = fmt.Errorf("cannot have empty title, description or email")
+		return err
+	}
+
+	if len(c.PostForm("title")) < 10 && len(c.PostForm("title")) > 200 {
+		zero.Errorf("the title of the syllabus should be between 10 and 200 characters: %d", len(c.PostForm("title")))
+		err = fmt.Errorf("the title of the syllabus should be between 10 and 200 characters: %d", len(c.PostForm("title")))
+		return err
+	}
+
+	if len(c.PostForm("description")) < 10 && len(c.PostForm("description")) > 500 {
+		zero.Errorf("the description of the syllabus should be between 10 and 500 characters: %d", len(c.PostForm("description")))
+		err = fmt.Errorf("the description of the syllabus should be between 10 and 500 characters: %d", len(c.PostForm("description")))
+		return err
+	}
+
+	if len(c.PostForm("email")) < 10 && len(c.PostForm("email")) > 50 {
+		zero.Errorf("the email of the syllabus should be between 10 and 50 characters: %d", len(c.PostForm("email")))
+		err = fmt.Errorf("the email of the syllabus should be between 10 and 50 characters: %d", len(c.PostForm("email")))
+		return err
+	}
+
+	_, err = mail.ParseAddress(c.PostForm("email"))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
