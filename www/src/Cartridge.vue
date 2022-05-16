@@ -1,5 +1,6 @@
 <template>
-  <div class="container p-3">
+<Header></Header>
+  <main class="container p-3">
     <div class="container pt-4 mb-3 border rounded" v-if="isUploaded">
       <form id="submit-form" action="/syllabi/" method="POST">
         <div>
@@ -126,7 +127,8 @@
         </div>
       </div>
     </div>
-  </div>
+  </main>
+  <Footer></Footer>
 </template>
 
 <script setup lang="ts">
@@ -135,6 +137,9 @@ import { ManifestType, ItemType, ResourceType } from "./js/types";
 
 import Resource from './components/Resource.vue'
 import Item from './components/Item.vue'
+
+import Footer from './components/Footer.vue';
+import Header from './components/Header.vue';
 
 import { stub } from './js/stub'
 

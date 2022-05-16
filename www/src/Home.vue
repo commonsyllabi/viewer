@@ -1,5 +1,6 @@
 <template>
-    <div class="container p-3">
+    <Header></Header>
+    <main class="container p-3">
         <h1>Home</h1>
         <div>{{ msg }}</div>
         <div class="syllabi">
@@ -12,12 +13,19 @@
                 </li>
             </ul>
         </div>
-    </div>
+        <div class="cta">
+            <a href="/cartridge.html">upload yours!</a>
+        </div>
+    </main>
+    <Footer></Footer>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
+import Footer from './components/Footer.vue';
+import Header from './components/Header.vue';
 import { SyllabusType } from './js/types';
+
 
 const msg = ref("")
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
