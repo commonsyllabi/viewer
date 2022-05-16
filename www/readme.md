@@ -1,14 +1,20 @@
 # CC Viewer Frontend
 
-### To start the server
+### To start the backend
 
 From root of project:
 
 ```
-go run internal/main.go
+godotenv -f .env go run cmd/api/main.go
 ```
 
-This runs the Go backend on a port defined by `config.go`, either read from `config.yml` or set to `2046` in the `defaults` method.
+This runs the Go backend, loading environment variables from the `.env` file with the [godotenv](https://github.com/joho/godotenv) binary. Environment variables are:
+
+- `PORT`, starts the Go process on the given port, default `3046`
+- `DATABASE_URL`, full string to connect to database, default to `postgres://cosyl:cosyl@localhost:5432/cosyl`, varies depending on local dev, docker or deployed.
+- `DATABASE_TEST_URL`, full string to connect to test database, default to `postgres://cosyl:cosyl@localhost:5432/test`, only the database name changes to `test`.
+- `DEBUG`, set to `true` or `false`.
+- `GIN_MODE`, set to `debug`, `production`, `test`
 
 
 ### To start the frontend:
@@ -36,27 +42,25 @@ This would make the files available to `localhost:{server_port}`, but doesn't ha
 
 Tests are written in the `integration` folder, and can use dummy data as request responses (ajax, fetch, axios, etc.), from the `fixtures` folder.
 
-Open cypress:
+To work on the tests interactively, open cypress:
 
 ```
 yarn run cypress open
 ```
 
-Serve the frontend on `localhost:8080` (_note:_ this server does not work for reloading, and is only used for testing):
+Serve the frontend on `localhost:3046` (_note:_ this server does not work for reloading, and is only used for testing). From root of project:
 
 ```
-yarn start
+godotenv -f .env go run cmd/api/main.go
 ```
 
-Run the tests:
+You can also run the tests in headless mode (no UI). While the backend is running, run the frontend tests:
 
 ```
 yarn test
 ```
 
-Or alternatively, `yarn autotest` combines `start` and `test`. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.
-
-Finally, they are all in the process of being migrated to a docker iamge, for consistency.
+Or alternatively, `yarn autotest` combines `start` and `test`. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.This is in the process of being migrated to a docker image, for consistency. WIP:
 
 ```
 docker-compose -f docker-compose.test.yml run api_test --abort-on-container-exit    
