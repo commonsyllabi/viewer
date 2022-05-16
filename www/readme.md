@@ -56,6 +56,12 @@ yarn test
 
 Or alternatively, `yarn autotest` combines `start` and `test`. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.
 
+Finally, they are all in the process of being migrated to a docker iamge, for consistency.
+
+```
+docker-compose -f docker-compose.test.yml run api_test --abort-on-container-exit    
+```
+
 ### Database
 
 The API connects to a Postgres database called `cosyl`, with username `cosyl` and password `cosyl`. These are being set in the .env file, along with the `DB_HOST`.
