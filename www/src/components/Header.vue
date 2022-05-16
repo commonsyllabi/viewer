@@ -17,7 +17,7 @@ header {
     justify-content: space-between;
     padding: 1rem;
     background-color: white;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid black;
 }
 
 .title {
