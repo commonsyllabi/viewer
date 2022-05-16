@@ -3,9 +3,9 @@ package models
 import "context"
 
 type MagicToken struct {
-	ID         int64  `bun:"id,pk,autoincrement"`
-	Token      []byte `bun:"token"`
-	SyllabusID int64
+	ID              int64  `bun:"id,pk,autoincrement"`
+	Token           []byte `bun:"token"`
+	SyllabusTokenID int64  `bun:"syllabus_token_id"`
 }
 
 func CreateMagicTokenTable() error {
@@ -18,7 +18,7 @@ func CreateMagicTokenTable() error {
 func GetTokenSyllabus(id int) (MagicToken, error) {
 	ctx := context.Background()
 	var token MagicToken
-	err := db.NewSelect().Model(&token).Where("syllabus_id = ?", id).Scan(ctx)
+	err := db.NewSelect().Model(&token).Where("syllabus_token_id = ?", id).Scan(ctx)
 	return token, err
 }
 

@@ -120,8 +120,6 @@ func TestHandleFile(t *testing.T) {
 	router.ServeHTTP(res, req)
 	result := res.Result()
 
-	fmt.Println(res.Body)
-
 	if res.Code != http.StatusOK {
 		t.Errorf("expected 200 response code, got %d", res.Code)
 	}
@@ -249,7 +247,6 @@ func mustSetupRouter(debug bool) *gin.Engine {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
 
-	//-- todo see db_test
 	_, err := models.InitDB(databaseTestURL)
 	if err != nil {
 		panic(err)

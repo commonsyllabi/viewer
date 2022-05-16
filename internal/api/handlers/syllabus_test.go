@@ -357,10 +357,10 @@ func mustSeedDB(t *testing.T) {
 		panic(err)
 	}
 
-	err = models.SetupTables(true)
-	if err != nil {
-		panic(err)
-	}
+	// err = models.SetupTables(true)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	syll := models.Syllabus{Title: "Test Title 1", Description: "Test Description 1"}
 	_, err = models.AddNewSyllabus(&syll)
@@ -370,7 +370,7 @@ func mustSeedDB(t *testing.T) {
 
 	hasher := sha256.New()
 	hasher.Write([]byte(syll.Title))
-	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusID: syll.ID}
+	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusTokenID: syll.ID}
 	token, err = models.AddNewToken(&token)
 	if err != nil {
 		panic(err)

@@ -94,10 +94,10 @@ func NewSyllabus(c *gin.Context) {
 		}
 
 		attachment := models.Attachment{
-			Name:       f.Filename,
-			SyllabusID: syll.ID,
-			File:       bytes,
-			Type:       http.DetectContentType(bytes),
+			Name:               f.Filename,
+			SyllabusAttachedID: syll.ID,
+			File:               bytes,
+			Type:               http.DetectContentType(bytes),
 		}
 
 		att, _ := models.AddNewAttachment(&attachment)

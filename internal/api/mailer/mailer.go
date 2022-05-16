@@ -21,7 +21,7 @@ const DOMAIN = "post.enframed.net"
 func HandleMagicLink(c *gin.Context) {
 	id, err := strconv.Atoi(c.PostForm("id"))
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		zero.Errorf("error getting syllabus by email: %v", err)
 		return
 	}
@@ -36,7 +36,7 @@ func HandleMagicLink(c *gin.Context) {
 
 	hasher := sha256.New()
 	hasher.Write([]byte(syll.Title))
-	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusID: syll.ID}
+	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusTokenID: syll.ID}
 	token, err = models.AddNewToken(&token)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())

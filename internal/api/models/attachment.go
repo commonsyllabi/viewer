@@ -5,13 +5,12 @@ import (
 )
 
 type Attachment struct {
-	ID         int64  `bun:"id,pk,autoincrement"`
-	Name       string `form:"name"`
-	File       []byte
-	Type       string
-	SyllabusID int64
-	Syllabus   Syllabus `bun:"rel:belongs-to,join:syllabus_id=id"`
-	//cartridge  commoncartridge.Cartridge //-- have this directly? or leave it as file interface?
+	ID                 int64  `bun:"id,pk,autoincrement"`
+	Name               string `form:"name"`
+	File               []byte
+	Type               string
+	SyllabusAttachedID int64
+	Syllabus           Syllabus `bun:"rel:belongs-to,join:syllabus_attached_id=id"`
 }
 
 func CreateAttachmentsTable() error {

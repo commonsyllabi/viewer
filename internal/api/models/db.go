@@ -30,17 +30,17 @@ func InitDB(url string) (*bun.DB, error) {
 	}
 
 	zero.Infof("connected: %v", url) //should not be logged
-	err = SetupTables(false)
+	err = SetupTables(true)
 	return db, err
 }
 
 func SetupTables(reset bool) error {
 	ctx := context.Background()
 	if reset {
-		db.NewDropTable().Model(&Syllabus{}).IfExists().Exec(ctx)
-		db.NewDropTable().Model(&Contributor{}).IfExists().Exec(ctx)
-		db.NewDropTable().Model(&Attachment{}).IfExists().Exec(ctx)
-		db.NewDropTable().Model(&MagicToken{}).IfExists().Exec(ctx)
+		db.NewTruncateTable().Model(&Syllabus{}).Exec(ctx)
+		db.NewTruncateTable().Model(&Contributor{}).Exec(ctx)
+		db.NewTruncateTable().Model(&Attachment{}).Exec(ctx)
+		db.NewTruncateTable().Model(&MagicToken{}).Exec(ctx)
 	}
 
 	if err := CreateSyllabiTable(); err != nil {
