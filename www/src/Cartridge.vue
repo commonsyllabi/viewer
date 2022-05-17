@@ -1,32 +1,7 @@
 <template>
   <Header></Header>
   <main class="container p-3">
-    <!-- this should be moved to a modal -->
-    <div class="container pt-4 mb-3 border rounded" hidden>
-      <form id="submit-form" action="/syllabi/" method="POST">
-        <div>
-          <label for="title">Title of the course</label>
-          <input type="text" name="title" id="title" v-model="syllabus.title" />
-        </div>
 
-        <div>
-          <label for="description">Description of the course</label>
-          <input type="text" name="description" id="description" v-model="syllabus.description" />
-        </div>
-
-        <div>
-          <label for="email">Email</label>
-          <input type="email" name="email" id="email" v-model="syllabus.email" />
-        </div>
-
-        <div>
-          <label for="email">Confirm email</label>
-          <input type="email" name="email-conf" id="email-conf" />
-        </div>
-
-        <button id="course-submit" type="button" class="btn btn-primary mb-4" @click="submit()">submit</button>
-      </form>
-    </div>
     <!-- upload form -->
     <div class="container pt-4 mb-3 border rounded">
       <form id="upload-form" action="/api/upload" method="post">
@@ -38,6 +13,12 @@
       </form>
     </div>
 
+    <!-- upload modal -->
+    <div class="modal" @keydown.esc="showUpload = false" tabindex="-1" v-if="showUpload">
+      <Upload></Upload>
+    </div>
+
+
     <!-- status log -->
     <div id="log" class="container py-1 mb-3">
       <pre>{{ log }}</pre>
@@ -45,14 +26,14 @@
 
 
     <div v-if="isUploaded" class="container cartridge">
-    <!-- actions -->
-    <div class="row mb-2 actions">
-      <button type="button" class="action" @click="showMetadata = !showMetadata">{{ 
-      showMetadata ? "hide metadata & index" : "show metadata & index"
-      }}</button>
-      <button type="button" class="action" @click="reset()">load another file</button>
-      <button type="button" class="action">upload this file</button>
-    </div>
+      <!-- actions -->
+      <div class="row mb-2 actions">
+        <button type="button" class="action" @click="showMetadata = !showMetadata">{{
+            showMetadata ? "hide metadata & index" : "show metadata & index"
+        }}</button>
+        <button type="button" class="action" @click="reset()">load another file</button>
+        <button type="button" class="action" @click="showModal()">upload this file</button>
+      </div>
       <!-- metadata viewer -->
       <div class="row mb-3" v-if="showMetadata">
         <div id="metadata-accordion" class="accordion">
@@ -120,6 +101,7 @@ import { ManifestType, ItemType, ResourceType } from "./js/types";
 
 import Resource from './components/Resource.vue'
 import Item from './components/Item.vue'
+import Upload from './components/Upload.vue'
 
 import Footer from './components/Footer.vue';
 import Header from './components/Header.vue';
@@ -139,6 +121,7 @@ let items = new Array<ItemType>()
 let resources = new Array<ResourceType>()
 
 let showMetadata = ref(false);
+let showUpload = ref(false);
 
 let log = ref("ready");
 let isUploaded = ref(false);
@@ -190,7 +173,7 @@ let upload = function () {
 let reset = () => {
   isUploaded.value = false
   showMetadata.value = false
-  
+
   Object.assign(manifest, {})
   Object.assign(items, {})
   Object.assign(resources, {})
@@ -198,69 +181,12 @@ let reset = () => {
   log.value = "reset cartridge"
 }
 
-let submit = () => {
-
-  if (isInvalidEmail()) {
-    log.value = "please make sure that the emails are matching!"
-    return
-  }
-
-  const pformElem = document.getElementById("upload-form") as HTMLFormElement;
-  const pformData = new FormData(pformElem);
-
-  const formElem = document.getElementById("submit-form") as HTMLFormElement;
-  const formData = new FormData(formElem);
-
-
-  formData.set('attachments[]', pformData.get('cartridge') as FormDataEntryValue)
-  formData.forEach((v, k) => {
-    console.log(k, v)
-  })
-
-  if (validateSubmission(formData)) {
-    console.warn("can't submit an empty title or description!");
-    log.value = "can't submit an empty title or description!";
-    return;
-  }
-
-  fetch(`${HOST}/syllabi/`, {
-    method: "POST",
-    body: formData,
-  })
-    .then(res => {
-      res.json()
-    })
-    .then(data => {
-      console.log(data)
-      log.value = "submitted syllabus!"
-    })
-}
-
-let isInvalidEmail = (): boolean => {
-  const e1 = document.getElementById("email") as HTMLInputElement
-  const e2 = document.getElementById("email-conf") as HTMLInputElement
-  if (!e1 || !e2)
-    return true
-  if (e1.value != e2.value)
-    return true
-
-  return false
-}
-
-let validateSubmission = (_data: FormData) => {
-  if (_data == null)
-    return false
-  else if (_data.get("title") != undefined || _data.get("description") != undefined)
-    return false
-  else if (_data.get("title") != null || _data.get("description") != null)
-    return false
-
-  const title = _data.get("title") as string
-  const description = _data.get("description") as string
-  if (title.length < 5 || description.length < 5)
-    return false
-
-  return true
+let showModal = () => {
+  showUpload.value = true;
+  setTimeout(() => {
+    let md = document.getElementById("modal-dialog") as HTMLElement
+    md.focus()
+  }, 100);
 }
 
 // onMounted(() => {
@@ -306,7 +232,7 @@ let validateSubmission = (_data: FormData) => {
 .actions {
   display: flex;
 
-  .action{
+  .action {
     width: max-content;
     border: none;
     background-color: white;
@@ -314,8 +240,12 @@ let validateSubmission = (_data: FormData) => {
     text-decoration: underline;
   }
 
-  .action:hover{
+  .action:hover {
     color: black;
   }
+}
+
+.modal {
+  display: block;
 }
 </style>
