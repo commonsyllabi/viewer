@@ -8,14 +8,16 @@
         <div class="form-group">
           <label for="cartridgeInput" class="d-block h5 mb-3">Upload a common cartridge (.imscc) file</label>
           <input id="upload-file" type="file" name="cartridge" class="form-control-file d-block mb-2" />
-          <button id="upload-submit" type="button" class="btn btn-primary mb-3" @click="upload()">upload</button>
+          <!-- <button class="btn btn-primary mb-3" ">upload</button> -->
+          <uiButton @click="upload()" text="Upload"  classes="btn btn-primary mb-3" />
         </div>
       </form>
     </div>
 
     <!-- upload modal -->
     <div class="modal" @keydown.esc="showUpload = false" tabindex="-1" v-if="showUpload">
-      <Upload></Upload>
+      <Upload :title="manifest.Metadata.Lom.General.Title.String.Text"
+        :description="manifest.Metadata.Lom.General.Description.String.Text" @close="showUpload = false"></Upload>
     </div>
 
 
@@ -102,6 +104,7 @@ import { ManifestType, ItemType, ResourceType } from "./js/types";
 import Resource from './components/Resource.vue'
 import Item from './components/Item.vue'
 import Upload from './components/Upload.vue'
+import uiButton from './components/ui/ui-button.vue'
 
 import Footer from './components/Footer.vue';
 import Header from './components/Header.vue';
@@ -131,7 +134,8 @@ let upload = function () {
   const formElem = document.getElementById("upload-form") as HTMLFormElement;
   const formData = new FormData(formElem);
 
-  if (formData.get("cartridge") == null) {
+  let cc = formData.get("cartridge") as File
+  if (cc.name == "" || cc.size  == 0) {
     console.warn("can't submit an empty cartridge!");
     log.value = "can't submit an empty cartridge!";
     return;

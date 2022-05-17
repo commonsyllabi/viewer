@@ -79,8 +79,8 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [ "$current_branch" = "main" ]
 then
-	docker-compose -f docker-compose.test.yml run backend_test --remove-orphans
-	docker-compose -f docker-compose.test.yml run frontend_test --remove-orphans
+	docker-compose -f docker-compose.test.yml --remove-orphans run backend_test 
+	docker-compose -f docker-compose.test.yml run docker-compose -f docker-compose.test.yml run frontend_test --remove-orphans frontend_test 
 else
 	echo "skipping tests... (not on main)"
 fi

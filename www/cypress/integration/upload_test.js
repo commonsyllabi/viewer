@@ -22,6 +22,16 @@ describe('Cartridge page', () => {
   });
 
   it('submits a new course', () => {
-    cy.get("#course-submit")
+    cy.get("#course-submit") //-elaborate with more precise state checking
   })
+});
+
+describe('Home page', () => {
+  it('clicks to upload a cartridge', () => {
+
+  });
+
+  it('scrolls through listed syllabi', () => {
+
+  });
 });

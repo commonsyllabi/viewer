@@ -14,7 +14,7 @@
             </ul>
         </div>
         <div class="cta">
-            <a href="/cartridge.html">upload yours!</a>
+            <uiButton text="upload yours!" classes="btn btn-primary mb-4" @click="start()"/>
         </div>
     </main>
     <Footer></Footer>
@@ -24,12 +24,17 @@
 import { ref, onMounted, reactive } from 'vue';
 import Footer from './components/Footer.vue';
 import Header from './components/Header.vue';
+import uiButton from './components/ui/ui-button.vue'
 import { SyllabusType } from './js/types';
 
 
 const msg = ref("")
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
 const syllabi = new Array<SyllabusType>()
+
+let start = () => {
+    window.location.href = '/cartridge.html'
+}
 
 onMounted(() => {
     fetch(`${HOST}/syllabi/`,

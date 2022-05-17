@@ -1,44 +1,49 @@
 <template>
-    <div class="modal-dialog modal-dialog-centered" ref="modalDialog">
-        <div class="modal-content p-3">
-            <form id="submit-form" action="/syllabi/" method="POST">
-                <div>
-                    <label for="title">Title of the course</label>
-                    <input type="text" name="title" id="title" v-model="syllabus.title" />
-                </div>
-
-                <div>
-                    <label for="description">Description of the course</label>
-                    <input type="text" name="description" id="description" v-model="syllabus.description" />
-                </div>
-
-                <div>
-                    <label for="email">Email</label>
-                    <input type="email" name="email" id="email" v-model="syllabus.email" />
-                </div>
-
-                <div>
-                    <label for="email">Confirm email</label>
-                    <input type="email" name="email-conf" id="email-conf" />
-                </div>
-
-                <button id="course-submit" type="button" class="btn btn-primary mb-4" @click="submit()">submit</button>
-                <div class="log">{{ log }}</div>
-            </form>
+  <div class="modal-dialog modal-dialog-centered" id="modal-dialog">
+    <div class="modal-content p-3">
+      <form id="submit-form" action="/syllabi/" method="POST">
+        <div>
+          <label for="title">Title of the course</label>
+          <input type="text" name="title" id="title" v-model="title" />
         </div>
 
+        <div>
+          <label for="description">Description of the course</label>
+          <input type="text" name="description" id="description" v-model="description" />
+        </div>
+
+        <div>
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" v-model="email" />
+        </div>
+
+        <div>
+          <label for="email">Confirm email</label>
+          <input type="email" name="email-conf" id="email-conf" />
+        </div>
+
+
+        <uiButton id="course-submit" text="submit" classes="btn btn-primary mb-4" @click="submit()"/>
+        <uiButton id="button-submit" type="secondary" text="close" classes="btn btn-primary mb-4" @click="$emit('close')"/>
+        <div class="log">{{ log }}</div>
+      </form>
     </div>
+
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import uiButton from './ui/ui-button.vue'
 
 //props
-const syllabus = {
-    title: "test title",
-    description: "test desc",
-    email: "test email",
-}
+defineProps<{
+  title: String,
+  description: String
+}>();
+
+const email = ref("")
+
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
 const log = ref("")
 
@@ -109,5 +114,4 @@ let validateSubmission = (_data: FormData) => {
 </script>
 
 <style lang="scss" scoped>
-
 </style>
