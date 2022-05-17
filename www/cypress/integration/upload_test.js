@@ -17,6 +17,7 @@ describe('Cartridge page', () => {
   });
 
   it('fills in the email', () => {
+    cy.get('#show-upload').click()
     cy.get("#email").type("pierre.depaz@gmail.com")
     cy.get("#email-conf").type("pierre.depaz@gmail.com")
   });

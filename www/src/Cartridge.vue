@@ -9,7 +9,7 @@
           <label for="cartridgeInput" class="d-block h5 mb-3">Upload a common cartridge (.imscc) file</label>
           <input id="upload-file" type="file" name="cartridge" class="form-control-file d-block mb-2" />
           <!-- <button class="btn btn-primary mb-3" ">upload</button> -->
-          <uiButton @click="upload()" text="Upload"  classes="btn btn-primary mb-3" />
+          <uiButton id="upload-submit" @click="upload()" text="Upload"  classes="btn btn-primary mb-3" />
         </div>
       </form>
     </div>
@@ -34,7 +34,7 @@
             showMetadata ? "hide metadata & index" : "show metadata & index"
         }}</button>
         <button type="button" class="action" @click="reset()">load another file</button>
-        <button type="button" class="action" @click="showModal()">upload this file</button>
+        <button id="show-upload" type="button" class="action" @click="showModal()">upload this file</button>
       </div>
       <!-- metadata viewer -->
       <div class="row mb-3" v-if="showMetadata">
