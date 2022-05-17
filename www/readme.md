@@ -42,6 +42,8 @@ This would make the files available to `localhost:{server_port}`, but doesn't ha
 
 Tests are written in the `integration` folder, and can use dummy data as request responses (ajax, fetch, axios, etc.), from the `fixtures` folder.
 
+#### interactive
+
 To work on the tests interactively, open cypress:
 
 ```
@@ -60,10 +62,29 @@ You can also run the tests in headless mode (no UI). While the backend is runnin
 yarn test
 ```
 
-Or alternatively, `yarn autotest` combines `start` and `test`. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.This is in the process of being migrated to a docker image, for consistency. WIP:
+#### automated
+
+An automated, end-to-end testing against a test database can be found in `docker-compose.yml` in the `tests` folder. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.
 
 ```
-docker-compose -f docker-compose.test.yml run api_test --abort-on-container-exit    
+docker-compose -f docker-compose.test.yml run backend_test
+docker-compose -f docker-compose.test.yml run frontend_test
+
+```
+
+The full `pre-commit` script is as follows:
+
+```
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$current_branch" = "main" ]
+then
+	docker-compose -f docker-compose.test.yml run backend_test --remove-orphans
+	docker-compose -f docker-compose.test.yml run frontend_test --remove-orphans
+else
+	echo "skipping tests... (not on main)"
+fi
+
 ```
 
 ### Database

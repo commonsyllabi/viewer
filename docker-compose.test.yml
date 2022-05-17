@@ -18,11 +18,11 @@ services:
       timeout: 3s
       retries: 10
 
-  api_test:
-    container_name: api_test
+  backend_test:
+    container_name: backend_test
     build:
       context: .
-      dockerfile: Dockertest
+      dockerfile: tests/Dockertest.back
     depends_on:
       db_test:
         condition: service_healthy
@@ -36,6 +36,35 @@ services:
       DEBUG: "false"
     tmpfs:
       - /tmp
+
+  backend:
+    container_name: backend
+    build: .
+    depends_on:
+      db_test:
+        condition: service_healthy
+    ports:
+     - ${PORT}:${PORT}
+    environment:
+      DATABASE_URL: "postgres://test:test@db_test:5433/test"
+      DATABASE_TEST_URL: "postgres://test:test@db_test:5433/test"
+      PORT: "3046"
+      DB_PORT: "5433"
+      DEBUG: "false"
+    tmpfs:
+      - /tmp
+
+  frontend_test:
+    image: cypress
+    build:
+      context: .
+      dockerfile: tests/Dockertest.front
+    depends_on:
+      - backend
+    environment:
+      - CYPRESS_baseUrl=http://backend:3046
+    volumes:
+      - ./www/cypress:/app/cypress
 
 volumes:
   pgdata_test:
