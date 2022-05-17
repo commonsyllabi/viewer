@@ -9,8 +9,8 @@ type Attachment struct {
 	Name               string `form:"name"`
 	File               []byte
 	Type               string
-	SyllabusAttachedID int64
-	Syllabus           Syllabus `bun:"rel:belongs-to,join:syllabus_attached_id=id"`
+	SyllabusAttachedID int64     `yaml:"syllabus_attached_id"`
+	Syllabus           *Syllabus `bun:"rel:belongs-to,join:syllabus_attached_id=id"`
 }
 
 func CreateAttachmentsTable() error {

@@ -1,0 +1,7 @@
+- model: Syllabus
+  rows:
+    - _id: 1
+      title: "Intro class"
+      description: "A bit about it"
+      email: "fixed@email.com"
+      contributor_id: 1

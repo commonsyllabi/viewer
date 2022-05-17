@@ -1,0 +1,6 @@
+- model: Contributor
+  rows:
+    - _id: 1
+      name: "Mohammed Li"
+      email: "mo@li.com"
+      syllabi: []

@@ -15,6 +15,7 @@ type Config struct {
 	FilesDir     string `yaml:"filesDir"`
 	PublicDir    string `yaml:"publicDir"`
 	TemplatesDir string `yaml:"templatesDir"`
+	FixturesDir  string `yaml:"FixturesDir"`
 }
 
 // DefaultConf is called if there is an error opening and parsing the config file
@@ -24,6 +25,7 @@ func (c *Config) DefaultConf() {
 	c.FilesDir = "files"
 	c.PublicDir = "./www/public"
 	c.TemplatesDir = "./internal/api/templates"
+	c.FixturesDir = "./internal/api/models/fixtures"
 }
 
 // LoadConf tries to load a yaml file from disk, and marshals it. Sensible defaults are provided, and loading a file overrides them

@@ -240,6 +240,7 @@ func mustOpen(f string) *os.File {
 func mustSetupRouter(debug bool) *gin.Engine {
 	conf.DefaultConf()
 	conf.TemplatesDir = "../../internal/api/templates"
+	conf.FixturesDir = "../../internal/api/models/fixtures"
 
 	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {
@@ -247,7 +248,7 @@ func mustSetupRouter(debug bool) *gin.Engine {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
 
-	_, err := models.InitDB(databaseTestURL)
+	_, err := models.InitDB(databaseTestURL, conf.FixturesDir)
 	if err != nil {
 		panic(err)
 	}

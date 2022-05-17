@@ -67,8 +67,8 @@ yarn test
 An automated, end-to-end testing against a test database can be found in `docker-compose.yml` in the `tests` folder. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.
 
 ```
-docker-compose -f docker-compose.test.yml run backend_test
-docker-compose -f docker-compose.test.yml run frontend_test
+docker-compose -f docker-compose.test.yml up --build backend_test
+docker-compose -f docker-compose.test.yml up --build frontend_test
 
 ```
 

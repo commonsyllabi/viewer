@@ -5,7 +5,7 @@ import "context"
 type MagicToken struct {
 	ID              int64  `bun:"id,pk,autoincrement"`
 	Token           []byte `bun:"token"`
-	SyllabusTokenID int64  `bun:"syllabus_token_id"`
+	SyllabusTokenID int64  `bun:"syllabus_token_id" yaml:"syllabus_token_id"`
 }
 
 func CreateMagicTokenTable() error {

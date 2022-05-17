@@ -54,7 +54,7 @@ func mustSeedDB(t *testing.T) {
 	if databaseTestURL == "" {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
-	_, err := models.InitDB(databaseTestURL)
+	_, err := models.InitDB(databaseTestURL, "../models/fixtures")
 	if err != nil {
 		panic(err)
 	}

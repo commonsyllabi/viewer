@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"database/sql"
 	"strings"
 
@@ -13,7 +12,7 @@ import (
 
 var db *bun.DB
 
-func InitDB(url string) (*bun.DB, error) {
+func InitDB(url string, fixturesDir string) (*bun.DB, error) {
 	zero.Debugf("connecting: %s", url) //-- todo this should not be logged
 	sslMode := false
 	if strings.HasSuffix(url, "sslmode=require") {
@@ -30,19 +29,20 @@ func InitDB(url string) (*bun.DB, error) {
 	}
 
 	zero.Infof("connected: %v", url) //should not be logged
+
 	err = SetupTables(true)
+	if err != nil {
+		zero.Errorf("error setting up tables: %v", err)
+	}
+	err = RunFixtures(db, fixturesDir) //-- truncates tables
+	if err != nil {
+		zero.Errorf("error running fixtures: %v", err)
+	}
 	return db, err
 }
 
+// SetupTable creates all tables in the database
 func SetupTables(reset bool) error {
-	ctx := context.Background()
-	if reset {
-		db.NewTruncateTable().Model(&Syllabus{}).Exec(ctx)
-		db.NewTruncateTable().Model(&Contributor{}).Exec(ctx)
-		db.NewTruncateTable().Model(&Attachment{}).Exec(ctx)
-		db.NewTruncateTable().Model(&MagicToken{}).Exec(ctx)
-	}
-
 	if err := CreateSyllabiTable(); err != nil {
 		return err
 	}

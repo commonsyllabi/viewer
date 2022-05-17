@@ -8,10 +8,11 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/mailgun/mailgun-go/v4 v4.6.1
 	github.com/rs/zerolog v1.26.1
-	github.com/uptrace/bun v1.1.4
-	github.com/uptrace/bun/dialect/pgdialect v1.1.4
-	github.com/uptrace/bun/driver/pgdriver v1.1.4
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+	github.com/uptrace/bun v1.1.5
+	github.com/uptrace/bun/dbfixture v1.1.5
+	github.com/uptrace/bun/dialect/pgdialect v1.1.5
+	github.com/uptrace/bun/driver/pgdriver v1.1.5
+	golang.org/x/crypto v0.0.0-20220511200225-c6db032c6c88
 	gopkg.in/yaml.v2 v2.3.0
 )
 
@@ -34,8 +35,9 @@ require (
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
+	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )

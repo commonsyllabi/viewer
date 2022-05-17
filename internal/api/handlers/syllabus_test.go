@@ -352,15 +352,10 @@ func mustSeedDB(t *testing.T) {
 	if databaseTestURL == "" {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
-	_, err := models.InitDB(databaseTestURL)
+	_, err := models.InitDB(databaseTestURL, "../models/fixtures")
 	if err != nil {
 		panic(err)
 	}
-
-	// err = models.SetupTables(true)
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	syll := models.Syllabus{Title: "Test Title 1", Description: "Test Description 1"}
 	_, err = models.AddNewSyllabus(&syll)
