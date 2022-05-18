@@ -212,8 +212,8 @@ let upload = function () {
       log.value = `uploaded ${cartridge.name}`;
       isUploaded.value = true;
 
-      manifest = JSON.parse(data.data);
-      items = JSON.parse(data.items);
+      Object.assign(manifest, JSON.parse(data.data))
+      Object.assign(items, JSON.parse(data.items))
 
       //-- todo, here we have to get rid of the Item field of the returned struct... what to do?
       for (let r of JSON.parse(data.resources)) {
