@@ -1,0 +1,8 @@
+BEGIN;
+
+ALTER TABLE
+    users
+ADD
+    mood VARCHAR(200) NULL;
+
+COMMIT;

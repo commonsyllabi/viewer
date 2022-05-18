@@ -28,9 +28,7 @@ func InitDB(url string, fixturesDir string) (*bun.DB, error) {
 		return db, err
 	}
 
-	zero.Infof("connected: %v", url) //should not be logged
-
-	err = SetupTables(true)
+	err = SetupTables()
 	if err != nil {
 		zero.Errorf("error setting up tables: %v", err)
 	}
@@ -42,7 +40,7 @@ func InitDB(url string, fixturesDir string) (*bun.DB, error) {
 }
 
 // SetupTable creates all tables in the database
-func SetupTables(reset bool) error {
+func SetupTables() error {
 	if err := CreateSyllabiTable(); err != nil {
 		return err
 	}

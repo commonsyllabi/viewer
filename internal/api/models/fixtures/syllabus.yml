@@ -5,3 +5,8 @@
       description: "A bit about it"
       email: "fixed@email.com"
       contributor_id: 1
+    - _id: 2
+      title: "Middle class"
+      description: "A bit more about it"
+      email: "fixed@email.com"
+      contributor_id: 1
