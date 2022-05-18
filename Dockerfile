@@ -1,9 +1,12 @@
 FROM node:16-alpine as node
 
 RUN mkdir /dist
-COPY ./www /dist
+COPY ./www/package.json /dist/package.json
+COPY ./www/yarn.lock /dist/yarn.lock
 WORKDIR /dist
-RUN yarn && yarn build
+RUN yarn
+COPY ./www /dist
+RUN yarn build
 
 FROM golang:1.18-alpine AS go
 # for go tests
