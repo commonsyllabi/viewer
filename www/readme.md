@@ -74,7 +74,7 @@ docker-compose -f docker-compose.test.yml up --build frontend_test
 
 The full `pre-commit` script is as follows:
 
-```
+```bash
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [ "$current_branch" = "main" ]
