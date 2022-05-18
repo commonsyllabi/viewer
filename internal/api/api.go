@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/handlers"
+	"github.com/commonsyllabi/viewer/internal/api/mailer"
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
@@ -27,24 +28,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func StartServer() error {
+var conf Config
 
-	err := conf.load("./internal/api/config.yml")
+// StartServer gets his port and debug in the environment, registers the router, and registers the database closing on exit.
+func StartServer(port string, debug bool, c Config) error {
+	conf = c
 
-	if err != nil || conf.Port == "" {
-		zero.Log.Warn().Msgf("error loading config: %v", err)
-		conf.defaults()
+	if debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
 	}
 
-	zero.Log.Debug().Msgf("config: %-v", conf)
-
-	router, err := setupRouter(false)
+	router, err := setupRouter()
 	if err != nil {
 		return err
 	}
 
 	s := &http.Server{
-		Addr:         ":" + conf.Port,
+		Addr:         ":" + port,
 		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -52,34 +54,30 @@ func StartServer() error {
 
 	// from https://gist.github.com/ivan3bx/b0f14449803ce5b0aa72afaa1dfc75e1
 	go func() {
-		zero.Log.Info().Msgf("server starting on port %s", conf.Port)
+		zero.Infof("server starting on port %s", port)
 		if err := s.ListenAndServe(); err != http.ErrServerClosed {
 			panic(err)
 		}
 	}()
 
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	ch := make(chan os.Signal, 2)
+	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 
-	<-c // block until signal received
+	<-ch // block until signal received
 
-	zero.Log.Info().Msg("shutting down...")
+	zero.Info("shutting down...")
 	s.Shutdown(context.Background())
 	err = models.Shutdown()
 
 	return err
 }
 
-func setupRouter(debug bool) (*gin.Engine, error) {
+// setupRouter registers all route groups
+func setupRouter() (*gin.Engine, error) {
 	router := gin.New()
 
 	router.Use(cors.Default())
-
-	if debug {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
+	router.LoadHTMLGlob(conf.TemplatesDir + "/*")
 
 	err := os.MkdirAll(conf.TmpDir, os.ModePerm)
 	if err != nil {
@@ -125,22 +123,25 @@ func setupRouter(debug bool) (*gin.Engine, error) {
 		api.POST("/upload", handleUpload)
 		api.GET("/resource/:id", handleResource)
 		api.GET("/file/:id", handleFile)
+		api.POST("/magic-link", mailer.HandleMagicLink)
 	}
 
 	syllabi := router.Group("/syllabi")
 	{
 		syllabi.GET("/", handlers.AllSyllabi)
 		syllabi.POST("/", handlers.NewSyllabus)
-		syllabi.POST("/:id", handlers.UpdateSyllabus)
+		syllabi.PATCH("/:id", handlers.UpdateSyllabus)
 		syllabi.GET("/:id", handlers.GetSyllabus)
 		syllabi.DELETE("/:id", handlers.DeleteSyllabus)
+
+		syllabi.GET("/edit/:id", handlers.DisplayMagicLink)
 	}
 
 	attachments := router.Group("/attachments")
 	{
 		attachments.GET("/", handlers.AllAttachments)
 		attachments.POST("/", handlers.NewAttachment)
-		attachments.POST("/:id", handlers.UpdateAttachment)
+		attachments.PATCH("/:id", handlers.UpdateAttachment)
 		attachments.GET("/:id", handlers.GetAttachment)
 		attachments.DELETE("/:id", handlers.DeleteAttachment)
 	}
@@ -152,25 +153,26 @@ func handlePing(c *gin.Context) {
 	c.String(200, "pong")
 }
 
+// handleFile takes a file ID and a given cartridge as query parameter, and returns a file stream
 func handleFile(c *gin.Context) {
 
 	id := c.Param("id")
 	cartridge := c.Request.FormValue("cartridge")
 
-	zero.Log.Info().Msgf("handleFile id: %v cartridge %v", id, cartridge)
+	zero.Infof("handleFile id: %v cartridge %v", id, cartridge)
 
 	inputFile := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error loading CC from disk: %v", err)
+		zero.Errorf("error loading CC from disk: %v", err)
 		return
 	}
 
 	file, err := cc.FindFile(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error finding finding file in CC: %v", err)
+		zero.Errorf("error finding finding file in CC: %v", err)
 		return
 	}
 
@@ -178,7 +180,7 @@ func handleFile(c *gin.Context) {
 	info, err := file.Stat()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting file info: %v", err)
+		zero.Errorf("error getting file info: %v", err)
 		return
 	}
 
@@ -186,7 +188,7 @@ func handleFile(c *gin.Context) {
 	match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error parsing file extension: %v", err)
+		zero.Errorf("error parsing file extension: %v", err)
 		return
 	}
 
@@ -194,14 +196,14 @@ func handleFile(c *gin.Context) {
 		file, err = convertToPDF(file, info)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
-			zero.Log.Error().Msgf("error converting to PDF: %v", err)
+			zero.Errorf("error converting to PDF: %v", err)
 		}
 	}
 
 	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error reading file into bytes: %v", err)
+		zero.Errorf("error reading file into bytes: %v", err)
 		return
 	}
 
@@ -248,38 +250,39 @@ func handleResource(c *gin.Context) {
 
 	id := c.Param("id")
 	cartridge := c.Query("cartridge")
-	zero.Log.Info().Msgf("GET handleResource id: %v cartridge %v", id, cartridge)
+	zero.Infof("GET handleResource id: %v cartridge %v", id, cartridge)
 
 	inputFile := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
 	cc, err := commoncartridge.Load(inputFile)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error loading CC from disk: %v", err)
+		zero.Errorf("error loading CC from disk: %v", err)
 		return
 	}
 
 	file, err := cc.Find(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error finding resource in CC: %v", err)
+		zero.Errorf("error finding resource in CC: %v", err)
 		return
 	}
 
 	data, err := json.Marshal(file)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msg("error marshalling to json")
+		zero.Error("error marshalling to json")
 		return
 	}
 
 	c.JSON(http.StatusOK, string(data))
 }
 
+// handleUpload expects a Common Cartridge-compliant file, saves it to disk, and creates an IMSCC instance from the file to return manifest, items and resources in JSON format.
 func handleUpload(c *gin.Context) {
 	file, err := c.FormFile("cartridge")
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
-		zero.Log.Warn().Msgf("cannot upload cartridge file: %v", err)
+		zero.Warnf("cannot upload cartridge file: %v", err)
 		return
 	}
 
@@ -293,47 +296,47 @@ func handleUpload(c *gin.Context) {
 	err = c.SaveUploadedFile(file, dst)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error saving CC to filesystem: %v", err)
+		zero.Errorf("error saving CC to filesystem: %v", err)
 		return
 	}
 
 	cc, err := commoncartridge.Load(dst)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error loading CC from filesystem: %v", err)
+		zero.Errorf("error loading CC from filesystem: %v", err)
 		return
 	}
 
 	obj, err := cc.MarshalJSON()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error parsing manifest into JSON: %v", err)
+		zero.Errorf("error parsing manifest into JSON: %v", err)
 		return
 	}
 
 	fi, err := cc.Items()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting resources: %v", err)
+		zero.Errorf("error getting resources: %v", err)
 		return
 	}
 	sfi, err := json.Marshal(fi)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting resources: %v", err)
+		zero.Errorf("error getting resources: %v", err)
 		return
 	}
 
 	fr, err := cc.Resources()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting resources: %v", err)
+		zero.Errorf("error getting resources: %v", err)
 		return
 	}
 	sfr, err := json.Marshal(fr)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Log.Error().Msgf("error getting resources: %v", err)
+		zero.Errorf("error getting resources: %v", err)
 		return
 	}
 

@@ -1,15 +1,16 @@
 package models
 
-import "context"
+import (
+	"context"
+)
 
 type Attachment struct {
-	ID         int64  `bun:"id,pk,autoincrement"`
-	Name       string `form:"name"`
-	File       []byte
-	Type       string
-	SyllabusID int64
-	Syllabus   Syllabus `bun:"belongs-to,join:syllabus_id=id"`
-	//cartridge  commoncartridge.Cartridge //-- have this directly? or leave it as file interface?
+	ID                 int64  `bun:"id,pk,autoincrement"`
+	Name               string `form:"name"`
+	File               []byte
+	Type               string
+	SyllabusAttachedID int64     `yaml:"syllabus_attached_id"`
+	Syllabus           *Syllabus `bun:"rel:belongs-to,join:syllabus_attached_id=id"`
 }
 
 func CreateAttachmentsTable() error {
@@ -36,7 +37,7 @@ func AddNewAttachment(att *Attachment) (Attachment, error) {
 
 func UpdateAttachment(id int, att *Attachment) (Attachment, error) {
 	ctx := context.Background()
-	_, err := db.NewUpdate().Model(att).WherePK().Exec(ctx)
+	_, err := db.NewUpdate().Model(att).Where("id = ?", id).Exec(ctx)
 	return *att, err
 }
 

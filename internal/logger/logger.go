@@ -46,6 +46,41 @@ func InitLog(level int) error {
 	}
 
 	Log = zerolog.New(output).With().Timestamp().Logger()
-
 	return nil
+}
+
+func Debug(format string) {
+	Log.Debug().Msg(format)
+}
+
+func Debugf(format string, v ...interface{}) {
+	args := v
+	Log.Debug().Msgf(format, args)
+}
+
+func Info(format string) {
+	Log.Info().Msg(format)
+}
+
+func Infof(format string, v ...interface{}) {
+	args := v
+	Log.Info().Msgf(format, args)
+}
+
+func Warn(format string) {
+	Log.Warn().Msg(format)
+}
+
+func Warnf(format string, v ...interface{}) {
+	args := v
+	Log.Warn().Msgf(format, args)
+}
+
+func Error(format string) {
+	Log.Error().Msg(format)
+}
+
+func Errorf(format string, v ...interface{}) {
+	args := v
+	Log.Error().Msgf(format, args)
 }

@@ -6,12 +6,13 @@ import (
 )
 
 type Syllabus struct {
-	ID            int64        `bun:"id,pk,autoincrement"`
-	Title         string       `form:"title" json:"title"`
-	Description   string       `form:"description" json:"description"`
-	Attachments   []Attachment `bun:"rel:has-many"`
-	ContributorID int64
-	Contributor   Contributor `bun:"belongs-to,join:syllabus_id=id"`
+	ID            int64         `bun:"id,pk,autoincrement"`
+	Title         string        `form:"title" json:"title"`
+	Description   string        `form:"description" json:"description"`
+	Email         string        `form:"email" json:"email"`
+	Attachments   []*Attachment `bun:"rel:has-many"`
+	ContributorID int64         `yaml:"contributor_id"`
+	Contributor   *Contributor  `bun:"rel:belongs-to,join:contributor_id=id"`
 }
 
 func CreateSyllabiTable() error {
@@ -38,7 +39,7 @@ func AddNewSyllabus(syll *Syllabus) (Syllabus, error) {
 
 func UpdateSyllabus(id int, syll *Syllabus) (Syllabus, error) {
 	ctx := context.Background()
-	_, err := db.NewUpdate().Model(syll).WherePK().Exec(ctx)
+	_, err := db.NewUpdate().Model(syll).OmitZero().Where("id = ?", id).Exec(ctx)
 	return *syll, err
 }
 

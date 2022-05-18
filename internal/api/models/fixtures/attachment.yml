@@ -1,0 +1,7 @@
+- model: Attachment
+  rows:
+    - _id: 1
+      name: "Attached thing"
+      type: ".useful.format"
+      file: []
+      syllabus_attached_id: 1

@@ -2,4 +2,4 @@
 
 systemctl --user restart cosyl.service
 currentDate=`date`
-echo Successful eployed at $currentDate >> deploy.log
+echo Successful deployed at $currentDate >> deploy.log

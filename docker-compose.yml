@@ -7,17 +7,17 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - 5432:5432
+      PGPORT: ${DB_PORT}
+    expose:
+      - "5433"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./internal/create-test-db.sh:/docker-entrypoint-initdb.d/create-test-db.sh
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} && psql -U ${DB_USER}" ]
       interval: 5s
       timeout: 3s
       retries: 3
-    networks:
-      - internal
 
   api:
     container_name: api
@@ -26,16 +26,16 @@ services:
       db:
         condition: service_healthy
     ports:
-     - $PORT:$PORT
+     - ${PORT}:${PORT}
+    environment:
+      DATABASE_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}"
+      DATABASE_TEST_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/test"
+      PORT: ${PORT}
+      DB_PORT: ${DB_PORT}
+      DEBUG: ${DEBUG}
     restart: always
     tmpfs:
       - /tmp
-    networks:
-      - internal
 
 volumes:
   pgdata:
-
-networks:
-  internal:
-    driver: bridge

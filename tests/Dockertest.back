@@ -1,0 +1,30 @@
+FROM node:16-alpine as node
+
+RUN mkdir /dist
+COPY ./www/package.json /dist/package.json
+WORKDIR /dist
+RUN yarn
+COPY ./www /dist
+RUN yarn build
+
+FROM golang:1.18 AS go
+RUN apt update -y && apt install libreoffice -y
+
+RUN mkdir /app
+COPY pkg /app/pkg
+COPY cmd /app/cmd
+COPY go.mod /app
+COPY go.sum /app
+
+COPY internal /app/internal
+
+WORKDIR /app
+COPY --from=node /dist/public/ ./www/public
+RUN go mod download
+RUN chmod -R a+rwX /app
+ENV CGO_ENABLED=0
+RUN mkdir -p /go/tmp
+ENV TMPDIR=/go/tmp
+ENV GIN_MODE=test
+RUN chmod -R a+rwX /go/tmp
+CMD ["go", "test", "./...", "-coverprofile", "cover.out"]

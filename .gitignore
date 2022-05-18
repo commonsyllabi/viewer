@@ -21,11 +21,12 @@ cmd/cosyl/*.imscc
 
 internal/api/uploads
 internal/api/tmp
-internal/www/public
-internal/www/cypress/screenshots
-internal/www/cypress/videos
+www/public
+www/cypress/screenshots
+www/cypress/videos
 
 test_files/
+bin/
 
 .env
 .github/.secrets

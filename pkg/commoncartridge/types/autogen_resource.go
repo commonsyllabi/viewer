@@ -4,7 +4,7 @@ package types
 
 import "encoding/xml"
 
-// Resource was generated 2022-03-29 17:54:05 by pierre on archpierre.
+// Resource was generated 2022-05-10 19:56:34 by pierre on archpierre.
 type Resource struct {
 	XMLName     xml.Name `xml:"resource"`
 	Text        string   `xml:",chardata"`

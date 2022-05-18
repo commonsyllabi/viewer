@@ -4,7 +4,7 @@ package types
 
 import "encoding/xml"
 
-// Assignment was generated 2022-04-06 17:47:57 by pierre on archpierre.
+// Assignment was generated 2022-05-10 19:56:34 by pierre on archpierre.
 type Assignment struct {
 	XMLName        xml.Name `xml:"assignment"`
 	Chardata       string   `xml:",chardata"`

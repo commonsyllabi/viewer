@@ -1,0 +1,44 @@
+{{ define "Syllabus" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon" />
+    <title>Common Syllabi</title>
+
+    <script type="module" crossorigin src="/assets/syllabus.js"></script>
+    <link rel="modulepreload" href="/assets/plugin-vue_export-helper.js">
+    <link rel="stylesheet" href="/assets/plugin-vue_export-helper.css">
+    <link rel="stylesheet" href="/assets/syllabus.css">
+</head>
+
+<body>
+    <header>commonsyllabi - <a href="/">home</a></header>
+    <main>
+        <div class="container p-3" id="syllabus" syll_id="{{ .ID }}">
+            <h1>{{ .Title }}</h1>
+            <p>{{ .Description }}</p>
+            <h2>Attachments</h2>
+            <div>
+                <ol>
+                    {{ range .Attachments }}
+                    <li>
+                        <a href="/attachments/{{ .ID }}?type=file" target="_blank">{{ .Name }}</a>
+                    </li>
+                    {{ end }}
+                </ol>
+            </div>
+            <hr>
+            <div id="form">
+
+            </div>
+        </div>
+    </main>
+    <footer></footer>
+</body>
+
+</html>
+{{ end }}

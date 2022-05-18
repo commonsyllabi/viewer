@@ -1,0 +1,70 @@
+services:
+  db_test:
+    image: postgres:alpine
+    user: postgres
+    container_name: db_test
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test
+      PGPORT: ${DB_PORT}
+    expose:
+      - "5433"
+    volumes:
+      - pgdata_test:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U test && psql -U test" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend_test:
+    container_name: backend_test
+    build:
+      context: .
+      dockerfile: tests/Dockertest.back
+    depends_on:
+      db_test:
+        condition: service_healthy
+    ports:
+     - ${PORT}:${PORT}
+    environment:
+      DATABASE_URL: "postgres://cosyl:cosyl@db_test:5433/cosyl"
+      DATABASE_TEST_URL: "postgres://test:test@db_test:5433/test"
+      PORT: "3046"
+      DB_PORT: "5433"
+      DEBUG: "false"
+    tmpfs:
+      - /tmp
+
+  backend:
+    container_name: backend
+    build: .
+    depends_on:
+      db_test:
+        condition: service_healthy
+    ports:
+     - ${PORT}:${PORT}
+    environment:
+      DATABASE_URL: "postgres://test:test@db_test:5433/test"
+      DATABASE_TEST_URL: "postgres://test:test@db_test:5433/test"
+      PORT: "3046"
+      DB_PORT: "5433"
+      DEBUG: "false"
+    tmpfs:
+      - /tmp
+
+  frontend_test:
+    image: cypress
+    build:
+      context: .
+      dockerfile: tests/Dockertest.front
+    depends_on:
+      - backend
+    environment:
+      - CYPRESS_baseUrl=http://backend:3046
+    volumes:
+      - ./www/cypress:/app/cypress
+
+volumes:
+  pgdata_test:
