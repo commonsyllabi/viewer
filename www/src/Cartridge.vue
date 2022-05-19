@@ -3,13 +3,13 @@
   <main class="container p-3">
 
     <!-- upload form -->
-    <div class="container pt-4 mb-3 border rounded">
+    <div class="container pt-4 mb-3 border rounded" v-if="!isUploaded">
       <form id="upload-form" action="/api/upload" method="post">
         <div class="form-group">
           <label for="cartridgeInput" class="d-block h5 mb-3">Upload a common cartridge (.imscc) file</label>
           <input id="upload-file" type="file" name="cartridge" class="form-control-file d-block mb-2" />
           <!-- <button class="btn btn-primary mb-3" ">upload</button> -->
-          <button id="upload-submit" @click="upload()"  class="btn btn-primary mb-3">Upload</button>
+          <button id="upload-submit" @click.prevent="upload()" class="btn btn-primary mb-3">Upload</button>
         </div>
       </form>
     </div>
@@ -28,6 +28,14 @@
 
 
     <div v-if="isUploaded" class="container cartridge">
+      <div class="metadata">
+        <div class="title">
+          {{ syllabus.title }}
+        </div>
+        <div class="description">
+          {{ syllabus.description }}
+        </div>
+      </div>
       <!-- actions -->
       <div class="row mb-2 actions">
         <button type="button" class="action" @click="showMetadata = !showMetadata">{{
@@ -74,7 +82,7 @@
 
             <!-- items listing -->
             <!-- TODO: dont use index, bad prac -->
-            <div v-for="(i, index) in items" :key="index">
+            <div v-for="i in items" :key="i.Item.Identifier">
               <Item :item="i" :cartridge="cartridge.name" />
               <hr />
             </div>
@@ -86,7 +94,7 @@
 
             <!-- resources listing -->
             <!-- TODO: dont use index, bad prac -->
-            <div v-for="(r, index) in resources" :key="index" class>
+            <div v-for="r in resources" :key="r.Identifier" class>
               <Resource :resource="r" :cartridge="cartridge.name" />
             </div>
           </div>
@@ -118,9 +126,9 @@ const syllabus = reactive({
 })
 
 let cartridge = reactive({ name: "" });
-let manifest = new Object() as ManifestType;
-let items = new Array<ItemType>()
-let resources = new Array<ResourceType>()
+let manifest = reactive(new Object() as ManifestType)
+let items = reactive(new Array<ItemType>())
+let resources = reactive(new Array<ResourceType>())
 
 let showMetadata = ref(false);
 let showUpload = ref(false);
@@ -134,7 +142,7 @@ let upload = function () {
   const formData = new FormData(formElem);
 
   let cc = formData.get("cartridge") as File
-  if (cc.name == "" || cc.size  == 0) {
+  if (cc.name == "" || cc.size == 0) {
     console.warn("can't submit an empty cartridge!");
     log.value = "can't submit an empty cartridge!";
     return;
@@ -177,9 +185,9 @@ let reset = () => {
   isUploaded.value = false
   showMetadata.value = false
 
-  Object.assign(manifest, {})
-  Object.assign(items, {})
-  Object.assign(resources, {})
+  // manifest = ref(new Object()  as ManifestType)
+  items.length = 0
+  resources.length = 0
 
   log.value = "reset cartridge"
 }
