@@ -9,7 +9,7 @@
           <label for="cartridgeInput" class="d-block h5 mb-3">Upload a common cartridge (.imscc) file</label>
           <input id="upload-file" type="file" name="cartridge" class="form-control-file d-block mb-2" />
           <!-- <button class="btn btn-primary mb-3" ">upload</button> -->
-          <uiButton id="upload-submit" @click="upload()" text="Upload"  classes="btn btn-primary mb-3" />
+          <button id="upload-submit" @click="upload()"  class="btn btn-primary mb-3">Upload</button>
         </div>
       </form>
     </div>
@@ -104,7 +104,6 @@ import { ManifestType, ItemType, ResourceType } from "./js/types";
 import Resource from './components/Resource.vue'
 import Item from './components/Item.vue'
 import Upload from './components/Upload.vue'
-import uiButton from './components/ui/ui-button.vue'
 
 import Footer from './components/Footer.vue';
 import Header from './components/Header.vue';

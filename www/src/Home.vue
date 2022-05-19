@@ -14,7 +14,7 @@
             </ul>
         </div>
         <div class="cta">
-            <uiButton text="upload yours!" classes="btn btn-primary mb-4" @click="start()"/>
+            <button id="cta-upload" class="btn btn-primary mb-4" @click="start()">Upload yours!</button>
         </div>
     </main>
     <Footer></Footer>
@@ -24,7 +24,6 @@
 import { ref, onMounted, reactive } from 'vue';
 import Footer from './components/Footer.vue';
 import Header from './components/Header.vue';
-import uiButton from './components/ui/ui-button.vue'
 import { SyllabusType } from './js/types';
 
 
