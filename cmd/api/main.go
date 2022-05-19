@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/commonsyllabi/viewer/internal/api"
@@ -29,7 +30,12 @@ func main() {
 
 	url := os.Getenv("DATABASE_URL")
 	if url == "" {
-		zero.Log.Fatal().Msg("Missing env DATABASE_URL")
+		zero.Log.Warn().Msg("Missing env DATABASE_URL, composing from env...")
+		if os.Getenv("DB_USER") == "" || os.Getenv("DB_PASSWORD") == "" || os.Getenv("DB_HOST") == "" || os.Getenv("DB_PORT") == "" {
+			zero.Log.Fatal().Msg("Missing env DB_ variables!")
+		}
+
+		url = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
 	}
 
 	port := os.Getenv("PORT")
