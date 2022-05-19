@@ -23,8 +23,8 @@
         </div>
 
 
-        <uiButton id="course-submit" text="submit" classes="btn btn-primary mb-4" @click="submit()"/>
-        <uiButton id="button-submit" type="secondary" text="close" classes="btn btn-primary mb-4" @click="$emit('close')"/>
+        <button id="course-submit" text="submit" classes="btn btn-primary mb-4" @click="submit()"></button>
+        <button id="upload-close" text="close" classes="btn btn-primary mb-4" @click="$emit('close')"></button>
         <div class="log">{{ log }}</div>
       </form>
     </div>
@@ -34,7 +34,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import uiButton from './ui/ui-button.vue'
 
 //props
 defineProps<{
