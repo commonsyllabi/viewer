@@ -39,7 +39,7 @@ func InitDB(url string, fixturesDir string) (*bun.DB, error) {
 	return db, err
 }
 
-// SetupTable creates all tables in the database
+// SetupTable creates all tables in the database. This should actually be RunFixtures
 func SetupTables() error {
 	if err := CreateSyllabiTable(); err != nil {
 		return err
