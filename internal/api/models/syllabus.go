@@ -3,9 +3,12 @@ package models
 
 import (
 	"context"
+	"time"
 )
 
 type Syllabus struct {
+	CreatedAt     time.Time     `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt     time.Time     `bun:",nullzero,notnull,default:current_timestamp"`
 	ID            int64         `bun:"id,pk,autoincrement"`
 	Title         string        `bun:"title,notnull" form:"title" json:"title"`
 	Description   string        `form:"description" json:"description"`

@@ -2,9 +2,12 @@ package models
 
 import (
 	"context"
+	"time"
 )
 
 type Attachment struct {
+	CreatedAt          time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt          time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	ID                 int64     `bun:"id,pk,autoincrement"`
 	Name               string    `bun:"name,notnull" form:"name"`
 	File               []byte    `bun:"file,notnull"`
