@@ -4,7 +4,7 @@ import "context"
 
 type MagicToken struct {
 	ID              int64  `bun:"id,pk,autoincrement"`
-	Token           []byte `bun:"token"`
+	Token           []byte `bun:"token,notnull"`
 	SyllabusTokenID int64  `bun:"syllabus_token_id" yaml:"syllabus_token_id"`
 }
 

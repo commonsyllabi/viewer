@@ -5,9 +5,9 @@ import (
 )
 
 type Contributor struct {
-	ID      int64 `bun:"id,pk,autoincrement"`
-	Name    string
-	Email   string
+	ID      int64       `bun:"id,pk,autoincrement"`
+	Name    string      `bun:"name,notnull"`
+	Email   string      `bun:"email,notnull,unique"`
 	Syllabi []*Syllabus `bun:"rel:has-many" form:"syllabi" json:"syllabi"`
 }
 

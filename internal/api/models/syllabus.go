@@ -7,9 +7,9 @@ import (
 
 type Syllabus struct {
 	ID            int64         `bun:"id,pk,autoincrement"`
-	Title         string        `form:"title" json:"title"`
+	Title         string        `bun:"title,notnull" form:"title" json:"title"`
 	Description   string        `form:"description" json:"description"`
-	Email         string        `form:"email" json:"email"`
+	Email         string        `bun:"title,notnull" form:"email" json:"email"`
 	Attachments   []*Attachment `bun:"rel:has-many"`
 	ContributorID int64         `yaml:"contributor_id"`
 	Contributor   *Contributor  `bun:"rel:belongs-to,join:contributor_id=id"`

@@ -5,10 +5,10 @@ import (
 )
 
 type Attachment struct {
-	ID                 int64  `bun:"id,pk,autoincrement"`
-	Name               string `form:"name"`
-	File               []byte
-	Type               string
+	ID                 int64     `bun:"id,pk,autoincrement"`
+	Name               string    `bun:"name,notnull" form:"name"`
+	File               []byte    `bun:"file,notnull"`
+	Type               string    `bun:"type,notnull"`
 	SyllabusAttachedID int64     `yaml:"syllabus_attached_id"`
 	Syllabus           *Syllabus `bun:"rel:belongs-to,join:syllabus_attached_id=id"`
 }
