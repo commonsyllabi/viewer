@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
       POSTGRES_DB: test
-      PGPORT: ${DB_PORT}
+      PGPORT: "5433"
     expose:
       - "5433"
     volumes:
@@ -34,6 +34,7 @@ services:
       PORT: "3046"
       DB_PORT: "5433"
       DEBUG: "false"
+      TEST: "true"
     tmpfs:
       - /tmp
 
@@ -51,6 +52,7 @@ services:
       PORT: "3046"
       DB_PORT: "5433"
       DEBUG: "false"
+      TEST: "true"
     tmpfs:
       - /tmp
 
