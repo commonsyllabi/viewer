@@ -16,15 +16,17 @@ RUN apk add --no-cache msttcorefonts-installer fontconfig
 RUN update-ms-fonts
 
 RUN mkdir /app
-COPY pkg /app/pkg
-COPY cmd /app/cmd
 COPY go.mod /app
 COPY go.sum /app
+WORKDIR /app
+RUN go mod download
 
+COPY pkg /app/pkg
+COPY cmd /app/cmd
 COPY internal /app/internal
 
-WORKDIR /app
+
 COPY --from=node /dist/public/ ./www/public
-RUN go mod download
+
 RUN go build -o bin/api ./cmd/api/main.go
 CMD ["/app/bin/api"]
