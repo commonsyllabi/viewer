@@ -21,6 +21,7 @@ func TestInitDB(t *testing.T) {
 	}
 }
 
+//-- todo here we should check whether the db is already initialized or not
 func mustSeedDB(t *testing.T) {
 	databaseTestURL = os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {

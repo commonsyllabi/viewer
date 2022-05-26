@@ -40,7 +40,7 @@ func AddNewAttachment(att *Attachment) (Attachment, error) {
 
 func UpdateAttachment(id int, att *Attachment) (Attachment, error) {
 	ctx := context.Background()
-	_, err := db.NewUpdate().Model(att).Where("id = ?", id).Exec(ctx)
+	_, err := db.NewUpdate().Model(att).OmitZero().Where("id = ?", id).Exec(ctx)
 	return *att, err
 }
 

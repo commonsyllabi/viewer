@@ -3,6 +3,7 @@ package models
 import (
 	"io/ioutil"
 	"testing"
+	"time"
 )
 
 const singleTestFile = "../../../pkg/commoncartridge/test_files/test_01.imscc"
@@ -26,9 +27,11 @@ func TestAddNewAttachment(t *testing.T) {
 		t.Error(err)
 	}
 	att := Attachment{
-		Name: "test_01.imscc",
-		File: bytes,
-		Type: "zip",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      "test_01.imscc",
+		File:      bytes,
+		Type:      "zip",
 	}
 
 	_, err = AddNewAttachment(&att)
@@ -56,9 +59,10 @@ func TestUpdateAttachment(t *testing.T) {
 		t.Error(err)
 	}
 	att := Attachment{
-		Name: "test_01.imscc (updated)",
-		File: bytes,
-		Type: "zip",
+		UpdatedAt: time.Now(),
+		Name:      "test_01.imscc (updated)",
+		File:      bytes,
+		Type:      "zip",
 	}
 
 	updated, err := UpdateAttachment(1, &att)

@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	"github.com/gin-gonic/gin"
@@ -59,12 +60,12 @@ func mustSeedDB(t *testing.T) {
 		panic(err)
 	}
 
-	// err = models.SetupTables(true)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	syll := models.Syllabus{Title: "Test Title 1", Description: "Test Description 1"}
+	syll := models.Syllabus{
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		Title:       "Test Title 1",
+		Description: "Test Description 1",
+	}
 	_, err = models.AddNewSyllabus(&syll)
 	if err != nil {
 		panic(err)
@@ -72,7 +73,12 @@ func mustSeedDB(t *testing.T) {
 
 	hasher := sha256.New()
 	hasher.Write([]byte(syll.Title))
-	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusTokenID: syll.ID}
+	token := models.MagicToken{
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+		Token:           hasher.Sum(nil),
+		SyllabusTokenID: syll.ID,
+	}
 	token, err = models.AddNewToken(&token)
 	if err != nil {
 		panic(err)
@@ -83,9 +89,11 @@ func mustSeedDB(t *testing.T) {
 		t.Error(err)
 	}
 	att := models.Attachment{
-		Name: "test_01.imscc",
-		File: bytes,
-		Type: "zip",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      "test_01.imscc",
+		File:      bytes,
+		Type:      "zip",
 	}
 
 	_, err = models.AddNewAttachment(&att)

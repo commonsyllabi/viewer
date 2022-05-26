@@ -111,8 +111,8 @@ func TestHandleUploadNoFile(t *testing.T) {
 }
 
 func TestHandleFile(t *testing.T) {
-	TestHandleUpload(t)
 	router := mustSetupRouter(false)
+	mustUploadFile(t, router)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/file/i3755487a331b36c76cec8bbbcdb7cc66?cartridge=test_01.imscc", nil)
 	res := httptest.NewRecorder()
@@ -235,6 +235,15 @@ func mustOpen(f string) *os.File {
 		panic(err)
 	}
 	return r
+}
+
+func mustUploadFile(t *testing.T, router *gin.Engine) {
+	body, writer := createFormData("cartridge", singleTestFile, t)
+	req, _ := http.NewRequest(http.MethodPost, "/api/upload", &body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	res := httptest.NewRecorder()
+
+	router.ServeHTTP(res, req)
 }
 
 func mustSetupRouter(debug bool) *gin.Engine {

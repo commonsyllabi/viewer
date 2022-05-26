@@ -4,3 +4,5 @@
       name: "Mohammed Li"
       email: "mo@li.com"
       syllabi: []
+      created_at: '{{ now }}'
+      updated_at: '{{ now }}'

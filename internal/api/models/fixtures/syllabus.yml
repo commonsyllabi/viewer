@@ -5,8 +5,12 @@
       description: "A bit about it"
       email: "fixed@email.com"
       contributor_id: 1
+      created_at: '{{ now }}'
+      updated_at: '{{ now }}'      
     - _id: 2
       title: "Middle class"
       description: "A bit more about it"
-      email: "fixed@email.com"
+      email: "other_fixed@email.com"
       contributor_id: 1
+      created_at: '{{ now }}'
+      updated_at: '{{ now }}'   

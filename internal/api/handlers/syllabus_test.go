@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	"github.com/gin-gonic/gin"
@@ -36,7 +37,7 @@ func TestNewSyllabus(t *testing.T) {
 	w := multipart.NewWriter(&body)
 	w.WriteField("title", "Test Syllabus Handling")
 	w.WriteField("description", "This is a test for the syllabus handling")
-	w.WriteField("email", "name@host.com")
+	w.WriteField("email", "correct@host.com")
 	w.Close()
 
 	res := httptest.NewRecorder()
@@ -174,6 +175,8 @@ func TestNewSyllabusSingleAttachment(t *testing.T) {
 		t.Errorf("Expected 200, got %v : %s", res.Code, res.Body.String())
 	}
 }
+
+// todo test syllabus with already existing email
 
 func TestUpdateSyllabus(t *testing.T) {
 	mustSeedDB(t)
@@ -357,7 +360,12 @@ func mustSeedDB(t *testing.T) {
 		panic(err)
 	}
 
-	syll := models.Syllabus{Title: "Test Title 1", Description: "Test Description 1"}
+	syll := models.Syllabus{
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		Title:       "Test Title 1",
+		Description: "Test Description 1",
+	}
 	_, err = models.AddNewSyllabus(&syll)
 	if err != nil {
 		panic(err)
@@ -365,7 +373,12 @@ func mustSeedDB(t *testing.T) {
 
 	hasher := sha256.New()
 	hasher.Write([]byte(syll.Title))
-	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusTokenID: syll.ID}
+	token := models.MagicToken{
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+		Token:           hasher.Sum(nil),
+		SyllabusTokenID: syll.ID,
+	}
 	token, err = models.AddNewToken(&token)
 	if err != nil {
 		panic(err)
@@ -376,9 +389,11 @@ func mustSeedDB(t *testing.T) {
 		t.Error(err)
 	}
 	att := models.Attachment{
-		Name: "test_01.imscc",
-		File: bytes,
-		Type: "zip",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      "test_01.imscc",
+		File:      bytes,
+		Type:      "zip",
 	}
 
 	_, err = models.AddNewAttachment(&att)

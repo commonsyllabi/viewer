@@ -2,6 +2,7 @@ package models
 
 import (
 	"testing"
+	"time"
 )
 
 //-- to not recreate the whole table everytime, one can also do all transactions, and then rollback rather than commit at the end of each test
@@ -13,14 +14,19 @@ func TestGetAllSyllabi(t *testing.T) {
 		t.Error(err)
 	}
 
-	if len(syll) != 1 {
-		t.Errorf("expected to have non-0 count of syllabi")
+	if len(syll) == 0 {
+		t.Errorf("expected to have non-0 count of syllabi, got %d", len(syll))
 	}
 }
 
 // -- todo: handle when the response is empty
 func TestAddNewSyllabus(t *testing.T) {
-	syll := Syllabus{Title: "Test Title 2", Description: "Test Description 2"}
+	syll := Syllabus{
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		Title:       "Test Title 2",
+		Description: "Test Description 2",
+	}
 	_, err := AddNewSyllabus(&syll)
 
 	if err != nil {
@@ -42,7 +48,11 @@ func TestGetSyllabus(t *testing.T) {
 func TestUpdateSyllabus(t *testing.T) {
 	mustSeedDB(t)
 
-	syll := Syllabus{Title: "Test Title 1 (updated)", Description: "Test Description 1 (updated"}
+	syll := Syllabus{
+		UpdatedAt:   time.Now(),
+		Title:       "Test Title 1 (updated)",
+		Description: "Test Description 1 (updated",
+	}
 	updated, err := UpdateSyllabus(1, &syll)
 
 	if err != nil {

@@ -3,3 +3,5 @@
     - _id: 1
       token: [104,101,108,108,111]
       syllabus_token_id: 1
+      created_at: '{{ now }}'
+      updated_at: '{{ now }}'   
