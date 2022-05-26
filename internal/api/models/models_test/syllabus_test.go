@@ -9,7 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//-- to not recreate the whole table everytime, one can also do all transactions, and then rollback rather than commit at the end of each test
+var syllabusID int64
+
 func TestSyllabusModel(t *testing.T) {
 	teardown := setup(t)
 	defer teardown(t)
@@ -27,14 +28,15 @@ func TestSyllabusModel(t *testing.T) {
 			Title:       "Test Title 2",
 			Description: "Test Description 2",
 		}
-		_, err := models.AddNewSyllabus(&syll)
+		s, err := models.AddNewSyllabus(&syll)
+		syllabusID = s.ID
 		assert.Nil(t, err)
 	})
 
 	t.Run("Test get syllabus", func(t *testing.T) {
-		syll, err := models.GetSyllabus(1)
+		syll, err := models.GetSyllabus(int(syllabusID))
 		require.Nil(t, err)
-		assert.Equal(t, syll.ID, int64(1))
+		assert.Equal(t, syll.ID, syllabusID)
 	})
 
 	t.Run("Test update syllabus", func(t *testing.T) {

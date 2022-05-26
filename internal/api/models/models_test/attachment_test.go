@@ -12,6 +12,8 @@ import (
 
 const singleTestFile = "../../../../pkg/commoncartridge/test_files/test_01.imscc"
 
+var attachmentID int64
+
 func TestAttachmentModel(t *testing.T) {
 	teardown := setup(t)
 	defer teardown(t)
@@ -33,15 +35,16 @@ func TestAttachmentModel(t *testing.T) {
 			Type:      "zip",
 		}
 
-		_, err = models.AddNewAttachment(&att)
+		a, err := models.AddNewAttachment(&att)
+		attachmentID = a.ID
 		assert.Nil(t, err)
 	})
 
 	t.Run("Test get attachment", func(t *testing.T) {
-		att, err := models.GetAttachment(1)
+		att, err := models.GetAttachment(int(attachmentID))
 		require.Nil(t, err)
 
-		assert.Equal(t, att.ID, int64(1))
+		assert.Equal(t, att.ID, attachmentID)
 	})
 
 	t.Run("Test update attachment", func(t *testing.T) {
