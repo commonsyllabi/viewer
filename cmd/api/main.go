@@ -44,7 +44,7 @@ func main() {
 		port = "8080"
 	}
 
-	_, err := models.InitDB(url, conf.FixturesDir)
+	_, err := models.InitDB(url)
 	if err != nil {
 		zero.Log.Fatal().Msgf("Error initializing D: %v", err)
 	}
