@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"testing"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/uptrace/bun"
@@ -93,6 +94,13 @@ func RunFixtures(db *bun.DB, dir string) error {
 	err := fixture.Load(ctx, os.DirFS(dir), "syllabus.yml", "attachment.yml", "contributor.yml", "magic_token.yml")
 
 	return err
+}
+
+func RemoveFixtures(t *testing.T) {
+	ctx := context.Background()
+	db.NewTruncateTable().Model((*Syllabus)(nil)).Cascade().Exec(ctx)
+	db.NewTruncateTable().Model((*Attachment)(nil)).Cascade().Exec(ctx)
+	db.NewTruncateTable().Model((*MagicToken)(nil)).Cascade().Exec(ctx)
 }
 
 func Shutdown() error {

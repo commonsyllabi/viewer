@@ -26,6 +26,7 @@ var syllabusID string
 func setup(t *testing.T) func(t *testing.T) {
 	mustSeedDB(t)
 	return func(t *testing.T) {
+		models.RemoveFixtures(t)
 	}
 }
 
@@ -69,9 +70,8 @@ func mustSeedDB(t *testing.T) {
 	if databaseTestURL == "" {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
-	db, err := models.InitDB(databaseTestURL)
+	_, err := models.InitDB(databaseTestURL)
 	require.Nil(t, err)
-	models.RunFixtures(db, models.Basepath+"/../fixtures")
 
 	syll := models.Syllabus{
 		CreatedAt:   time.Now(),
@@ -90,7 +90,7 @@ func mustSeedDB(t *testing.T) {
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
 		Token:           hasher.Sum(nil),
-		SyllabusTokenID: syll.ID,
+		SyllabusTokenID: s.ID,
 	}
 	token, err = models.AddNewToken(&token)
 

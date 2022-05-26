@@ -213,7 +213,6 @@ func DisplayMagicLink(c *gin.Context) {
 	}
 
 	token := c.Query("token")
-	fmt.Println(id)
 	if id == 0 || token == "" {
 		c.HTML(http.StatusBadRequest, "Error", gin.H{
 			"msg": "The ID of the resource you're asking for is invalid.",

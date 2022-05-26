@@ -13,7 +13,6 @@ import (
 var databaseTestURL string
 
 func TestInitDB(t *testing.T) {
-
 	time.Sleep(1 * time.Second)
 	databaseTestURL = os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {
@@ -26,6 +25,7 @@ func TestInitDB(t *testing.T) {
 func setup(t *testing.T) func(t *testing.T) {
 	mustSeedDB(t)
 	return func(t *testing.T) {
+		models.RemoveFixtures(t)
 	}
 }
 
@@ -36,6 +36,11 @@ func mustSeedDB(t *testing.T) {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
 	db, err := models.InitDB(databaseTestURL)
-	models.RunFixtures(db, models.Basepath+"/../fixtures")
+	require.Nil(t, err)
+	fixturesDir := models.Basepath + "/../fixtures"
+	if os.Getenv("TEST") == "true" {
+		fixturesDir = "/app/internal/api/models/fixtures"
+	}
+	err = models.RunFixtures(db, fixturesDir)
 	require.Nil(t, err)
 }
