@@ -1,4 +1,4 @@
-// CommonCartridge allows you to manipulate IMSCC-compliant Common Cartrdiges through its manifest, resources and associated files.
+// CommonCartridge allows you to manipulate IMSCC-compliant Common Cartridges through its manifest, resources and associated files.
 package commoncartridge
 
 import (
@@ -14,14 +14,14 @@ import (
 	"github.com/commonsyllabi/viewer/pkg/commoncartridge/types"
 )
 
-// IMSCC loads the IMSCC-specific cartridge into a zip.Reader from the given Path
+// IMSCC loads the IMSCC-specific cartridge into a zip.Reader from the given Path. It also stores the manifest for convenient access.
 type IMSCC struct {
 	Reader   zip.Reader
 	Path     string
 	manifest types.Manifest
 }
 
-// Load returns a cartridge created from a given path and holds it into a zip.Reader
+// Load returns a cartridge created from a given path, into a zip.Reader, and parses its `imsmanifest.xml` into a types.Manifest
 func Load(path string) (IMSCC, error) {
 	cc := IMSCC{}
 
@@ -41,12 +41,12 @@ func (cc IMSCC) Manifest() (types.Manifest, error) {
 	return cc.manifest, nil
 }
 
-// Title returns the name of the cartridge
+// Title returns the name of the cartridge that is stored in the `<metadata>` node.
 func (cc IMSCC) Title() string {
 	return cc.manifest.Metadata.Lom.General.Title.String.Text
 }
 
-// Metadata is a user-friendly representation of the Metadata field of the Manifest
+// Metadata is a user-friendly representation of the `<metadata>` node of the `imsmanifest.xml`
 type Metadata struct {
 	Title                string
 	Schema               string
@@ -75,28 +75,22 @@ func (cc IMSCC) Metadata() (string, error) {
 	}
 
 	serialized, err := json.Marshal(meta)
-
-	if err != nil {
-		return string(serialized), err
-	}
-
-	return string(serialized), nil
+	return string(serialized), err
 }
 
-// FullItem is a union of an Item and all resources that refer to it
+// FullItem is a union of an Item and all Resources that refer to it, along with possible children.
 type FullItem struct {
 	Resources []types.Resource
 	Item      types.Item
 	Children  []FullItem
 }
 
-// Items returns all items with their associated resources. It goes through each item at a  level n and looks for full items at the level n-1
+// Items returns all items with their associated resources. It goes through each item at the top level and recursively looks for FullItems at the level n-1.
 func (cc IMSCC) Items() ([]FullItem, error) {
 	items := make([]FullItem, 0)
 
 	//-- A CC always have only one top level item, so we can directly jump to its children
 	for _, i := range cc.manifest.Organizations.Organization.Item.Item {
-
 		full, err := cc.traverseItems(i)
 
 		if err != nil {
@@ -109,13 +103,12 @@ func (cc IMSCC) Items() ([]FullItem, error) {
 	return items, nil
 }
 
+// traverseItems checks that an Item has an identifierref—e.g. that it is being refered to by a resource—, then appends referring resources and recursively appends children Items.
 func (cc IMSCC) traverseItems(current types.Item) (FullItem, error) {
-
 	var f FullItem
 	f.Item = current
 
 	if current.Identifierref != "" {
-		//-- add all resources
 		for _, r := range cc.manifest.Resources.Resource {
 			if strings.Contains(r.Identifier, current.Identifierref) {
 				f.Resources = append(f.Resources, r)
@@ -123,9 +116,7 @@ func (cc IMSCC) traverseItems(current types.Item) (FullItem, error) {
 		}
 	}
 
-	// -- go through all children
 	for _, i := range current.Item {
-
 		child, err := cc.traverseItems(i)
 		if err != nil {
 			return f, nil
@@ -142,7 +133,7 @@ type FullResource struct {
 	Item     types.Item
 }
 
-// Resources returns a slice of all FullResources, each containing a resource and the item it can belong to
+// Resources returns a slice of all FullResources, each containing a resource andeither  the item it can belong to, or `nil`.
 func (cc IMSCC) Resources() ([]FullResource, error) {
 	resources := make([]FullResource, 0)
 
@@ -166,9 +157,8 @@ func (cc IMSCC) Resources() ([]FullResource, error) {
 	return resources, nil
 }
 
-// FindItem returns that the item that the resources points to, or returns nil
+// FindItem loops over all Items in the manifest, and returns that the item that the argument ID points to, or returns `nil`.
 func (cc *IMSCC) FindItem(id string) (types.Item, error) {
-
 	var item types.Item
 	var err error
 	for _, i := range cc.manifest.Organizations.Organization.Item.Item {
@@ -186,8 +176,8 @@ func (cc *IMSCC) FindItem(id string) (types.Item, error) {
 	return item, err
 }
 
+// findItem is a helper function comparing the given ID to the identifierref attribute of a slice of Items.
 func findItem(items []types.Item, id string) (types.Item, error) {
-	// fmt.Printf("looking for %s in %d items\n", id, len(items))
 	var item types.Item
 	var err error
 	for i := range items {
@@ -203,12 +193,10 @@ func findItem(items []types.Item, id string) (types.Item, error) {
 	return item, err
 }
 
-// Assignments returns a slice of all resources of type assignment_xmlv1p\d
+// Assignments returns a slice of all resources of type assignment_xmlv1p\d, using a regular expression to account for different versions of the IMSCC standard. A necessary check of the actual XMLName is made for avoiding other files in the folder that are returned by the findResourcesByType() (e.g. `assignment.xml` also has `assignment_meta.html`)
 func (cc IMSCC) Assignments() ([]types.Assignment, error) {
 	assignments := make([]types.Assignment, 0)
-
 	paths, err := cc.findResourcesByType(`assignment_xmlv1p\d`)
-
 	if err != nil {
 		return assignments, err
 	}
@@ -226,7 +214,6 @@ func (cc IMSCC) Assignments() ([]types.Assignment, error) {
 
 		var a types.Assignment
 		xml.Unmarshal(bytesArray, &a)
-		//-- necessary check for avoiding other files in the folder that are returned by the findResourcesByType() (e.g. `assignment.xml` also has `assignment_meta.html`)
 		if a.XMLName.Local == "assignment" {
 			assignments = append(assignments, a)
 		}
@@ -235,41 +222,37 @@ func (cc IMSCC) Assignments() ([]types.Assignment, error) {
 	return assignments, nil
 }
 
-// LTIs returns a slice of all resources of type imsbasiclti_xmlv1p\d
+// LTIs returns a slice of all resources of type imsbasiclti_xmlv1p\d, using a regular expression to account for different versions of the IMSCC standard.
 func (cc IMSCC) LTIs() ([]types.CartridgeBasicltiLink, error) {
-	qtis := make([]types.CartridgeBasicltiLink, 0)
-
+	ltis := make([]types.CartridgeBasicltiLink, 0)
 	paths, err := cc.findResourcesByType(`imsbasiclti_xmlv1p\d`)
-
 	if err != nil {
-		return qtis, err
+		return ltis, err
 	}
 
 	for _, p := range paths {
 		file, err := cc.Reader.Open(p)
 		if err != nil {
-			return qtis, err
+			return ltis, err
 		}
 
 		bytesArray, err := io.ReadAll(file)
 		if err != nil {
-			return qtis, err
+			return ltis, err
 		}
 
-		var qti types.CartridgeBasicltiLink
-		xml.Unmarshal(bytesArray, &qti)
-		qtis = append(qtis, qti)
+		var lti types.CartridgeBasicltiLink
+		xml.Unmarshal(bytesArray, &lti)
+		ltis = append(ltis, lti)
 	}
 
-	return qtis, nil
+	return ltis, nil
 }
 
-// QTIs returns a slice of all resources of type imsqti_xmlv1p\d
+// QTIs returns a slice of all resources of type imsqti_xmlv1p\d, using a regular expression to account for different versions of the IMSCC standard.
 func (cc IMSCC) QTIs() ([]types.Questestinterop, error) {
 	qtis := make([]types.Questestinterop, 0)
-
 	paths, err := cc.findResourcesByType(`imsqti_xmlv1p\d`)
-
 	if err != nil {
 		return qtis, err
 	}
@@ -287,7 +270,6 @@ func (cc IMSCC) QTIs() ([]types.Questestinterop, error) {
 
 		var qti types.Questestinterop
 		xml.Unmarshal(bytesArray, &qti)
-
 		if qti.XMLName.Local == "questestinterop" {
 			qtis = append(qtis, qti)
 		}
@@ -296,12 +278,10 @@ func (cc IMSCC) QTIs() ([]types.Questestinterop, error) {
 	return qtis, nil
 }
 
-// Topics returns a slice of all resources of type imsdt_xmlv1p\d
+// Topics returns a slice of all resources of type imsdt_xmlv1p\d, using a regular expression to account for different versions of the IMSCC standard.
 func (cc IMSCC) Topics() ([]types.Topic, error) {
 	topics := make([]types.Topic, 0)
-
 	paths, err := cc.findResourcesByType(`imsdt_xmlv1p\d`)
-
 	if err != nil {
 		return topics, err
 	}
@@ -325,7 +305,7 @@ func (cc IMSCC) Topics() ([]types.Topic, error) {
 	return topics, nil
 }
 
-// Weblnks returns a slice of all resources of type imswl_xmlv1p\d
+// Weblnks returns a slice of all resources of type imswl_xmlv1p\d, using a regular expression to account for different versions of the IMSCC standard.
 func (cc IMSCC) Weblinks() ([]types.WebLink, error) {
 	weblinks := make([]types.WebLink, 0)
 
@@ -354,15 +334,12 @@ func (cc IMSCC) Weblinks() ([]types.WebLink, error) {
 	return weblinks, nil
 }
 
-// Find takes an id and returns the resource associated with it
+// Find takes an id, finds the resource associated with it, tries to marshall it into the appropriate type, or returns the resource itself if it's a webcontent or associated-resource.
 func (cc IMSCC) Find(id string) (interface{}, error) {
-
 	//-- find the type, then marshal into the appropriate struct
 	//-- otherwise return the resource
 	for _, r := range cc.manifest.Resources.Resource {
-
 		if r.Identifier == id {
-
 			var path string
 			if r.Href != "" {
 				path = r.Href
@@ -372,8 +349,7 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 				}
 			}
 
-			// todo should `_fallback` resource be appended to parent resource?
-			// otherwise, return the resource as is
+			// note: `_fallback` resource will not be appended to the parent resource, since it is not part of the IMSCC spec
 			if path == "" {
 				return r, nil
 			}
@@ -390,38 +366,30 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 
 			switch r.Type {
 			case "imsdt_xmlv1p0", "imsdt_xmlv1p1", "imsdt_xmlv1p2", "imsdt_xmlv1p3":
-				// fmt.Printf("found topic %v", resource.File)
 				var t types.Topic
 				err = xml.Unmarshal(bytes, &t)
 				if err != nil {
 					return t, nil
 				}
 				return t, nil
-
 			case "webcontent":
-				// fmt.Printf("found webcontent %v", resource.File)
 				return r, nil
 			case "imswl_xmlv1p0", "imswl_xmlv1p1", "imswl_xmlv1p2", "imswl_xmlv1p3":
-				// fmt.Printf("found weblink %v", resource.File)
 				var wl types.WebLink
 				err = xml.Unmarshal(bytes, &wl)
 				if err != nil {
 					return wl, nil
 				}
 				return wl, nil
-
 			case "assignment_xmlv1p0", "assignment_xmlv1p1", "assignment_xmlv1p2", "assignment_xmlv1p3":
-				// fmt.Printf("found assignment %v", resource.File)
 				var a types.Assignment
 				err = xml.Unmarshal(bytes, &a)
 				if err != nil {
 					return a, nil
 				}
 				return a, nil
-
 			case "imsqti_xmlv1p2/imscc_xmlv1p1/assessment", "imsqti_xmlv1p2/imscc_xmlv1p2/assessment",
 				"imsqti_xmlv1p2/imscc_xmlv1p3/assessment":
-				// fmt.Printf("found question bank %v", resource.File)
 				var qti types.Questestinterop
 				err = xml.Unmarshal(bytes, &qti)
 				if err != nil {
@@ -429,7 +397,6 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 				}
 				return qti, nil
 			case "imsbasiclti_xmlv1p0", "imsbasiclti_xmlv1p1", "imsbasiclti_xmlv1p2":
-				//-- fmt.Printf("found LTI %v\n, resource.File")
 				var lti types.CartridgeBasicltiLink
 				err = xml.Unmarshal(bytes, &lti)
 				if err != nil {
@@ -442,20 +409,17 @@ func (cc IMSCC) Find(id string) (interface{}, error) {
 			default:
 				return r, fmt.Errorf("no matching type found: %s", r.Type)
 			}
-
 		}
 	}
 
 	return types.Resource{}, fmt.Errorf("could not find resource with id: %v", id)
 }
 
-// FindFile takes an ID and returns the corresponding file as a byte slice
+// FindFile takes an ID and returns the corresponding file as a `fs.File`, as specified on the `href` attribute of the first child `<file>` node.
 func (cc IMSCC) FindFile(id string) (fs.File, error) {
 	var file fs.File
-
 	for _, r := range cc.manifest.Resources.Resource {
 		if r.Identifier == id {
-			//-- directly go through the child []File and read from the href there
 
 			f, err := cc.Reader.Open(r.File[0].Href)
 			if err != nil {
@@ -469,7 +433,7 @@ func (cc IMSCC) FindFile(id string) (fs.File, error) {
 	return file, fmt.Errorf("couldn't find file for id %s", id)
 }
 
-// findResourcesByType takes a regex pattern and returns a slice of paths of files who match the pattern
+// findResourcesByType takes a regex pattern and returns a slice of paths to files whose `type` attribute matches the pattern. It also returns the paths to non-XML files.
 func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
 	paths := make([]string, 0)
 
@@ -483,7 +447,7 @@ func (cc IMSCC) findResourcesByType(pattern string) ([]string, error) {
 
 		if match != nil {
 			for _, f := range r.File {
-				paths = append(paths, f.Href) //-- todo might need to check if the extension is xml?
+				paths = append(paths, f.Href)
 			}
 		}
 	}
@@ -518,15 +482,6 @@ func (cc IMSCC) parseManifest() (types.Manifest, error) {
 	xml.Unmarshal(bytesArray, &manifest)
 
 	return manifest, nil
-}
-
-// Dump returns the string representation of the Manifest
-func (cc IMSCC) Dump() []string {
-	dump := make([]string, len(cc.Reader.File))
-	for _, f := range cc.Reader.File {
-		dump = append(dump, f.Name)
-	}
-	return dump
 }
 
 // MarshalJSON returns the JSON-encoded string representation of the Manifest
