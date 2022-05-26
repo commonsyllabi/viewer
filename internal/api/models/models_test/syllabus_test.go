@@ -1,15 +1,17 @@
-package models
+package models_test
 
 import (
 	"testing"
 	"time"
+
+	"github.com/commonsyllabi/viewer/internal/api/models"
 )
 
 //-- to not recreate the whole table everytime, one can also do all transactions, and then rollback rather than commit at the end of each test
 func TestGetAllSyllabi(t *testing.T) {
 	mustSeedDB(t)
 
-	syll, err := GetAllSyllabi()
+	syll, err := models.GetAllSyllabi()
 	if err != nil {
 		t.Error(err)
 	}
@@ -21,13 +23,13 @@ func TestGetAllSyllabi(t *testing.T) {
 
 // -- todo: handle when the response is empty
 func TestAddNewSyllabus(t *testing.T) {
-	syll := Syllabus{
+	syll := models.Syllabus{
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 		Title:       "Test Title 2",
 		Description: "Test Description 2",
 	}
-	_, err := AddNewSyllabus(&syll)
+	_, err := models.AddNewSyllabus(&syll)
 
 	if err != nil {
 		t.Error(err)
@@ -35,7 +37,7 @@ func TestAddNewSyllabus(t *testing.T) {
 }
 
 func TestGetSyllabus(t *testing.T) {
-	syll, err := GetSyllabus(1)
+	syll, err := models.GetSyllabus(1)
 	if err != nil {
 		t.Error(err)
 	}
@@ -48,12 +50,12 @@ func TestGetSyllabus(t *testing.T) {
 func TestUpdateSyllabus(t *testing.T) {
 	mustSeedDB(t)
 
-	syll := Syllabus{
+	syll := models.Syllabus{
 		UpdatedAt:   time.Now(),
 		Title:       "Test Title 1 (updated)",
 		Description: "Test Description 1 (updated",
 	}
-	updated, err := UpdateSyllabus(1, &syll)
+	updated, err := models.UpdateSyllabus(1, &syll)
 
 	if err != nil {
 		t.Error(err)
@@ -65,7 +67,7 @@ func TestUpdateSyllabus(t *testing.T) {
 }
 
 func TestDeleteSyllabus(t *testing.T) {
-	err := DeleteSyllabus(1)
+	err := models.DeleteSyllabus(1)
 	if err != nil {
 		t.Error(err)
 	}

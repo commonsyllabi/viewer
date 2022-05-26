@@ -1,4 +1,4 @@
-package handlers
+package handlers_test
 
 import (
 	"bytes"
@@ -14,17 +14,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/commonsyllabi/viewer/internal/api/handlers"
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	"github.com/gin-gonic/gin"
 )
 
-const singleTestFile = "../../../pkg/commoncartridge/test_files/test_01.imscc"
+const singleTestFile = "../../../../pkg/commoncartridge/test_files/test_01.imscc"
 
 func TestAllSyllabi(t *testing.T) {
 	mustSeedDB(t)
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
-	AllSyllabi(c)
+	handlers.AllSyllabi(c)
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v", res.Code)
 	}
@@ -50,7 +51,7 @@ func TestNewSyllabus(t *testing.T) {
 	c.Request.Header.Set("Content-Type", w.FormDataContentType())
 	c.Request.Body = io.NopCloser(&body)
 
-	NewSyllabus(c)
+	handlers.NewSyllabus(c)
 
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v: %v", res.Code, res.Body)
@@ -77,7 +78,7 @@ func TestNewSyllabusWrongValue(t *testing.T) {
 	c.Request.Header.Set("Content-Type", w.FormDataContentType())
 	c.Request.Body = io.NopCloser(&body)
 
-	NewSyllabus(c)
+	handlers.NewSyllabus(c)
 
 	if res.Code != 400 {
 		t.Errorf("Expected 400, got %v: %v", res.Code, res.Body)
@@ -104,7 +105,7 @@ func TestNewSyllabusShortEmail(t *testing.T) {
 	c.Request.Header.Set("Content-Type", w.FormDataContentType())
 	c.Request.Body = io.NopCloser(&body)
 
-	NewSyllabus(c)
+	handlers.NewSyllabus(c)
 
 	if res.Code != 400 {
 		t.Errorf("Expected 400, got %v: %v", res.Code, res.Body)
@@ -131,7 +132,7 @@ func TestNewSyllabusWrongEmail(t *testing.T) {
 	c.Request.Header.Set("Content-Type", w.FormDataContentType())
 	c.Request.Body = io.NopCloser(&body)
 
-	NewSyllabus(c)
+	handlers.NewSyllabus(c)
 
 	if res.Code != 400 {
 		t.Errorf("Expected 400, got %v: %v", res.Code, res.Body)
@@ -169,7 +170,7 @@ func TestNewSyllabusSingleAttachment(t *testing.T) {
 	c.Request.Header.Set("Content-Type", w.FormDataContentType())
 	c.Request.Body = io.NopCloser(&body)
 
-	NewSyllabus(c)
+	handlers.NewSyllabus(c)
 
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v : %s", res.Code, res.Body.String())
@@ -203,7 +204,7 @@ func TestUpdateSyllabus(t *testing.T) {
 		},
 	}
 
-	UpdateSyllabus(c)
+	handlers.UpdateSyllabus(c)
 
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v: %v", res.Code, res.Body)
@@ -244,7 +245,7 @@ func TestUpdateSyllabusPartial(t *testing.T) {
 		},
 	}
 
-	UpdateSyllabus(c)
+	handlers.UpdateSyllabus(c)
 
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v: %v", res.Code, res.Body)
@@ -278,7 +279,9 @@ func TestGetSyllabus(t *testing.T) {
 			Value: "1",
 		},
 	}
-	GetSyllabus(c)
+
+	handlers.GetSyllabus(c)
+
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v", res.Code)
 	}
@@ -307,7 +310,8 @@ func TestDisplayMagicLink(t *testing.T) {
 	}
 	c.Request.URL, _ = url.Parse("?token=" + base64.URLEncoding.EncodeToString(token.Token))
 
-	DisplayMagicLink(c)
+	handlers.DisplayMagicLink(c)
+
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v: %v", res.Code, res)
 	}
@@ -330,7 +334,7 @@ func TestDeleteSyllabus(t *testing.T) {
 		},
 	}
 
-	DeleteSyllabus(c)
+	handlers.DeleteSyllabus(c)
 
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v: %v", res.Code, res.Body)
@@ -350,12 +354,18 @@ func TestDeleteSyllabus(t *testing.T) {
 	// }
 }
 
+var isDBSeeded = false
+
 func mustSeedDB(t *testing.T) {
+	if isDBSeeded {
+		return
+	}
+
 	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
-	_, err := models.InitDB(databaseTestURL, "../models/fixtures")
+	_, err := models.InitDB(databaseTestURL, "../../models/fixtures")
 	if err != nil {
 		panic(err)
 	}
@@ -400,6 +410,8 @@ func mustSeedDB(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+
+	isDBSeeded = true
 }
 
 func mustOpen(f string) *os.File {

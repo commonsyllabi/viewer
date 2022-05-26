@@ -1,17 +1,19 @@
-package models
+package models_test
 
 import (
 	"io/ioutil"
 	"testing"
 	"time"
+
+	"github.com/commonsyllabi/viewer/internal/api/models"
 )
 
-const singleTestFile = "../../../pkg/commoncartridge/test_files/test_01.imscc"
+const singleTestFile = "../../../../pkg/commoncartridge/test_files/test_01.imscc"
 
 func TestGetAllAttachments(t *testing.T) {
 	mustSeedDB(t)
 
-	att, err := GetAllAttachments()
+	att, err := models.GetAllAttachments()
 	if err != nil {
 		t.Error(err)
 	}
@@ -26,7 +28,7 @@ func TestAddNewAttachment(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	att := Attachment{
+	att := models.Attachment{
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Name:      "test_01.imscc",
@@ -34,14 +36,14 @@ func TestAddNewAttachment(t *testing.T) {
 		Type:      "zip",
 	}
 
-	_, err = AddNewAttachment(&att)
+	_, err = models.AddNewAttachment(&att)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestGetAttachment(t *testing.T) {
-	syll, err := GetAttachment(1)
+	syll, err := models.GetAttachment(1)
 	if err != nil {
 		t.Error(err)
 	}
@@ -58,14 +60,14 @@ func TestUpdateAttachment(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	att := Attachment{
+	att := models.Attachment{
 		UpdatedAt: time.Now(),
 		Name:      "test_01.imscc (updated)",
 		File:      bytes,
 		Type:      "zip",
 	}
 
-	updated, err := UpdateAttachment(1, &att)
+	updated, err := models.UpdateAttachment(1, &att)
 
 	if err != nil {
 		t.Error(err)
@@ -77,7 +79,7 @@ func TestUpdateAttachment(t *testing.T) {
 }
 
 func TestDeleteAttachment(t *testing.T) {
-	err := DeleteAttachment(1)
+	err := models.DeleteAttachment(1)
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,4 +1,4 @@
-package mailer
+package mailer_test
 
 import (
 	"bytes"
@@ -12,11 +12,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/commonsyllabi/viewer/internal/api/mailer"
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	"github.com/gin-gonic/gin"
 )
 
-const singleTestFile = "../../../pkg/commoncartridge/test_files/test_01.imscc"
+const singleTestFile = "../../../../pkg/commoncartridge/test_files/test_01.imscc"
 
 func TestGetMagicLink(t *testing.T) {
 	mustSeedDB(t)
@@ -44,7 +45,8 @@ func TestGetMagicLink(t *testing.T) {
 		},
 	}
 
-	HandleMagicLink(c)
+	mailer.HandleMagicLink(c)
+
 	if res.Code != 200 {
 		t.Errorf("Expected 200, got %v - %v", res.Code, res)
 	}
@@ -55,7 +57,7 @@ func mustSeedDB(t *testing.T) {
 	if databaseTestURL == "" {
 		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
 	}
-	_, err := models.InitDB(databaseTestURL, "../models/fixtures")
+	_, err := models.InitDB(databaseTestURL, "../../models/fixtures")
 	if err != nil {
 		panic(err)
 	}

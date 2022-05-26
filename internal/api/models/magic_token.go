@@ -13,13 +13,6 @@ type MagicToken struct {
 	SyllabusTokenID int64     `bun:"syllabus_token_id" yaml:"syllabus_token_id"`
 }
 
-func CreateMagicTokenTable() error {
-	ctx := context.Background()
-	_, err := db.NewCreateTable().Model((*MagicToken)(nil)).IfNotExists().Exec(ctx)
-
-	return err
-}
-
 func GetTokenSyllabus(id int) (MagicToken, error) {
 	ctx := context.Background()
 	var token MagicToken
