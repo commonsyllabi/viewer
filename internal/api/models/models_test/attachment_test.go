@@ -6,81 +6,63 @@ import (
 	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const singleTestFile = "../../../../pkg/commoncartridge/test_files/test_01.imscc"
 
-func TestGetAllAttachments(t *testing.T) {
-	mustSeedDB(t)
+func TestAttachmentModel(t *testing.T) {
+	teardown := setup(t)
+	defer teardown(t)
 
-	att, err := models.GetAllAttachments()
-	if err != nil {
-		t.Error(err)
-	}
+	t.Run("Test get all attachments", func(t *testing.T) {
+		att, err := models.GetAllAttachments()
+		require.Nil(t, err)
+		assert.GreaterOrEqual(t, len(att), 1)
+	})
 
-	if len(att) != 1 {
-		t.Errorf("expected to have non-0 count of attachments")
-	}
-}
+	t.Run("Test add attachment", func(t *testing.T) {
+		bytes, err := ioutil.ReadFile(singleTestFile)
+		require.Nil(t, err)
+		att := models.Attachment{
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Name:      "test_01.imscc",
+			File:      bytes,
+			Type:      "zip",
+		}
 
-func TestAddNewAttachment(t *testing.T) {
-	bytes, err := ioutil.ReadFile(singleTestFile)
-	if err != nil {
-		t.Error(err)
-	}
-	att := models.Attachment{
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Name:      "test_01.imscc",
-		File:      bytes,
-		Type:      "zip",
-	}
+		_, err = models.AddNewAttachment(&att)
+		assert.Nil(t, err)
+	})
 
-	_, err = models.AddNewAttachment(&att)
-	if err != nil {
-		t.Error(err)
-	}
-}
+	t.Run("Test get attachment", func(t *testing.T) {
+		att, err := models.GetAttachment(1)
+		require.Nil(t, err)
 
-func TestGetAttachment(t *testing.T) {
-	syll, err := models.GetAttachment(1)
-	if err != nil {
-		t.Error(err)
-	}
+		assert.Equal(t, att.ID, int64(1))
+	})
 
-	if syll.ID != 1 {
-		t.Errorf("Expecting ID to be 1, got %d", syll.ID)
-	}
-}
+	t.Run("Test update attachment", func(t *testing.T) {
+		bytes, err := ioutil.ReadFile(singleTestFile)
+		if err != nil {
+			t.Error(err)
+		}
+		att := models.Attachment{
+			UpdatedAt: time.Now(),
+			Name:      "test_01.imscc (updated)",
+			File:      bytes,
+			Type:      "zip",
+		}
 
-func TestUpdateAttachment(t *testing.T) {
-	mustSeedDB(t)
+		updated, err := models.UpdateAttachment(1, &att)
+		require.Nil(t, err)
+		assert.Equal(t, updated.Name, att.Name)
+	})
 
-	bytes, err := ioutil.ReadFile(singleTestFile)
-	if err != nil {
-		t.Error(err)
-	}
-	att := models.Attachment{
-		UpdatedAt: time.Now(),
-		Name:      "test_01.imscc (updated)",
-		File:      bytes,
-		Type:      "zip",
-	}
-
-	updated, err := models.UpdateAttachment(1, &att)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if updated.Name != att.Name {
-		t.Error("Mismatch of updated Attachment")
-	}
-}
-
-func TestDeleteAttachment(t *testing.T) {
-	err := models.DeleteAttachment(1)
-	if err != nil {
-		t.Error(err)
-	}
+	t.Run("Test delete attachment", func(t *testing.T) {
+		err := models.DeleteAttachment(1)
+		assert.Nil(t, err)
+	})
 }

@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
@@ -18,9 +20,13 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-var db *bun.DB
+var (
+	db         *bun.DB
+	_, b, _, _ = runtime.Caller(0)
+	Basepath   = filepath.Dir(b)
+)
 
-func InitDB(url string, fixturesDir string) (*bun.DB, error) {
+func InitDB(url string) (*bun.DB, error) {
 	zero.Infof("connecting: %s", url) //-- todo this should not be logged
 	sslMode := false
 	if strings.HasSuffix(url, "sslmode=require") {
@@ -42,12 +48,6 @@ func InitDB(url string, fixturesDir string) (*bun.DB, error) {
 		log.Fatal(err)
 	}
 
-	if os.Getenv("TEST") == "true" {
-		err = runFixtures(db, fixturesDir)
-		if err != nil {
-			zero.Errorf("error running fixtures: %v", err)
-		}
-	}
 	return db, err
 }
 
@@ -56,7 +56,7 @@ func runMigrations(url string, sslMode bool) error {
 		url = url + "?sslmode=disable"
 	}
 
-	migrationsDir := "file://internal/migrations"
+	migrationsDir := "file://" + Basepath + "/../../migrations"
 	if os.Getenv("TEST") == "true" {
 		migrationsDir = "file:///app/internal/migrations"
 	}
@@ -78,7 +78,9 @@ func runMigrations(url string, sslMode bool) error {
 	return nil
 }
 
-func runFixtures(db *bun.DB, dir string) error {
+func RunFixtures(db *bun.DB, dir string) error {
+
+	fixture := dbfixture.New(db, dbfixture.WithTruncateTables())
 
 	db.RegisterModel(
 		(*Syllabus)(nil),
@@ -86,8 +88,6 @@ func runFixtures(db *bun.DB, dir string) error {
 		(*Contributor)(nil),
 		(*MagicToken)(nil),
 	)
-
-	fixture := dbfixture.New(db, dbfixture.WithTruncateTables())
 
 	ctx := context.Background()
 	err := fixture.Load(ctx, os.DirFS(dir), "syllabus.yml", "attachment.yml", "contributor.yml", "magic_token.yml")
