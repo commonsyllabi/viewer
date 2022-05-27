@@ -14,7 +14,7 @@
             </ul>
         </div>
         <div class="cta">
-            <button id="cta-upload" class="btn btn-primary mb-4" @click="start()">Upload yours!</button>
+            <button id="cta-upload" class="btn btn-primary mb-4 cc-btn" @click="start()">Upload yours!</button>
         </div>
     </main>
     <Footer></Footer>

@@ -3,12 +3,17 @@
   <main class="container p-3">
 
     <!-- upload form -->
-    <div class="container pt-4 mb-3 border rounded" v-if="!isUploaded">
+    <div class="container pt-4 mb-3 w-50 rounded upload-box" v-if="!isUploaded">
       <form id="upload-form" action="/api/upload" method="post">
         <div class="form-group">
+          <div class="upload-icon w-25">
+            <img src="assets/upload.svg" alt="upload icon" class="w-100">
+          </div>
           <label for="cartridgeInput" class="d-block h5 mb-3">Upload a common cartridge (.imscc) file</label>
-          <input id="upload-file" type="file" name="cartridge" class="form-control-file d-block mb-2" />
-          <button id="upload-submit" @click.prevent="upload()" class="btn btn-primary mb-3">Upload</button>
+          <input id="upload-file" type="file" name="cartridge" class="form-control-file d-block mb-2 visually-hidden" />
+          <div id="upload-file-name"></div>
+          <button id="upload-submit" @click.prevent="selectFile()" class="btn btn-primary mb-3 cc-btn">select a
+            file</button>
         </div>
       </form>
     </div>
@@ -21,9 +26,9 @@
 
 
     <!-- status log -->
-    <div id="log" class="container py-1 mb-3">
+    <!-- <div id="log" class="container py-1 mb-3">
       <pre>{{ log }}</pre>
-    </div>
+    </div> -->
 
 
     <div v-if="isUploaded" class="container cartridge">
@@ -31,10 +36,14 @@
         <div class="title">
           {{ syllabus.title }}
         </div>
+        <div class="file-name">
+          {{ cartridge.name }}
+        </div>
         <div class="description">
           {{ syllabus.description }}
         </div>
       </div>
+
       <!-- actions -->
       <div class="row mb-2 actions">
         <button type="button" class="action" @click="showMetadata = !showMetadata">{{
@@ -43,63 +52,72 @@
         <button type="button" class="action" @click="reset()">load another file</button>
         <button id="show-upload" type="button" class="action" @click="showModal()">upload this file</button>
       </div>
-      <!-- metadata viewer -->
-      <div class="row mb-3" v-if="showMetadata">
-        <div id="metadata-accordion" class="accordion">
-          <div class="accordion-item">
-            <h2 id="headingOne" class="accordion-header">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeta"
-                aria-expanded="true" aria-controls="collapseOne">Cartridge Metadata</button>
-            </h2>
-            <div id="collapseMeta" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-              data-bs-parent="#metadata-accordion">
-              <div class="accordion-body">
-                <!-- file metadata placeholder -->
-                <div v-if="!isUploaded" class="metadata-placeholder">
-                  <span class="text-muted">
-                    <em>metadata goes here</em>
-                  </span>
-                </div>
 
-                <!-- file metadata -->
-                <div v-if="isUploaded" class="metadata">
-                  <div class="title">{{ manifest.Metadata.Lom.General.Title.String.Text }}</div>
-                </div>
+
+
+      <div class="container row mb-5 cartridge-viewer">
+        <!-- file navigator -->
+        <div class="col-4 h-100" v-if="showMetadata">
+          <!-- metadata viewer -->
+          <div class="mb-3 border overflow-scroll h-50">
+            <h6 class="my-2">Cartridge metadata</h6>
+            <!-- file metadata placeholder -->
+            <div class="metadata-placeholder">
+              <div class="metadata-element">
+                <div class="legend">file name</div>
+                <div>{{ cartridge.name }}</div>
+              </div>
+
+              <div class="metadata-element">
+                <div class="legend">schema</div>
+                <div>IMS CC</div>
+              </div>
+
+              <div class="metadata-element">
+                <div class="legend">schema version</div>
+                <div>1.3</div>
+              </div>
+
+              <div class="metadata-element">
+                <div class="legend">role</div>
+                <div>educator</div>
+              </div>
+
+              <div class="metadata-element">
+                <div class="legend">copyright</div>
+                <div>all rights reserved</div>
+              </div>
+
+              <div class="metadata-element">
+                <div class="legend">language</div>
+                <div>en-US</div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- viewer -->
-      <div class="container border rounded mb-5 cartridge-viewer">
-        <!-- file navigator -->
-        <div class="row">
           <!-- items panel -->
-          <div class="col-6 overflow-scroll items-panel">
-            <h6 class="my-2">Items Who Knows Index</h6>
+          <div class="overflow-scroll border items-panel h-50">
+            <h6 class="my-2">Items in Index</h6>
 
             <!-- items listing -->
-            <!-- TODO: dont use index, bad prac -->
             <div v-for="i in items" :key="i.Item.Identifier">
               <Item :item="i" :cartridge="cartridge.name" />
               <hr />
             </div>
           </div>
+        </div>
 
-          <!-- resources panel -->
-          <div class="col-6 overflow-scroll resources-panel">
-            <h6 class="my-2">Resources Index</h6>
+        <!-- resources panel -->
+        <div class="col border overflow-scroll resources-panel">
+          <h6 class="my-2">Resources in Cartridge</h6>
 
-            <!-- resources listing -->
-            <!-- TODO: dont use index, bad prac -->
-            <div v-for="r in resources" :key="r.Identifier" class>
-              <Resource :resource="r" :cartridge="cartridge.name" />
-            </div>
+          <!-- resources listing -->
+          <div v-for="r in resources" :key="r.Identifier" class>
+            <Resource :resource="r" :cartridge="cartridge.name" />
           </div>
         </div>
       </div>
     </div>
+
   </main>
   <Footer></Footer>
 </template>
@@ -129,12 +147,16 @@ let manifest = reactive(new Object() as ManifestType)
 let items = reactive(new Array<ItemType>())
 let resources = reactive(new Array<ResourceType>())
 
-let showMetadata = ref(false);
+let showMetadata = ref(true);
 let showUpload = ref(false);
 
 let log = ref("ready");
 let isUploaded = ref(false);
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
+
+let selectFile = () => {
+  document.getElementById("upload-file")?.click()
+}
 
 let upload = function () {
   const formElem = document.getElementById("upload-form") as HTMLFormElement;
@@ -184,7 +206,6 @@ let reset = () => {
   isUploaded.value = false
   showMetadata.value = false
 
-  // manifest = ref(new Object()  as ManifestType)
   items.length = 0
   resources.length = 0
 
@@ -199,16 +220,36 @@ let showModal = () => {
   }, 100);
 }
 
-// onMounted(() => {
-//   isUploaded.value = true;
+onMounted(() => {
+  let uploadForm = document.getElementById("upload-form") as HTMLElement
+  uploadForm.ondrop = (e: Event) => {
+    e.preventDefault()
+    console.log("dropped", e);
 
-//   Object.assign(manifest, JSON.parse(stub.data))
-//   Object.assign(items, JSON.parse(stub.items))
+  }
+  let uploadField = document.getElementById("upload-file") as HTMLElement
 
-//   for (let r of JSON.parse(stub.resources)) {
-//     resources.push(r.Resource);
-//   }
-// });
+  uploadField.onchange = (e: Event) => {
+    let t = e.target as HTMLInputElement
+    let f = t.files as FileList
+    let uploadedFile = document.getElementById("upload-file-name") as HTMLElement
+    uploadedFile.innerText = f[0].name
+
+    upload()
+  }
+
+  isUploaded.value = true;
+
+  Object.assign(manifest, JSON.parse(stub.data))
+  Object.assign(items, JSON.parse(stub.items))
+  syllabus.title = "Loaded course"
+  syllabus.description = "Sample description lorem ipsum dolores sit amet"
+  cartridge.name = "test_01.imscc"
+
+  for (let r of JSON.parse(stub.resources)) {
+    resources.push(r.Resource);
+  }
+});
 
 
 </script>
@@ -217,6 +258,45 @@ let showModal = () => {
 @import "./css/global-vars.scss";
 
 // page typograph
+
+.upload-box {
+  display: flex;
+  flex-direction: column;
+
+  background-color: #eaeaea;
+  border: 3px dashed grey;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cc-btn {
+  border-radius: 25px;
+  background-color: white;
+  color: black;
+}
+
+.cc-btn:hover {
+  background-color: white;
+  color: black;
+  font-weight: bold;
+}
+
+.file-name {
+  color: lightgray;
+}
+
+.metadata-element{
+  padding-bottom: 10px;
+  font-size: 0.9em;
+
+  .legend{
+    color: grey;
+  }
+}
 
 .section-title-small {
   font-size: 0.6rem;
