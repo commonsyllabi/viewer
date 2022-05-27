@@ -21,7 +21,6 @@ COPY go.sum /app
 WORKDIR /app
 RUN go mod download
 
-COPY pkg /app/pkg
 COPY cmd /app/cmd
 COPY internal /app/internal
 

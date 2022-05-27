@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const singleTestFile = "../../../../pkg/commoncartridge/test_files/test_01.imscc"
+const singleTestFile = "../../../../tests/test_01.imscc"
 
 var attachmentID int64
 

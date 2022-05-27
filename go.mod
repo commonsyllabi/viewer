@@ -3,6 +3,7 @@ module github.com/commonsyllabi/viewer
 go 1.18
 
 require (
+	github.com/commonsyllabi/commoncartridge v0.0.0-20220526230952-dfedf0a974c8
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.7

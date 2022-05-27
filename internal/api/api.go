@@ -18,11 +18,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/commonsyllabi/commoncartridge"
 	"github.com/commonsyllabi/viewer/internal/api/handlers"
 	"github.com/commonsyllabi/viewer/internal/api/mailer"
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
-	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"

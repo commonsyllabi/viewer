@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const singleTestFile = "../../pkg/commoncartridge/test_files/test_01.imscc"
+const singleTestFile = "../../tests/test_01.imscc"
 
 var router *gin.Engine
 

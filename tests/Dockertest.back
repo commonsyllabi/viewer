@@ -12,12 +12,12 @@ FROM golang:1.18 AS go
 RUN apt update -y && apt install libreoffice -y
 
 RUN mkdir /app
+COPY tests/test_01.imscc /app/tests/test_01.imscc
 COPY go.mod /app
 COPY go.sum /app
 WORKDIR /app
 RUN go mod download
 
-COPY pkg /app/pkg
 COPY cmd /app/cmd
 COPY internal /app/internal
 
