@@ -19,7 +19,7 @@ import { ref } from 'vue'
 const email = ref("")
 const log = ref("")
 const syll = document.getElementById("syllabus") as HTMLElement
-const id = syll.getAttribute("syll_id") as string
+const id = syll.dataset.id
 
 let submit = () => {
     const formElem = document.getElementById("request-email") as HTMLFormElement;

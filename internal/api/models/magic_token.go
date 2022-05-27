@@ -1,18 +1,16 @@
 package models
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type MagicToken struct {
-	ID              int64  `bun:"id,pk,autoincrement"`
-	Token           []byte `bun:"token"`
-	SyllabusTokenID int64  `bun:"syllabus_token_id" yaml:"syllabus_token_id"`
-}
-
-func CreateMagicTokenTable() error {
-	ctx := context.Background()
-	_, err := db.NewCreateTable().Model((*MagicToken)(nil)).IfNotExists().Exec(ctx)
-
-	return err
+	CreatedAt       time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt       time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	ID              int64     `bun:"id,pk,autoincrement"`
+	Token           []byte    `bun:"token,notnull"`
+	SyllabusTokenID int64     `bun:"syllabus_token_id" yaml:"syllabus_token_id"`
 }
 
 func GetTokenSyllabus(id int) (MagicToken, error) {

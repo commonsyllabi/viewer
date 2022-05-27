@@ -2,13 +2,16 @@ package models
 
 import (
 	"context"
+	"time"
 )
 
 type Attachment struct {
-	ID                 int64  `bun:"id,pk,autoincrement"`
-	Name               string `form:"name"`
-	File               []byte
-	Type               string
+	CreatedAt          time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt          time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	ID                 int64     `bun:"id,pk,autoincrement"`
+	Name               string    `bun:"name,notnull" form:"name"`
+	File               []byte    `bun:"file,notnull"`
+	Type               string    `bun:"type,notnull"`
 	SyllabusAttachedID int64     `yaml:"syllabus_attached_id"`
 	Syllabus           *Syllabus `bun:"rel:belongs-to,join:syllabus_attached_id=id"`
 }
@@ -37,7 +40,7 @@ func AddNewAttachment(att *Attachment) (Attachment, error) {
 
 func UpdateAttachment(id int, att *Attachment) (Attachment, error) {
 	ctx := context.Background()
-	_, err := db.NewUpdate().Model(att).Where("id = ?", id).Exec(ctx)
+	_, err := db.NewUpdate().Model(att).OmitZero().Where("id = ?", id).Exec(ctx)
 	return *att, err
 }
 

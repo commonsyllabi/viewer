@@ -5,3 +5,5 @@
       type: ".useful.format"
       file: []
       syllabus_attached_id: 1
+      created_at: '{{ now }}'
+      updated_at: '{{ now }}'   

@@ -105,6 +105,8 @@ fi
 
 ### Database
 
+#### Connection
+
 The API connects to a Postgres database called `cosyl`, with username `cosyl` and password `cosyl`. These are being set in the .env file, along with the `DB_HOST`.
 
 `DB_HOST` is the hostname of where Postgres runs. Locally, this is `localhost`. When running with Docker, it's `db` (the `name` set in `docker-compose.yml`).
@@ -113,5 +115,18 @@ If you change the username, password or db name, you need to make sure the new u
 
 ```bash
 docker compose down --volumes
-docker compose build # this rebuilds the db image with the env user, then the volume with the env name
+docker compose build
 ```
+
+#### Migrations
+
+Migrating databases is the process of reaching a desired database state in a step-wise fashion. To create a new migration, run:
+
+```bash
+export POSTGRESQL_URL='postgres://postgres:postgres@localhost:5432/test?sslmode=disable'
+migrate create -ext sql -dir ${OUTPUT_DIR} -seq create_users_table
+```
+
+I should also look into uniqueness and non-nullability and other column attributes.
+
+The table creation should also take into account inter-table dependencies (has-a, belongs-to), and look into foreign keys

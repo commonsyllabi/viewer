@@ -23,8 +23,8 @@
         </div>
 
 
-        <button id="course-submit" class="btn btn-primary mb-4" @click.prevent="submit()">submit</button>
-        <button id="button-submit" class="btn btn-primary mb-4" @click="$emit('close')">close</button>
+        <button id="course-submit" text="submit" classes="btn btn-primary mb-4" @click="submit()"></button>
+        <button id="upload-close" text="close" classes="btn btn-primary mb-4" @click="$emit('close')"></button>
         <div class="log">{{ log }}</div>
       </form>
     </div>

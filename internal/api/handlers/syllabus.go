@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/mail"
 	"strconv"
+	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
@@ -66,6 +67,9 @@ func NewSyllabus(c *gin.Context) {
 		zero.Errorf("error parsing form: %v", err)
 		return
 	}
+
+	syll.CreatedAt = time.Now()
+	syll.UpdatedAt = time.Now()
 
 	syll, err = models.AddNewSyllabus(&syll)
 	if err != nil {
@@ -139,6 +143,8 @@ func UpdateSyllabus(c *gin.Context) {
 		return
 	}
 
+	syll.UpdatedAt = time.Now()
+
 	_, err = models.UpdateSyllabus(id, &syll)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -207,7 +213,6 @@ func DisplayMagicLink(c *gin.Context) {
 	}
 
 	token := c.Query("token")
-	fmt.Println(id)
 	if id == 0 || token == "" {
 		c.HTML(http.StatusBadRequest, "Error", gin.H{
 			"msg": "The ID of the resource you're asking for is invalid.",

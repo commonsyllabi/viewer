@@ -36,7 +36,12 @@ func HandleMagicLink(c *gin.Context) {
 
 	hasher := sha256.New()
 	hasher.Write([]byte(syll.Title))
-	token := models.MagicToken{Token: hasher.Sum(nil), SyllabusTokenID: syll.ID}
+	token := models.MagicToken{
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+		Token:           hasher.Sum(nil),
+		SyllabusTokenID: syll.ID,
+	}
 	token, err = models.AddNewToken(&token)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
