@@ -8,9 +8,16 @@
                 </div>
                 <div class="body">
                     <p>
-                        A Common Cartridge file represents learning materials. Lorem ipsum dolor sit amet consectetur
-                        adipisicing elit. Iusto tempora dolore eveniet itaque? Dolore rem accusamus obcaecati distinctio
-                        nisi aliquam, soluta iure, a molestias dolores laborum deleniti ducimus nostrum architecto!</p>
+                        Package for parsing IMSCC-compliant files. A Common Cartridge is a set of standards used to
+                        export and import data from learning management systems such as Moodle, Canvas, Brightspace,
+                        Sakai, etc.</p>
+                    <p>Common Cartridge basically solves two problems. The first is to provide a standard way to
+                        represent digital course materials for use in online learning systems so that such content can
+                        be developed in one format and used across a wide variety of learning systems. The second is to
+                        enable new publishing models for online course materials and digital books that are modular,
+                        web-distributed, interactive, and customizable.</p>
+                    <p>It is developped by the <a href="https://www.imsglobal.org/activity/common-cartridge"
+                            target="_blank" rel="noopener noreferrer">IMS consortium</a>.</p>
                 </div>
             </div>
             <div class="column">
@@ -19,14 +26,18 @@
                 </div>
                 <div class="body">
                     <p>
-                        This viewer allows you to unfold and download resources from your course. Lorem ipsum dolor sit
-                        amet, consectetur adipisicing elit. Sit aspernatur nam ut ipsa magni saepe sunt voluptas nisi
-                        obcaecati mollitia pariatur dolorum facere enim cumque, sint quibusdam consectetur! Quaerat,
-                        ullam.</p>
-                        <p>
-                            View this <a href="http://commonsyllabi.org" target="_blank" rel="noopener noreferrer">Common Syllabi</a> project on <a href="http://github.com/commonsyllabi/viewer" target="_blank" rel="noopener noreferrer">GitHub</a>.
-                        </p>
-                        <p>Funded by <a href="https://www.bmbf.de/bmbf/de/home/home_node.html" target="_blank" rel="noopener noreferrer">Bundesministerium für Bildung unf Forschung</a> via the <a href="http://prototypefund.de" target="_blank" rel="noopener noreferrer">Prototype Fund</a>.</p>
+                        This viewer allows you to unfold your course, inspects its elements and download individual
+                        resources, without having to sift through machine-generated names. Beyond this individual use,
+                        you can also upload the cartridge to the public repo, and make it available to all.</p>
+                    <p>
+                        View this <a href="http://commonsyllabi.org" target="_blank" rel="noopener noreferrer">Common
+                            Syllabi</a> project on <a href="https://github.com/commonsyllabi/commoncartridge"
+                            target="_blank" rel="noopener noreferrer">GitHub</a>.
+                    </p>
+                    <p>Funded by <a href="https://www.bmbf.de/bmbf/de/home/home_node.html" target="_blank"
+                            rel="noopener noreferrer">Bundesministerium für Bildung und Forschung</a> via the <a
+                            href="http://prototypefund.de" target="_blank" rel="noopener noreferrer">Prototype Fund</a>.
+                    </p>
                 </div>
             </div>
             <div class="column">
@@ -35,9 +46,21 @@
                 </div>
                 <div class="body">
                     <p>
-                        We only store your email address in order to access your cartridge. Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. Est vel doloremque, suscipit accusantium dicta nemo? Natus tempora
-                        dolor modi rerum cumque fuga dignissimos laboriosam, enim corporis sequi. Culpa, sequi at!</p>
+                        We only store your email address in order to access your cartridge. Since we do not send any
+                        spontaneous emails, your email is encrypted before it is stored.
+                    </p>
+                    <p>
+                        If you would like to request the takedown of a cartridge, you have two solutions:
+                    <ol>
+                        <li>You can submit your email address on the cartridge page. If it matches the one we have on
+                            record—that is, the one you used when you first upload your cartridge—you will receive an
+                            email with a link to delete the cartridge.</li>
+                        <li>If you do not remember the email you used when you uploaded the syllabus, or if someone has
+                            uploaded a course which you have claims to, please reach out to <a
+                                href="mailto:admin@commonsyllabi.org">admin@commonsyllabi.org</a> with the link of the
+                            cartridge, and we will address the issue as soon as possible.</li>
+                    </ol>
+                    </p>
                 </div>
             </div>
         </div>
@@ -58,19 +81,25 @@ main {
     flex-direction: column;
 }
 
-.description{
+.description {
     margin: auto;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
 }
 
-.column{
+.column {
     width: 28%;
 }
 
-.header{
+.header {
     font-size: 1.5em;
     margin-bottom: 1em;
+}
+
+.body {
+    a {
+        color: black
+    }
 }
 </style>
