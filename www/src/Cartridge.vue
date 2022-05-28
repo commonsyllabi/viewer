@@ -3,7 +3,7 @@
   <main class="container p-3">
 
     <!-- upload form -->
-    <div class="container pt-4 mb-3 w-50 rounded upload-box" v-if="!isUploaded">
+    <div class="container pt-4 mb-3 w-50 rounded upload-box" v-show="!isUploaded">
       <form id="upload-form" action="/api/upload" method="post">
         <div class="form-group">
           <div class="upload-icon w-25">
@@ -244,17 +244,17 @@ onMounted(() => {
     upload()
   }
 
-  isUploaded.value = true;
+  // isUploaded.value = true;
 
-  Object.assign(manifest, JSON.parse(stub.data))
-  Object.assign(items, JSON.parse(stub.items))
-  syllabus.title = "Loaded course"
-  syllabus.description = "Sample description lorem ipsum dolores sit amet"
-  cartridge.name = "test_01.imscc"
+  // Object.assign(manifest, JSON.parse(stub.data))
+  // Object.assign(items, JSON.parse(stub.items))
+  // syllabus.title = "Loaded course"
+  // syllabus.description = "Sample description lorem ipsum dolores sit amet"
+  // cartridge.name = "test_01.imscc"
 
-  for (let r of JSON.parse(stub.resources)) {
-    resources.push(r.Resource);
-  }
+  // for (let r of JSON.parse(stub.resources)) {
+  //   resources.push(r.Resource);
+  // }
 });
 
 
@@ -279,16 +279,15 @@ onMounted(() => {
   align-items: center;
 }
 
-.cc-btn {
+.cc-btn, .cc-btn:hover {
   border-radius: 25px;
   background-color: white;
   color: black;
+  border-color: black;
 }
 
 .cc-btn:hover {
-  background-color: white;
-  color: black;
-  font-weight: bold;
+  text-decoration: underline;
 }
 
 .file-name {

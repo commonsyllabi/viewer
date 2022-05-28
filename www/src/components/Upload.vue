@@ -12,7 +12,7 @@
       <p>
         <b>Please verify that the email address that you enter here is correct, and that you have access to it.</b>
       </p>
-      <form id="submit-form" action="/syllabi/" method="POST">
+      <form id="submit-form" action="/syllabi/" method="POST" v-show="!isSubmitted">
         <div>
           <label class="w-100 visually-hidden" for="title">Title of the course</label>
           <input class="text-input mb-2 w-50 visually-hidden" type="text" name="title" id="title" v-model="title" />
@@ -39,11 +39,11 @@
 
         <div class="buttons">
           <button id="upload-close" text="close" class="close-btn" @click="$emit('close')">close</button>
-          <button id="course-submit" text="submit" class="btn btn-primary mb-4 cc-btn" @click="submit()">upload</button>
+          <button id="course-submit" text="submit" class="btn btn-primary mb-4 cc-btn"
+            @click.prevent="submit()">upload</button>
         </div>
-
-        <div class="log">{{ log }}</div>
       </form>
+      <div class="log" id="submit-log">{{ log }}</div>
     </div>
 
   </div>
@@ -58,6 +58,7 @@ defineProps<{
   description: String
 }>();
 
+const isSubmitted = ref(false)
 const email = ref("")
 
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
@@ -75,7 +76,6 @@ let submit = () => {
 
   const formElem = document.getElementById("submit-form") as HTMLFormElement;
   const formData = new FormData(formElem);
-
 
   formData.set('attachments[]', pformData.get('cartridge') as FormDataEntryValue)
   formData.forEach((v, k) => {
@@ -97,7 +97,8 @@ let submit = () => {
     })
     .then(data => {
       console.log(data)
-      log.value = "submitted syllabus!"
+      isSubmitted.value = true
+      log.value = "Thank you! Your cartridge was submitted successfully."
     })
 }
 
