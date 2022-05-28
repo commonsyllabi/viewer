@@ -7,11 +7,34 @@ const props = defineProps<{
 </script>
 
 <template>
-  <h4>LTI</h4>
-  <div>{{ props.lti.Title }}</div>
-  <div>{{ props.lti.Description }}</div>
-  <div>{{ props.lti.LaunchURL }}</div>
-  <div>{{ props.lti.SecureLaunchURL }}</div>
+  <div class="lti">
+    <div class="lti-name p-1 rounded-bottom">LTI - learning tools interop</div>
+    <div class="meta p-1">
+      <div class="title">{{ props.lti.Title }}</div>
+      <div class="text">{{ props.lti.Description }}</div>
+      <div class="launch-url">{{ props.lti.LaunchURL }}</div>
+      <div class="launch-url-secure">{{ props.lti.SecureLaunchURL }}</div>
+    </div>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.lti {
+  border: 2px solid lightgray;
+}
+
+.lti-name {
+  background-color: lightgray;
+  color: white;
+  width: max-content;
+  font-size: 0.8em;
+}
+
+.title {
+  font-size: 0.9em;
+}
+
+.text {
+  font-size: 0.8em;
+}
+</style>

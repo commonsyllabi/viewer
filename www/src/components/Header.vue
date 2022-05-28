@@ -26,6 +26,7 @@ header {
 
     a:hover {
         text-decoration: underline;
+        color: black;
     }
 }
 
@@ -33,7 +34,7 @@ header {
     font-weight: bold;
     font-size: 1.9em;
 
-    a {
+    a, a:hover {
         color: black;
         text-decoration: none;
     }

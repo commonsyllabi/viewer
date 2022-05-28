@@ -7,7 +7,7 @@
       <form id="upload-form" action="/api/upload" method="post">
         <div class="form-group">
           <div class="upload-icon w-25">
-            <img src="assets/upload.svg" alt="upload icon" class="w-100">
+            <img src="./assets/upload.svg" alt="upload icon" class="w-100">
           </div>
           <label for="cartridgeInput" class="d-block h5 mb-3">Upload a common cartridge (.imscc) file</label>
           <input id="upload-file" type="file" name="cartridge" class="form-control-file d-block mb-2 visually-hidden" />
@@ -55,14 +55,16 @@
 
 
 
-      <div class="container row mb-5 cartridge-viewer">
-        <!-- file navigator -->
-        <div class="col-4 h-100" v-if="showMetadata">
+      <div class="row mb-5 cartridge-viewer">
+
+        <!-- metadata and items -->
+        <div class="col-4 h-100 mb-1" v-if="showMetadata">
+
           <!-- metadata viewer -->
-          <div class="mb-3 border overflow-scroll h-50">
+          <div class="metadata-panel h-50 d-flex flex-column">
             <h6 class="my-2">Cartridge metadata</h6>
             <!-- file metadata placeholder -->
-            <div class="metadata-placeholder">
+            <div class="metadata-container border rounded p-2 overflow-scroll flex-grow-1">
               <div class="metadata-element">
                 <div class="legend">file name</div>
                 <div>{{ cartridge.name }}</div>
@@ -95,24 +97,28 @@
             </div>
           </div>
           <!-- items panel -->
-          <div class="overflow-scroll border items-panel h-50">
+          <div class="items-panel h-50 d-flex flex-column">
             <h6 class="my-2">Items in Index</h6>
 
             <!-- items listing -->
-            <div v-for="i in items" :key="i.Item.Identifier">
-              <Item :item="i" :cartridge="cartridge.name" />
-              <hr />
+            <div class="metadata-container border rounded p-2 overflow-scroll flex-grow-1">
+              <div v-for="i in items" :key="i.Item.Identifier">
+                <Item :item="i" :cartridge="cartridge.name" />
+                <hr />
+              </div>
             </div>
+
           </div>
         </div>
 
         <!-- resources panel -->
-        <div class="col border overflow-scroll resources-panel">
+        <div class="col resources-panel h-100 d-flex flex-column">
           <h6 class="my-2">Resources in Cartridge</h6>
-
-          <!-- resources listing -->
-          <div v-for="r in resources" :key="r.Identifier" class>
-            <Resource :resource="r" :cartridge="cartridge.name" />
+          <div class="resources-container border rounded overflow-scroll flex-grow-1">
+            <!-- resources listing -->
+            <div v-for="r in resources" :key="r.Identifier" class>
+              <Resource :resource="r" :cartridge="cartridge.name" />
+            </div>
           </div>
         </div>
       </div>
@@ -289,11 +295,11 @@ onMounted(() => {
   color: lightgray;
 }
 
-.metadata-element{
+.metadata-element {
   padding-bottom: 10px;
   font-size: 0.9em;
 
-  .legend{
+  .legend {
     color: grey;
   }
 }
