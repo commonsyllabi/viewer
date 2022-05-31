@@ -98,13 +98,18 @@ func NewSyllabus(c *gin.Context) {
 		}
 
 		attachment := models.Attachment{
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
 			Name:               f.Filename,
 			SyllabusAttachedID: syll.ID,
 			File:               bytes,
 			Type:               http.DetectContentType(bytes),
 		}
 
-		att, _ := models.AddNewAttachment(&attachment)
+		att, err := models.AddNewAttachment(&attachment)
+		if err != nil {
+			zero.Warnf("error adding attachment: %s", err)
+		}
 		attachments = append(attachments, att)
 	}
 
@@ -172,10 +177,11 @@ func GetSyllabus(c *gin.Context) {
 
 	syll, err := models.GetSyllabus(id)
 	if err != nil {
+		zero.Errorf("error getting syllabus %v: %s", id, err)
 		c.HTML(http.StatusOK, "Error", gin.H{
 			"msg": "We couldn't find the syllabus.",
 		})
-		zero.Errorf("error getting syllabus %d: %v", id, err)
+
 		return
 	}
 

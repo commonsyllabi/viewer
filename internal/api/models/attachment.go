@@ -13,14 +13,6 @@ type Attachment struct {
 	File               []byte    `bun:"file,notnull"`
 	Type               string    `bun:"type,notnull"`
 	SyllabusAttachedID int64     `yaml:"syllabus_attached_id"`
-	Syllabus           *Syllabus `bun:"rel:belongs-to,join:syllabus_attached_id=id"`
-}
-
-func CreateAttachmentsTable() error {
-	ctx := context.Background()
-	_, err := db.NewCreateTable().Model((*Attachment)(nil)).IfNotExists().Exec(ctx)
-
-	return err
 }
 
 func GetAllAttachments() ([]Attachment, error) {

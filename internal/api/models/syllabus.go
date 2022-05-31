@@ -13,7 +13,7 @@ type Syllabus struct {
 	Title         string        `bun:"title,notnull" form:"title" json:"title"`
 	Description   string        `form:"description" json:"description"`
 	Email         string        `bun:"email,notnull" form:"email" json:"email"`
-	Attachments   []*Attachment `bun:"rel:has-many"`
+	Attachments   []*Attachment `bun:"rel:has-many,join:id=syllabus_attached_id"`
 	ContributorID int64         `yaml:"contributor_id"`
 	Contributor   *Contributor  `bun:"rel:belongs-to,join:contributor_id=id"`
 }
@@ -49,7 +49,7 @@ func UpdateSyllabus(id int, syll *Syllabus) (Syllabus, error) {
 func GetSyllabus(id int) (Syllabus, error) {
 	ctx := context.Background()
 	var syll Syllabus
-	err := db.NewSelect().Model(&syll).Where("id = ?", id).Relation("Attachments").Scan(ctx)
+	err := db.NewSelect().Model(&syll).Relation("Attachments").Where("id = ?", id).Scan(ctx)
 	return syll, err
 }
 
