@@ -17,6 +17,14 @@
         </div>
       </form>
     </div>
+    
+      <div class="examples-dropdown m-auto" v-show="!isUploaded">
+        Or select an example from the list:
+        <select name="examples" id="examples" @change.prevent="loadExample($event)" @select.prevent="loadExample($event)">
+            <option value="" default>---</option>
+            <option value="0">Test File</option>
+        </select>
+      </div>
 
     <!-- upload modal -->
     <div class="modal" @keydown.esc="showUpload = false" tabindex="-1" v-if="showUpload">
@@ -24,12 +32,10 @@
         :description="manifest.Metadata.Lom.General.Description.String.Text" @close="showUpload = false"></Upload>
     </div>
 
-
     <!-- status log -->
     <!-- <div id="log" class="container py-1 mb-3">
       <pre>{{ log }}</pre>
     </div> -->
-
 
     <div v-if="isUploaded" class="container cartridge">
       <div class="metadata">
@@ -49,11 +55,9 @@
         <button type="button" class="action" @click="showMetadata = !showMetadata">{{
             showMetadata ? "hide metadata & index" : "show metadata & index"
         }}</button>
-        <button type="button" class="action" @click="reset()">load another file</button>
-        <button id="show-upload" type="button" class="action" @click="showModal()">upload this file</button>
+        <button id="reset-upload" type="button" class="action" @click="reset()">load another file</button>
+        <button id="show-upload" type="button" class="action" @click="showModal()" v-if="!isExample">upload this file</button>
       </div>
-
-
 
       <div class="row mb-5 cartridge-viewer">
 
@@ -72,27 +76,27 @@
 
               <div class="metadata-element">
                 <div class="legend">schema</div>
-                <div>IMS CC</div>
+                <div>{{ manifest.Metadata.Schema }}</div>
               </div>
 
               <div class="metadata-element">
                 <div class="legend">schema version</div>
-                <div>1.3</div>
+                <div>{{ manifest.Metadata.Schemaversion }}</div>
               </div>
 
               <div class="metadata-element">
                 <div class="legend">role</div>
-                <div>educator</div>
+                <div>{{ manifest.Metadata.Lom.LifeCycle.Contribute.Entity }} - {{ manifest.Metadata.Lom.LifeCycle.Contribute.Role }}</div>
               </div>
 
               <div class="metadata-element">
                 <div class="legend">copyright</div>
-                <div>all rights reserved</div>
+                <div>{{ manifest.Metadata.Lom.Rights.Description }}</div>
               </div>
 
               <div class="metadata-element">
                 <div class="legend">language</div>
-                <div>en-US</div>
+                <div>{{ manifest.Metadata.Lom.General.Language }}</div>
               </div>
             </div>
           </div>
@@ -158,6 +162,7 @@ let showUpload = ref(false);
 
 let log = ref("ready");
 let isUploaded = ref(false);
+let isExample = ref(false);
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
 
 let selectFile = () => {
@@ -212,6 +217,10 @@ let reset = () => {
   isUploaded.value = false
   showMetadata.value = false
 
+  isExample.value = false
+  let examples = document.getElementById("examples") as HTMLSelectElement
+  examples.selectedIndex = 0
+
   items.length = 0
   resources.length = 0
 
@@ -224,6 +233,31 @@ let showModal = () => {
     let md = document.getElementById("modal-dialog") as HTMLElement
     md.focus()
   }, 100);
+}
+
+let loadExample = (_evt : Event) => {
+  let v = parseInt((<HTMLInputElement>_evt.target).value)
+  console.log(v);
+  
+  if(isNaN(v) || v >= stub.length){
+    console.log(`attempting to get #${v} from examples, ${stub.length} available.`);
+    
+    return
+  }
+  
+  isUploaded.value = true;
+  isExample.value = true
+
+  Object.assign(manifest, JSON.parse(stub[v].data))
+  Object.assign(items, JSON.parse(stub[v].items))
+
+  syllabus.title = manifest.Metadata.Lom.General.Title.String.Text
+  syllabus.description = manifest.Metadata.Lom.General.Description.String.Text
+  cartridge.name = "example cartridge"
+
+  for (let r of JSON.parse(stub[v].resources)) {
+    resources.push(r.Resource);
+  }
 }
 
 onMounted(() => {
@@ -243,18 +277,6 @@ onMounted(() => {
 
     upload()
   }
-
-  // isUploaded.value = true;
-
-  // Object.assign(manifest, JSON.parse(stub.data))
-  // Object.assign(items, JSON.parse(stub.items))
-  // syllabus.title = "Loaded course"
-  // syllabus.description = "Sample description lorem ipsum dolores sit amet"
-  // cartridge.name = "test_01.imscc"
-
-  // for (let r of JSON.parse(stub.resources)) {
-  //   resources.push(r.Resource);
-  // }
 });
 
 
@@ -277,6 +299,17 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.examples-dropdown{
+  width: fit-content;
+
+  select{
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 25px;
+    padding: 5px;
+  }
 }
 
 .cc-btn, .cc-btn:hover {

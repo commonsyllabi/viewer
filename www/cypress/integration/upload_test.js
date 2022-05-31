@@ -37,4 +37,19 @@ describe('Cartridge page', () => {
     cy.wait("@submitCartridge")
     cy.get("#submit-log").contains("success")
   })
+
+  it('selects an example', () => {
+    cy.visit('/cartridge.html')
+
+    cy.get("#examples").select('0')
+
+    cy.get("div.title").first().contains("Loaded Course")
+    cy.get("#course-submit").should('not.exist')
+  })
+
+  it('resets the example', () => {
+    cy.get("#reset-upload").click()
+    cy.get("#examples").should('exist')
+    cy.get("div.title").should('not.exist')
+  })
 });
