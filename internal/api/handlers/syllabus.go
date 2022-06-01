@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/mail"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
@@ -168,10 +169,17 @@ func UpdateSyllabus(c *gin.Context) {
 }
 
 func GetSyllabus(c *gin.Context) {
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		zero.Errorf("not a valid id %d", id)
+		return
+	}
+
+	if !strings.Contains(c.GetHeader("Content-Type"), "application/json") && gin.Mode() != gin.TestMode {
+
+		c.HTML(http.StatusOK, "Syllabus", id)
 		return
 	}
 
@@ -195,15 +203,9 @@ func GetSyllabus(c *gin.Context) {
 	// nice separation of response body https://stackoverflow.com/a/56722847/4665412
 	if c.GetHeader("Content-Type") == "application/json" {
 		c.JSON(http.StatusOK, string(bytes))
-	} else {
-		if gin.Mode() == gin.TestMode {
-			c.JSON(http.StatusOK, string(bytes))
-			return
-		} else {
-			c.HTML(http.StatusOK, "Syllabus", syll)
-			return
-		}
-
+	} else if gin.Mode() == gin.TestMode {
+		c.JSON(http.StatusOK, string(bytes))
+		return
 	}
 
 }

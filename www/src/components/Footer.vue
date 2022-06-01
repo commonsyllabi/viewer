@@ -1,11 +1,10 @@
 <template>
     <footer class="container bottom">
         <div class="copyright">
- 	&#169; 2022 - GPL3
+ 	&#169; 2022 - GPLv3
         </div>
         <div class="authors">
-            <div class="author">@periode</div>
-            <div class="author">@patshiu</div>
+            <a href="http://commonsyllabi.org" target="_blank" rel="noopener noreferrer">Common Syllabi</a>
         </div>
     </footer>
 </template>
@@ -14,7 +13,7 @@
     
 </script>
 
-<style>
+<style lang="scss" scoped>
     footer {
         position: relative;
         bottom: 0;
@@ -22,6 +21,16 @@
         display: flex;
         justify-content: center;
         border-top: 1px solid lightgray;
+
+        a{
+            color: black;
+            text-decoration: none;
+        }
+
+        a:hover{
+            color: black;
+            text-decoration: underline;
+        }
     }
 
     .copyright, .authors{
@@ -36,6 +45,4 @@
     .author{
         margin-right: 1rem;
     }
-
-    
 </style>
