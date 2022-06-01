@@ -91,7 +91,7 @@
 
               <div class="metadata-element">
                 <div class="legend">copyright</div>
-                <div>{{ manifest.Metadata.Lom.Rights.Description }}</div>
+                <div>{{ manifest.Metadata.Lom.Rights.Description.String }}</div>
               </div>
 
               <div class="metadata-element">
