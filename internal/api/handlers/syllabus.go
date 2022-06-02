@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -14,7 +15,6 @@ import (
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func AllSyllabi(c *gin.Context) {
@@ -53,14 +53,9 @@ func NewSyllabus(c *gin.Context) {
 	}
 
 	//-- hash the email
-	hashed, err := bcrypt.GenerateFromPassword([]byte(syll.Email), bcrypt.DefaultCost)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Errorf("error hashing email: %v", err)
-		return
-	}
-
-	syll.Email = string(hashed)
+	hasher := sha256.New()
+	hasher.Write([]byte(syll.Email))
+	syll.Email = base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -229,15 +224,6 @@ func DisplayMagicLink(c *gin.Context) {
 		return
 	}
 
-	syll, err := models.GetSyllabus(id)
-	if err != nil {
-		c.HTML(http.StatusInternalServerError, "Error", gin.H{
-			"msg": "We could not find the syllabus you are looking for.",
-		})
-		zero.Warnf("error getting syllabus: %v", err)
-		return
-	}
-
 	magic_token, err := models.GetTokenSyllabus(id)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "Error", gin.H{
@@ -250,6 +236,15 @@ func DisplayMagicLink(c *gin.Context) {
 	if token == base64.URLEncoding.EncodeToString(magic_token.Token) {
 		if gin.Mode() == gin.TestMode {
 			c.JSON(http.StatusOK, token)
+			return
+		}
+
+		syll, err := models.GetSyllabus(id)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "Error", gin.H{
+				"msg": "We could not find the syllabus you are looking for.",
+			})
+			zero.Warnf("error getting syllabus: %v", err)
 			return
 		}
 

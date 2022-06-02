@@ -26,7 +26,7 @@
                 <form action="/api/magic-link" method="POST" id="request-email">
                     <input name="email" type="email" v-model="email" autocomplete="email" />
                     <input type="number" name="id" v-model="syllabus.id" hidden />
-                    <button @click="submit()" type="button" class="btn cc-btn">Request</button>
+                    <button @click="submit()" type="button" class="btn cc-btn" :disabled="isSending">Request</button>
                 </form>
                 <div class="log">{{ log }}</div>
             </div>
@@ -49,6 +49,7 @@ import Header from './components/Header.vue';
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
 const email = ref("")
 const log = ref("")
+const isSending = ref(false)
 
 const syllabus = reactive({
     id: "",
@@ -68,6 +69,7 @@ let submit = () => {
         return
 
     log.value = `Sending email to: ${email.value}`
+    isSending.value = true
     fetch("/api/magic-link", {
         body: formData,
         method: "POST"
@@ -75,10 +77,14 @@ let submit = () => {
         .then(res => {
             if (res.ok)
                 log.value = `Sent email to: ${email.value}. Check your inbox!`
+            else
+                log.value = `The email entered doesn't match the one on record. Please check and try again.`
         })
         .catch(err => {
             log.value = `There was an error verifying your email.`
             console.error(err)
+        }).finally(() => {
+            isSending.value = false
         })
 }
 
@@ -142,5 +148,9 @@ onMounted(() => {
 
 .cc-btn:hover {
     text-decoration: underline;
+}
+
+.cc-btn:disabled{
+    opacity: 0.6;
 }
 </style>
