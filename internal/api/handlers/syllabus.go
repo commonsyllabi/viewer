@@ -248,7 +248,7 @@ func DisplayMagicLink(c *gin.Context) {
 			return
 		}
 
-		c.HTML(http.StatusOK, "MagicSyllabus", syll)
+		c.HTML(http.StatusOK, "MagicLink", syll)
 	} else {
 		c.HTML(http.StatusForbidden, "Error", gin.H{
 			"msg": "You're trying to access a protected resource.",
