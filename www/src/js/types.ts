@@ -44,10 +44,12 @@ export interface ManifestType {
             DateTime: ""
           };
           Entity: {
-            Text: ""
+            Text: "",
+            String: ""
           },
           Role: {
-            Text: ""
+            Text: "",
+            String: ""
           }
         }
       };

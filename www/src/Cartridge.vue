@@ -22,7 +22,9 @@
         Or select an example from the list:
         <select name="examples" id="examples" @change.prevent="loadExample($event)" @select.prevent="loadExample($event)">
             <option value="" default>---</option>
-            <option value="0">Test File</option>
+            <option value="0">IMSCC - Test File</option>
+            <option value="1">Liz Falconer - Computers, Canvas and Community</option>
+            <option value="2">Openmed - Intro to Chemistry</option>
         </select>
       </div>
 
@@ -86,7 +88,7 @@
 
               <div class="metadata-element">
                 <div class="legend">role</div>
-                <div>{{ manifest.Metadata.Lom.LifeCycle.Contribute.Entity }} - {{ manifest.Metadata.Lom.LifeCycle.Contribute.Role }}</div>
+                <div>{{ manifest.Metadata.Lom.LifeCycle.Contribute.Entity.String }} - {{ manifest.Metadata.Lom.LifeCycle.Contribute.Role.String }}</div>
               </div>
 
               <div class="metadata-element">
@@ -116,7 +118,7 @@
         </div>
 
         <!-- resources panel -->
-        <div class="col resources-panel h-100 d-flex flex-column">
+        <div class="col-8 resources-panel h-100 d-flex flex-column">
           <h6 class="my-2">Resources in Cartridge</h6>
           <div class="resources-container border rounded overflow-scroll flex-grow-1">
             <!-- resources listing -->
@@ -201,8 +203,6 @@ let upload = function () {
       for (let r of JSON.parse(data.resources)) {
         resources.push(r.Resource);
       }
-
-      console.log(manifest, items, resources)
 
       syllabus.title = manifest.Metadata.Lom.General.Title.String.Text
       syllabus.description = manifest.Metadata.Lom.General.Description.String.Text
