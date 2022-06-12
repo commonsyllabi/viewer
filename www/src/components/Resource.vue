@@ -40,6 +40,7 @@
             <div v-if="previewPath != ''" class="preview">
               <iframe :src="previewPath" frameborder="0" />
             </div>
+            <a v-if="previewPath != ''" :href="previewPath" download>download</a>
           </li>
         </ol>
       </div>
