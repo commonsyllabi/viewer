@@ -19,7 +19,6 @@ describe('Cartridge page', () => {
     cy.visit('/cartridge.html')
 
     cy.get("#upload-file").selectFile("cypress/fixtures/test_01.imscc", { force: true });
-    cy.get("#upload-submit").click();
     cy.wait("@uploadCartridge");
 
     cy.get("div.title").first().contains("Loaded Course")
