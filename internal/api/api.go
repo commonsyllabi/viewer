@@ -40,6 +40,21 @@ func StartServer(port string, debug bool, c Config) error {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	err := os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.UploadsDir), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = copySampleFiles()
+	if err != nil {
+		return err
+	}
+
 	router, err := setupRouter()
 	if err != nil {
 		return err
@@ -80,16 +95,6 @@ func setupRouter() (*gin.Engine, error) {
 	router.LoadHTMLGlob(conf.TemplatesDir + "/*")
 
 	err := os.MkdirAll(conf.TmpDir, os.ModePerm)
-	if err != nil {
-		return router, err
-	}
-
-	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
-	if err != nil {
-		return router, err
-	}
-
-	err = os.MkdirAll(filepath.Join(conf.TmpDir, conf.UploadsDir), os.ModePerm)
 	if err != nil {
 		return router, err
 	}
@@ -353,4 +358,24 @@ func handleUpload(c *gin.Context) {
 		"items":     string(sfi),
 		"resources": string(sfr),
 	})
+}
+
+func copySampleFiles() error {
+	samples := []string{"test_01.imscc", "OpenMed-English-IMSCC1-3-Canvas-sakai-export.imscc", "Falconer_Liz-Computers_Canvas_Community-941267a5971248daa62d3196014d1e65.zip"}
+
+	for _, v := range samples {
+		f, err := ioutil.ReadFile(filepath.Join("/app/samples", v))
+
+		if err != nil {
+			return err
+		}
+
+		err = ioutil.WriteFile(filepath.Join(conf.TmpDir, conf.UploadsDir, v), f, 0644)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

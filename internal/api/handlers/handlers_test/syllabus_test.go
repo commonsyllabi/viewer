@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const singleTestFile = "../../../../tests/test_01.imscc"
+const singleTestFile = "../../../../tests/samples/test_01.imscc"
 
 var syllabusID string
 

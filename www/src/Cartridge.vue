@@ -237,7 +237,6 @@ let showModal = () => {
 
 let loadExample = (_evt : Event) => {
   let v = parseInt((<HTMLInputElement>_evt.target).value)
-  console.log(v);
   
   if(isNaN(v) || v >= stub.length){
     console.log(`attempting to get #${v} from examples, ${stub.length} available.`);
@@ -253,7 +252,7 @@ let loadExample = (_evt : Event) => {
 
   syllabus.title = manifest.Metadata.Lom.General.Title.String.Text
   syllabus.description = manifest.Metadata.Lom.General.Description.String.Text
-  cartridge.name = "example cartridge"
+  cartridge.name = stub[v].cartridge
 
   for (let r of JSON.parse(stub[v].resources)) {
     resources.push(r.Resource);
