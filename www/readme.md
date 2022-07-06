@@ -14,8 +14,14 @@ This runs the Go backend, loading environment variables from the `.env` file wit
 - `DATABASE_URL`, full string to connect to database, default to `postgres://cosyl:cosyl@localhost:5432/cosyl`, varies depending on local dev, docker or deployed.
 - `DATABASE_TEST_URL`, full string to connect to test database, default to `postgres://cosyl:cosyl@localhost:5432/test`, only the database name changes to `test`.
 - `DEBUG`, set to `true` or `false`.
-- `GIN_MODE`, set to `debug`, `production`, `test`
+- `postgres://cosyl:cosyl@localhost:5432/test`, set to `debug`, `production`, `test`
+- `DB_PORT`, defaults to 5432, set to 5433 if running with docker
 
+Alternatively, start everything with docker:
+
+```
+docker compose up
+```
 
 ### To start the frontend:
 
@@ -29,14 +35,13 @@ yarn dev
 
 This would start site on `localhost:3000`, and has hot-reload enabled.
 
-To work on the server-side pages, you can run 
+To work on the server-side pages, you can run
 
 ```
 yarn watch
 ```
 
 This would make the files available to `localhost:{server_port}`, but doesn't have hot-reload enabled, since the HTML templates are rendered by the go app.
-
 
 ### To Test
 
@@ -79,8 +84,8 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [ "$current_branch" = "main" ]
 then
-	docker-compose -f docker-compose.test.yml --remove-orphans run backend_test 
-	docker-compose -f docker-compose.test.yml run docker-compose -f docker-compose.test.yml run frontend_test --remove-orphans frontend_test 
+	docker-compose -f docker-compose.test.yml --remove-orphans run backend_test
+	docker-compose -f docker-compose.test.yml run docker-compose -f docker-compose.test.yml run frontend_test --remove-orphans frontend_test
 else
 	echo "skipping tests... (not on main)"
 fi
@@ -93,7 +98,7 @@ The API connects to a Postgres database called `cosyl`, with username `cosyl` an
 
 `DB_HOST` is the hostname of where Postgres runs. Locally, this is `localhost`. When running with Docker, it's `db` (the `name` set in `docker-compose.yml`).
 
-If you change the username, password or db name, you need to make sure the new users and databases are created.  You can do it with `psql` locally, and by removing the data volume of the docker image, with
+If you change the username, password or db name, you need to make sure the new users and databases are created. You can do it with `psql` locally, and by removing the data volume of the docker image, with
 
 ```
 docker-compose down --volumes
