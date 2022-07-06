@@ -1,3 +1,54 @@
+<template>
+  <div class="single-resource m-1 p-1">
+    <div v-if="props.resource.XMLName.Local === 'assignment'">
+      <Assignment :assignment="resource" />
+    </div>
+
+    <div v-if="props.resource.XMLName.Local === 'topic'">
+      <DiscussionTopic :topic="resource" />
+    </div>
+
+    <div v-if="props.resource.XMLName.Local === 'webLink'">
+      <Weblink :weblink="resource" />
+    </div>
+
+    <div v-if="props.resource.XMLName.Local === 'questestinterop'">
+      <QTI :qti="resource" />
+    </div>
+
+    <div v-if="props.resource.XMLName.Local === 'cartridge_basiclti_link'">
+      <LTI :lti="resource" />
+    </div>
+
+    <div v-if="props.resource.XMLName.Local === 'resource'" class="resource">
+      <div class="resource-name p-1 rounded-bottom">
+        {{ props.resource.XMLName.Local }}
+      </div>
+      <div class="meta p-1">
+        <!-- {{ props.resource.Type }} -->
+        <div class="resource-id">{{ props.resource.Identifier }}
+        </div>
+      </div>
+
+      <div class="p-1" v-if="props.resource.File.length > 0">
+        <div>Files</div>
+        <ol class="resource-files">
+          <li v-for="f in props.resource.File">
+            <div class="resource-file" @click="getFile($event, props.resource.Identifier)">
+              {{ f.Href }}
+            </div>
+            <div v-if="previewPath != ''" class="preview">
+              <iframe :src="previewPath" frameborder="0" />
+            </div>
+            <a v-if="previewPath != ''" :href="previewPath" download>download</a>
+          </li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { ResourceType } from "../js/types";
@@ -37,72 +88,26 @@ function getFile(_evt: Event, _id: string) {
 }
 </script>
 
-<template>
-  <div>
-    <div v-if="props.resource.XMLName.Local === 'assignment'">
-      <Assignment :assignment="resource" />
-    </div>
+<style scoped lang="scss">
+.resource {
+  border: 2px solid #b2d88d;
+}
 
-    <div v-if="props.resource.XMLName.Local === 'topic'">
-      <DiscussionTopic :topic="resource" />
-    </div>
+.resource-name {
+  background-color: #b2d88d;
+  color: white;
+  width: max-content;
+  font-size: 0.8em;
+}
 
-    <div v-if="props.resource.XMLName.Local === 'webLink'">
-      <Weblink :weblink="resource" />
-    </div>
-
-    <div v-if="props.resource.XMLName.Local === 'questestinterop'">
-      <QTI :qti="resource" />
-    </div>
-
-    <div v-if="props.resource.XMLName.Local === 'cartridge_basiclti_link'">
-      <LTI :lti="resource" />
-    </div>
-
-    <div v-if="props.resource.XMLName.Local === 'resource'">
-      <div class="meta">
-        <div>
-          xml:
-          <span class="resource-value">{{ props.resource.XMLName.Local }}</span>
-        </div>
-        <div>
-          type:
-          <span class="resource-value">{{ props.resource.Type }}</span>
-        </div>
-        <div>
-          id:
-          <span class="resource-value">{{ props.resource.Identifier }}</span>
-        </div>
-      </div>
-
-      <ol class="resource-files">
-        <li v-for="f in props.resource.File">
-          <div
-            class="resource-file"
-            @click="getFile($event, props.resource.Identifier)"
-          >
-            {{ f.Href }}
-          </div>
-          <div
-            v-if="previewPath != ''"
-            class="preview"
-          >
-            <iframe
-              :src="previewPath"
-              frameborder="0"
-            />
-          </div>
-        </li>
-      </ol>
-    </div>
-  </div>
-</template>
-
-<style scoped>
 .meta {
   display: flex;
   flex-direction: column;
   font-size: 0.9em;
+}
+
+.resource-id {
+  color: lightgrey;
 }
 
 .resource-files {

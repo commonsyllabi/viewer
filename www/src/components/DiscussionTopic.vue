@@ -7,9 +7,33 @@ const props = defineProps<{
 </script>
 
 <template>
-  <h4>Discussion Topic</h4>
-  <div>{{ props.topic.Title }}</div>
-  <div>{{ props.topic.Text.Text }}</div>
+  <div class="discussion-topic">
+    <div class="discussion-topic-name p-1 rounded-bottom">Discussion Topic</div>
+    <div class="meta p-1">
+      <div class="title">{{ props.topic.Title }}</div>
+      <div class="text" v-html="props.topic.Text.Text"></div>
+    </div>
+  </div>
+
 </template>
 
-<style scoped></style>
+<style scoped>
+.discussion-topic {
+  border: 2px solid #cd794a;
+}
+
+.discussion-topic-name {
+  background-color: #cd794a;
+  color: white;
+  width: max-content;
+  font-size: 0.8em;
+}
+
+.title {
+  font-size: 0.9em;
+}
+
+.text {
+  font-size: 0.8em;
+}
+</style>

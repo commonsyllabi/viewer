@@ -1,32 +1,49 @@
 <template>
-  <div class="modal-dialog modal-dialog-centered" id="modal-dialog">
-    <div class="modal-content p-3">
-      <form id="submit-form" action="/syllabi/" method="POST">
+  <div class="modal-dialog modal-dialog-centered small modal-lg rounded" id="modal-dialog">
+    <div class="modal-content p-5">
+      <h5>Upload this cartridge to the public repo</h5>
+      <p>This cartridge will be viewable to others if you upload it to the public repo. Please only upload course
+        materials that you have authored or have the rights to.</p>
+      <p class="important">
+        Important
+      </p>
+      <p>You may delete your shared cartridge at any time <b>via the link that will be sent to your email</b> after the
+        upload.</p>
+      <p>
+        <b>Please verify that the email address that you enter here is correct, and that you have access to it.</b>
+      </p>
+      <form id="submit-form" action="/syllabi/" method="POST" v-show="!isSubmitted">
         <div>
-          <label for="title">Title of the course</label>
-          <input type="text" name="title" id="title" v-model="title" />
+          <label class="w-100 visually-hidden" for="title">Title of the course</label>
+          <input class="text-input mb-2 w-50 visually-hidden" type="text" name="title" id="title" v-model="title" />
         </div>
 
         <div>
-          <label for="description">Description of the course</label>
-          <input type="text" name="description" id="description" v-model="description" />
+          <label class="w-100 visually-hidden" for="description">Description of the course</label>
+          <input class="text-input mb-2 w-50 visually-hidden" type="text" name="description" id="description"
+            v-model="description" />
         </div>
 
         <div>
-          <label for="email">Email</label>
-          <input type="email" name="email" id="email" v-model="email" />
+          <label class="w-100" for="email">Email</label>
+          <input class="text-input mb-2 w-50" type="email" name="email" id="email" v-model="email" />
         </div>
 
         <div>
-          <label for="email">Confirm email</label>
-          <input type="email" name="email-conf" id="email-conf" />
+          <label class="w-100" for="email">Confirm email</label>
+          <input class="text-input mb-2 w-50" type="email" name="email-conf" id="email-conf" />
         </div>
 
+        <p>If you have any questions, you can email us at <a
+            href="mailto:admin@commonsyllabi.org">admin@commonsyllabi.org</a>.</p>
 
-        <uiButton id="course-submit" text="submit" classes="btn btn-primary mb-4" @click="submit()"/>
-        <uiButton id="button-submit" type="secondary" text="close" classes="btn btn-primary mb-4" @click="$emit('close')"/>
-        <div class="log">{{ log }}</div>
+        <div class="buttons">
+          <button id="upload-close" text="close" class="close-btn" @click="$emit('close')">close</button>
+          <button id="course-submit" text="submit" class="btn btn-primary mb-4 cc-btn"
+            @click.prevent="submit()">upload</button>
+        </div>
       </form>
+      <div class="log" id="submit-log">{{ log }}</div>
     </div>
 
   </div>
@@ -34,7 +51,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import uiButton from './ui/ui-button.vue'
 
 //props
 defineProps<{
@@ -42,6 +58,7 @@ defineProps<{
   description: String
 }>();
 
+const isSubmitted = ref(false)
 const email = ref("")
 
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
@@ -59,7 +76,6 @@ let submit = () => {
 
   const formElem = document.getElementById("submit-form") as HTMLFormElement;
   const formData = new FormData(formElem);
-
 
   formData.set('attachments[]', pformData.get('cartridge') as FormDataEntryValue)
   formData.forEach((v, k) => {
@@ -81,7 +97,8 @@ let submit = () => {
     })
     .then(data => {
       console.log(data)
-      log.value = "submitted syllabus!"
+      isSubmitted.value = true
+      log.value = "Thank you! Your cartridge was submitted successfully."
     })
 }
 
@@ -114,4 +131,42 @@ let validateSubmission = (_data: FormData) => {
 </script>
 
 <style lang="scss" scoped>
+a {
+  color: black;
+}
+
+.important {
+  color: red;
+  font-weight: bold;
+}
+
+.text-input {
+  border: 1px solid grey;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cc-btn {
+  border-radius: 25px;
+  border-color: black;
+  background-color: white;
+  color: black;
+}
+
+.cc-btn:hover {
+  background-color: white;
+  color: black;
+  font-weight: bold;
+}
+
+.close-btn {
+  border: none;
+  background-color: white;
+  color: black;
+  text-decoration: underline;
+}
 </style>

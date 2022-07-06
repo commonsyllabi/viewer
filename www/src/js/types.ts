@@ -26,6 +26,7 @@ export interface ManifestType {
   Metadata: {
     Lom: {
       General: {
+        Language: ""
         Title: {
           String: {
             Text: "";
@@ -37,7 +38,32 @@ export interface ManifestType {
           }
         }
       };
+      LifeCycle: {
+        Contribute: {
+          Date: {
+            DateTime: ""
+          };
+          Entity: {
+            Text: "",
+            String: ""
+          },
+          Role: {
+            Text: "",
+            String: ""
+          }
+        }
+      };
+      Rights: {
+        CopyrightAndOtherRestrictions: {
+          Value: ""
+        };
+        Description: {
+        String: ""
+        }
+      }
     };
+    Schema: "",
+    Schemaversion: ""
   };
 }
 

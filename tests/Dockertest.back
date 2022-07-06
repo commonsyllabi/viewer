@@ -2,6 +2,7 @@ FROM node:16-alpine as node
 
 RUN mkdir /dist
 COPY ./www/package.json /dist/package.json
+COPY ./www/yarn.lock /dist/yarn.lock
 WORKDIR /dist
 RUN yarn
 COPY ./www /dist
@@ -11,16 +12,17 @@ FROM golang:1.18 AS go
 RUN apt update -y && apt install libreoffice -y
 
 RUN mkdir /app
-COPY pkg /app/pkg
-COPY cmd /app/cmd
+COPY tests/test_01.imscc /app/tests/test_01.imscc
 COPY go.mod /app
 COPY go.sum /app
+WORKDIR /app
+RUN go mod download
 
+COPY cmd /app/cmd
 COPY internal /app/internal
 
-WORKDIR /app
 COPY --from=node /dist/public/ ./www/public
-RUN go mod download
+
 RUN chmod -R a+rwX /app
 ENV CGO_ENABLED=0
 RUN mkdir -p /go/tmp

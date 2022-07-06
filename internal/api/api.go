@@ -18,11 +18,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/commonsyllabi/commoncartridge"
 	"github.com/commonsyllabi/viewer/internal/api/handlers"
 	"github.com/commonsyllabi/viewer/internal/api/mailer"
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
-	"github.com/commonsyllabi/viewer/pkg/commoncartridge"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -146,11 +146,19 @@ func setupRouter() (*gin.Engine, error) {
 		attachments.DELETE("/:id", handlers.DeleteAttachment)
 	}
 
+	router.Use(handleNotFound)
+
 	return router, nil
 }
 
 func handlePing(c *gin.Context) {
 	c.String(200, "pong")
+}
+
+func handleNotFound(c *gin.Context) {
+	c.HTML(http.StatusOK, "Error", gin.H{
+		"msg": "We couldn't find the requested resource, sorry :(.",
+	})
 }
 
 // handleFile takes a file ID and a given cartridge as query parameter, and returns a file stream

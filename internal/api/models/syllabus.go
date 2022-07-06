@@ -3,14 +3,17 @@ package models
 
 import (
 	"context"
+	"time"
 )
 
 type Syllabus struct {
+	CreatedAt     time.Time     `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt     time.Time     `bun:",nullzero,notnull,default:current_timestamp"`
 	ID            int64         `bun:"id,pk,autoincrement"`
-	Title         string        `form:"title" json:"title"`
+	Title         string        `bun:"title,notnull" form:"title" json:"title"`
 	Description   string        `form:"description" json:"description"`
-	Email         string        `form:"email" json:"email"`
-	Attachments   []*Attachment `bun:"rel:has-many"`
+	Email         string        `bun:"email,notnull" form:"email" json:"email"`
+	Attachments   []*Attachment `bun:"rel:has-many,join:id=syllabus_attached_id"`
 	ContributorID int64         `yaml:"contributor_id"`
 	Contributor   *Contributor  `bun:"rel:belongs-to,join:contributor_id=id"`
 }
@@ -46,7 +49,7 @@ func UpdateSyllabus(id int, syll *Syllabus) (Syllabus, error) {
 func GetSyllabus(id int) (Syllabus, error) {
 	ctx := context.Background()
 	var syll Syllabus
-	err := db.NewSelect().Model(&syll).Where("id = ?", id).Relation("Attachments").Scan(ctx)
+	err := db.NewSelect().Model(&syll).Relation("Attachments").Where("id = ?", id).Scan(ctx)
 	return syll, err
 }
 

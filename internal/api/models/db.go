@@ -1,19 +1,34 @@
 package models
 
 import (
+	"context"
 	"database/sql"
+	"log"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
+	"testing"
 
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dbfixture"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-var db *bun.DB
+var (
+	db         *bun.DB
+	_, b, _, _ = runtime.Caller(0)
+	Basepath   = filepath.Dir(b)
+)
 
-func InitDB(url string, fixturesDir string) (*bun.DB, error) {
-	zero.Debugf("connecting: %s", url) //-- todo this should not be logged
+func InitDB(url string) (*bun.DB, error) {
+	zero.Infof("connecting: %s", url) //-- todo this should not be logged
 	sslMode := false
 	if strings.HasSuffix(url, "sslmode=require") {
 		sslMode = true
@@ -28,33 +43,64 @@ func InitDB(url string, fixturesDir string) (*bun.DB, error) {
 		return db, err
 	}
 
-	zero.Infof("connected: %v", url) //should not be logged
+	err = runMigrations(url, sslMode)
+	if err != nil {
+		zero.Errorf("error running migrations: %v", err)
+		log.Fatal(err)
+	}
 
-	err = SetupTables(true)
-	if err != nil {
-		zero.Errorf("error setting up tables: %v", err)
-	}
-	err = RunFixtures(db, fixturesDir) //-- truncates tables
-	if err != nil {
-		zero.Errorf("error running fixtures: %v", err)
-	}
 	return db, err
 }
 
-// SetupTable creates all tables in the database
-func SetupTables(reset bool) error {
-	if err := CreateSyllabiTable(); err != nil {
+func runMigrations(url string, sslMode bool) error {
+	if !sslMode {
+		url = url + "?sslmode=disable"
+	}
+
+	migrationsDir := "file://" + Basepath + "/../../migrations"
+	if os.Getenv("TEST") == "true" {
+		migrationsDir = "file:///app/internal/migrations"
+	}
+
+	m, err := migrate.New(
+		migrationsDir,
+		url)
+
+	if err != nil {
 		return err
 	}
-	if err := CreateContributorsTable(); err != nil {
+
+	err = m.Up()
+
+	if err != nil && err != migrate.ErrNoChange {
 		return err
 	}
-	if err := CreateMagicTokenTable(); err != nil {
-		return err
-	}
-	err := CreateAttachmentsTable()
+
+	return nil
+}
+
+func RunFixtures(db *bun.DB, dir string) error {
+
+	fixture := dbfixture.New(db, dbfixture.WithTruncateTables())
+
+	db.RegisterModel(
+		(*Syllabus)(nil),
+		(*Attachment)(nil),
+		(*Contributor)(nil),
+		(*MagicToken)(nil),
+	)
+
+	ctx := context.Background()
+	err := fixture.Load(ctx, os.DirFS(dir), "syllabus.yml", "attachment.yml", "contributor.yml", "magic_token.yml")
 
 	return err
+}
+
+func RemoveFixtures(t *testing.T) {
+	ctx := context.Background()
+	db.NewTruncateTable().Model((*Syllabus)(nil)).Cascade().Exec(ctx)
+	db.NewTruncateTable().Model((*Attachment)(nil)).Cascade().Exec(ctx)
+	db.NewTruncateTable().Model((*MagicToken)(nil)).Cascade().Exec(ctx)
 }
 
 func Shutdown() error {

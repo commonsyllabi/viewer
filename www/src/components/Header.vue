@@ -10,7 +10,7 @@
 <script setup>
 </script>
 
-<style>
+<style lang="scss">
 header {
     width: 100%;
     display: flex;
@@ -18,15 +18,25 @@ header {
     padding: 1rem;
     background-color: white;
     border-bottom: 1px solid black;
+
+    a {
+        color: black;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+        color: black;
+    }
 }
 
 .title {
     font-weight: bold;
     font-size: 1.9em;
-}
 
-.title a {
-    color: black;
-    text-decoration: none;
+    a, a:hover {
+        color: black;
+        text-decoration: none;
+    }
 }
 </style>

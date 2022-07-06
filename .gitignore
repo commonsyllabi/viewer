@@ -28,7 +28,7 @@ www/cypress/videos
 test_files/
 bin/
 
-.env
+.env.secrets
 .github/.secrets
 
 # Fontend .gitignore

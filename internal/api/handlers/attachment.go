@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
@@ -48,12 +49,17 @@ func NewAttachment(c *gin.Context) {
 		}
 
 		attachment := models.Attachment{
-			Name: f.Filename,
-			File: bytes,
-			Type: http.DetectContentType(bytes),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Name:      f.Filename,
+			File:      bytes,
+			Type:      http.DetectContentType(bytes),
 		}
 
-		att, _ := models.AddNewAttachment(&attachment)
+		att, err := models.AddNewAttachment(&attachment)
+		if err != nil {
+			zero.Warnf("error inserting attachments: %s", err)
+		}
 		attachments = append(attachments, att)
 	}
 

@@ -2,8 +2,9 @@
     <Header></Header>
     <main class="container p-3">
         <h1>Home</h1>
-        <div>{{ msg }}</div>
+        
         <div class="syllabi">
+            <div>{{ msg }}</div>
             <ul>
                 <li v-for="syllabus in syllabi">
                     <div>
@@ -14,7 +15,7 @@
             </ul>
         </div>
         <div class="cta">
-            <uiButton text="upload yours!" classes="btn btn-primary mb-4" @click="start()"/>
+            <button id="cta-upload" class="btn btn-primary mb-4 cc-btn" @click="start()">Upload yours!</button>
         </div>
     </main>
     <Footer></Footer>
@@ -24,7 +25,6 @@
 import { ref, onMounted, reactive } from 'vue';
 import Footer from './components/Footer.vue';
 import Header from './components/Header.vue';
-import uiButton from './components/ui/ui-button.vue'
 import { SyllabusType } from './js/types';
 
 
@@ -62,4 +62,19 @@ onMounted(() => {
 
 <style lang="scss">
 @import "./css/global-vars.scss";
+
+.syllabi{
+    margin: 5em;
+}
+
+.cc-btn, .cc-btn:hover {
+  border-radius: 25px;
+  background-color: white;
+  color: black;
+  border-color: black;
+}
+
+.cc-btn:hover {
+  text-decoration: underline;
+}
 </style>

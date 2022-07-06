@@ -7,9 +7,33 @@ const props = defineProps<{
 </script>
 
 <template>
-  <h4>Assignment</h4>
-  <div>{{ props.assignment.Title }}</div>
-  <div>{{ props.assignment.Text.Text }}</div>
+  <div class="assignment">
+    <div class="assignment-name p-1 rounded-bottom">Assignment</div>
+    <div class="meta p-1">
+      <div class="title">{{ props.assignment.Title }}</div>
+      <div class="text" v-html="props.assignment.Text.Text"></div>
+    </div>
+  </div>
+
 </template>
 
-<style scoped></style>
+<style scoped>
+.assignment {
+  border: 2px solid lightgrey;
+}
+
+.assignment-name {
+  background-color: lightgrey;
+  color: white;
+  width: max-content;
+  font-size: 0.8em;
+}
+
+.title{
+  font-size: 0.9em;
+}
+
+.text{
+  font-size: 0.8em;
+}
+</style>
