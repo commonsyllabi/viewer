@@ -1,42 +1,16 @@
 <template>
-    <header class="top">
-        <h1 class="title"><a href="/">Common Syllabi Viewer</a></h1>
-        <div class="nav-link">
-            <a href="/about.html">about</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a href="/" class="navbar-brand">Common Syllabi Viewer</a>
+            <div class="nav-item">
+                <a href="/about.html" class="nav-link">about</a>
+            </div>
         </div>
-    </header>
+    </nav>
 </template>
 
 <script setup>
 </script>
 
 <style lang="scss">
-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    background-color: white;
-    border-bottom: 1px solid black;
-
-    a {
-        color: black;
-        text-decoration: none;
-    }
-
-    a:hover {
-        text-decoration: underline;
-        color: black;
-    }
-}
-
-.title {
-    font-weight: bold;
-    font-size: 1.9em;
-
-    a, a:hover {
-        color: black;
-        text-decoration: none;
-    }
-}
 </style>
