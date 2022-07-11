@@ -101,13 +101,8 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [ "$current_branch" = "main" ]
 then
-<<<<<<< HEAD
-	docker-compose -f docker-compose.test.yml --remove-orphans run backend_test
-	docker-compose -f docker-compose.test.yml run docker-compose -f docker-compose.test.yml run frontend_test --remove-orphans frontend_test
-=======
 	docker compose -f docker-compose.test.yml --remove-orphans run backend_test 
 	docker compose -f docker-compose.test.yml run docker compose -f docker compose.test.yml run frontend_test --remove-orphans frontend_test 
->>>>>>> d5875546ca1ad1e68cf6dc15a1d9e9d11f2c8b38
 else
 	echo "skipping tests... (not on main)"
 fi
@@ -128,11 +123,6 @@ If you change the username, password or db name, you need to make sure the new u
 docker compose down --volumes
 docker compose build
 ```
-<<<<<<< HEAD
-docker-compose down --volumes
-docker-compose build # this rebuilds the db image with the env user, then the volume with the env name
-```
-=======
 
 #### Migrations
 
@@ -146,4 +136,3 @@ migrate create -ext sql -dir ${OUTPUT_DIR} -seq create_users_table
 I should also look into uniqueness and non-nullability and other column attributes.
 
 The table creation should also take into account inter-table dependencies (has-a, belongs-to), and look into foreign keys
->>>>>>> d5875546ca1ad1e68cf6dc15a1d9e9d11f2c8b38
