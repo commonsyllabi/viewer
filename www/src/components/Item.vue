@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { ref, computed } from 'vue'
   import { ItemType } from '../js/types'
 
   const props = defineProps<{
@@ -32,10 +31,7 @@
             class="item-ref d-flex align-items-baseline"
           >
             Refers to:
-            <button
-              class="btn btn-link btn-sm p-0"
-              @click="scrollo(child.Item.Identifierref)"
-            >
+            <button class="btn btn-link btn-sm p-0">
               <span class="text-break">
                 {{ child.Item.Identifierref }}
               </span>
