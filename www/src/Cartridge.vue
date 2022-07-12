@@ -69,8 +69,8 @@
     </div> -->
 
     <div v-if="isUploaded" class="container cartridge">
-      <div class="metadata">
-        <h2 class="title">
+      <div>
+        <h2 class="title fs-4">
           {{ syllabus.title }}
         </h2>
         <div class="file-name">
@@ -109,7 +109,7 @@
         <div class="col-4 h-100 mb-1" v-if="showMetadata">
           <!-- metadata viewer -->
           <div class="metadata-panel h-50 d-flex flex-column">
-            <h6 class="my-2">Cartridge metadata</h6>
+            <h3 class="my-2 fs-6">Cartridge metadata</h3>
             <!-- file metadata placeholder -->
             <div
               class="metadata-container border rounded p-2 overflow-scroll flex-grow-1"
@@ -150,7 +150,7 @@
           </div>
           <!-- items panel -->
           <div class="items-panel h-50 d-flex flex-column">
-            <h6 class="my-2">Items in Index</h6>
+            <h3 class="my-2 fs-6">Items in Index</h3>
 
             <!-- items listing -->
             <div
@@ -166,7 +166,7 @@
 
         <!-- resources panel -->
         <div class="col-8 resources-panel h-100 d-flex flex-column">
-          <h6 class="my-2">Resources in Cartridge</h6>
+          <h3 class="fs-6 my-2">Resources in Cartridge</h3>
           <div
             class="resources-container border rounded overflow-scroll flex-grow-1"
           >

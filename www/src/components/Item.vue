@@ -1,20 +1,17 @@
 <script setup lang="ts">
   import { ref, computed } from 'vue'
-  import Resource from './Resource.vue'
   import { ItemType } from '../js/types'
 
   const props = defineProps<{
     item: ItemType
     cartridge: string
   }>()
-
-  const showResources = ref(true)
 </script>
 
 <template>
-  <h6 class="item-title fs-6 fw-bold">
+  <h4 class="item-title fs-6 fw-bold">
     {{ props.item.Item.Title }}
-  </h6>
+  </h4>
   <div class="item-id">{{ props.item.Item.Identifier }}</div>
   <div class="item-children-container">
     <div v-if="props.item.Children" class="ps-2">
@@ -30,9 +27,19 @@
           <div class="item-id">
             {{ child.Item.Identifier }}
           </div>
-          <div v-if="child.Item.Identifierref" class="item-ref">
+          <div
+            v-if="child.Item.Identifierref"
+            class="item-ref d-flex align-items-baseline"
+          >
             Refers to:
-            <span class="text-break">{{ child.Item.Identifierref }}</span>
+            <button
+              class="btn btn-link btn-sm p-0"
+              @click="scrollo(child.Item.Identifierref)"
+            >
+              <span class="text-break">
+                {{ child.Item.Identifierref }}
+              </span>
+            </button>
           </div>
           <div v-if="child.Resources" class="item-type">
             resource type:
@@ -44,19 +51,6 @@
       </div>
     </div>
   </div>
-
-  <ul v-if="showResources" class="item-resources">
-    <li
-      class="border rounded p-1 m-1 res"
-      v-for="res in props.item.Resources"
-      :key="res.Identifier"
-    >
-      <!-- <Resource :resource="res" :cartridge="cartridge" /> -->
-      <div class="res-title">{{ res.Title }}</div>
-      <div class="res-id">{{ res.Identifier }}</div>
-      <div class="res-type">{{ res.Type }}</div>
-    </li>
-  </ul>
 </template>
 
 <style lang="scss" scoped>
