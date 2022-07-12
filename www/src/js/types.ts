@@ -131,6 +131,7 @@ export interface ResourceType {
 export interface ItemType {
   Item: {
     Identifier: string;
+    Identifierref: string;
     Title: string;
   };
   Children: Array<ItemType>;
