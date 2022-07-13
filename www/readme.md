@@ -26,8 +26,14 @@ This runs the Go backend, loading environment variables from the `.env` file wit
 Ultimately, these are used to compose the database connection URL, which resembles: `postgres://cosyl:cosyl@localhost:5432/cosyl`. Additionally, you can set:
 
 - `DEBUG`, set to `true` or `false`.
-- `GIN_MODE`, set to `debug`, `production`, `test`
+- `postgres://cosyl:cosyl@localhost:5432/test`, set to `debug`, `production`, `test`
+- `DB_PORT`, defaults to 5432, set to 5433 if running with docker
 
+Alternatively, start everything with docker:
+
+```
+docker compose up
+```
 #### Secrets
 
 Necessary secrets to run the app, loaded from `.env.secrets`:
@@ -46,7 +52,7 @@ yarn dev
 
 This would start site on `localhost:3000`, and has hot-reload enabled.
 
-To work on the server-side pages, you can run 
+To work on the server-side pages, you can run
 
 ```bash
 yarn watch
@@ -111,7 +117,7 @@ The API connects to a Postgres database called `cosyl`, with username `cosyl` an
 
 `DB_HOST` is the hostname of where Postgres runs. Locally, this is `localhost`. When running with Docker, it's `db` (the `name` set in `docker-compose.yml`).
 
-If you change the username, password or db name, you need to make sure the new users and databases are created.  You can do it with `psql` locally, and by removing the data volume of the docker image, with
+If you change the username, password or db name, you need to make sure the new users and databases are created. You can do it with `psql` locally, and by removing the data volume of the docker image, with
 
 ```bash
 docker compose down --volumes

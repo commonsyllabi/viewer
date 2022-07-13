@@ -7,6 +7,10 @@ $grey: #ccc;
 $body-bg: #000;
 $body-color: #111;
 
+$border-radius-sm: 0.25rem;
+$border-radius-md: 0.5rem;
+$border-radius-lg: 1rem;
+
 // // Then import Bootstrap and BootstrapVue SCSS files (order is important)
 // @import 'node_modules/bootstrap/scss/bootstrap.scss';
 // @import 'node_modules/bootstrap-vue/src/index.scss';
