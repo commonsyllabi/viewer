@@ -6,6 +6,10 @@
     item: ItemType
     cartridge: string
   }>()
+
+  let scrollo = (_id : string) => {
+    console.warn("please implement me! I'm trying to do something with:",_id)
+  }
 </script>
 
 <template>
@@ -28,16 +32,16 @@
             {{ child.Item.Identifier }}
           </div>
           <div
-            v-if="child.Item.Identifierref"
+            v-if="child.Item.Identifier"
             class="item-ref d-flex align-items-baseline"
           >
             Refers to:
             <button
               class="btn btn-link btn-sm p-0"
-              @click="scrollo(child.Item.Identifierref)"
+              @click="scrollo(child.Item.Identifier)"
             >
               <span class="text-break">
-                {{ child.Item.Identifierref }}
+                {{ child.Item.Identifier }}
               </span>
             </button>
           </div>
