@@ -174,8 +174,8 @@ func handleFile(c *gin.Context) {
 
 	zero.Infof("handleFile id: %v cartridge %v", id, cartridge)
 
-	inputFile := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
-	cc, err := commoncartridge.Load(inputFile)
+	cartridgePath := filepath.Join(conf.TmpDir, conf.UploadsDir, cartridge)
+	cc, err := commoncartridge.Load(cartridgePath)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Errorf("error loading CC from disk: %v", err)
@@ -210,6 +210,7 @@ func handleFile(c *gin.Context) {
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
 			zero.Errorf("error converting to PDF: %v", err)
+			return
 		}
 	}
 

@@ -29,7 +29,7 @@ func setup(t *testing.T) func(t *testing.T) {
 	mustSeedDB(t)
 	gin.SetMode(gin.TestMode)
 	return func(t *testing.T) {
-		// models.RemoveFixtures(t)
+		models.RemoveFixtures(t)
 	}
 }
 
@@ -304,7 +304,7 @@ func TestSyllabusHandler(t *testing.T) {
 func mustSeedDB(t *testing.T) {
 	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {
-		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
+		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/viewer-test"
 	}
 	_, err := models.InitDB(databaseTestURL)
 	require.Nil(t, err)

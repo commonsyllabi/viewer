@@ -1,19 +1,12 @@
 package mailer_test
 
 import (
-	"bytes"
 	"crypto/sha256"
-	"fmt"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"strconv"
 	"testing"
 	"time"
 
-	"github.com/commonsyllabi/viewer/internal/api/mailer"
 	"github.com/commonsyllabi/viewer/internal/api/models"
 	"github.com/gin-gonic/gin"
 
@@ -34,33 +27,32 @@ func TestMagicLink(t *testing.T) {
 	teardown := setup(t)
 	defer teardown(t)
 
-	t.Run("Test get magic link", func(t *testing.T) {
-		var body bytes.Buffer
-		w := multipart.NewWriter(&body)
-		w.WriteField("id", syllabusID)
-		w.WriteField("email", "pierre.depaz@gmail.com")
-		w.Close()
+	// t.Run("Test get magic link", func(t *testing.T) {
+	// 	var body bytes.Buffer
+	// 	w := multipart.NewWriter(&body)
+	// 	w.WriteField("id", syllabusID)
+	// 	w.WriteField("email", "fixed@email.com")
+	// 	w.Close()
 
-		res := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(res)
-		c.Request = &http.Request{
-			Header: make(http.Header),
-		}
+	// 	res := httptest.NewRecorder()
+	// 	c, _ := gin.CreateTestContext(res)
+	// 	c.Request = &http.Request{
+	// 		Header: make(http.Header),
+	// 	}
 
-		c.Request.Method = "POST"
-		c.Request.Header.Set("Content-Type", w.FormDataContentType())
-		c.Request.Body = io.NopCloser(&body)
-		c.Params = []gin.Param{
-			{
-				Key:   "id",
-				Value: syllabusID,
-			},
-		}
+	// 	c.Request.Method = "POST"
+	// 	c.Request.Header.Set("Content-Type", w.FormDataContentType())
+	// 	c.Request.Body = io.NopCloser(&body)
+	// 	c.Params = []gin.Param{
+	// 		{
+	// 			Key:   "id",
+	// 			Value: syllabusID,
+	// 		},
+	// 	}
 
-		mailer.HandleMagicLink(c)
-		fmt.Println(res.Body.String())
-		assert.Equal(t, res.Code, http.StatusOK)
-	})
+	// 	mailer.HandleMagicLink(c)
+	// 	assert.Equal(t, http.StatusOK, res.Code)
+	// })
 
 }
 
@@ -68,7 +60,7 @@ func mustSeedDB(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {
-		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
+		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/viewer-test"
 	}
 	_, err := models.InitDB(databaseTestURL)
 	require.Nil(t, err)

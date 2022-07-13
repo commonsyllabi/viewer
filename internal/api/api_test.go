@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/commonsyllabi/viewer/internal/api/models"
@@ -22,7 +23,14 @@ const singleTestFile = "../../tests/samples/test_01.imscc"
 var router *gin.Engine
 
 func setup(t *testing.T) func(t *testing.T) {
+	err := os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
+	if err != nil {
+		t.Error(err)
+	}
+
+	gin.SetMode(gin.TestMode)
 	router = mustSetupRouter()
+
 	return func(t *testing.T) {
 		t.Log("tearing down api")
 	}
@@ -51,7 +59,7 @@ func TestApi(t *testing.T) {
 		result := res.Result()
 		defer result.Body.Close()
 
-		assert.Equal(t, res.Code, http.StatusOK, "expected 200, got %v", res.Code)
+		assert.Equal(t, http.StatusOK, res.Code, "expected 200, got %v", res.Code)
 
 		var response map[string]string
 		json.Unmarshal(res.Body.Bytes(), &response)
@@ -82,7 +90,7 @@ func TestApi(t *testing.T) {
 		router.ServeHTTP(res, req)
 		result := res.Result()
 		defer result.Body.Close()
-		assert.Equal(t, res.Code, http.StatusBadRequest, "expected 400, got %v", res.Code)
+		assert.Equal(t, http.StatusBadRequest, res.Code)
 	})
 
 	//-- todo check for content-type in header
@@ -93,7 +101,8 @@ func TestApi(t *testing.T) {
 		router.ServeHTTP(res, req)
 		result := res.Result()
 		defer result.Body.Close()
-		assert.Equal(t, res.Code, http.StatusOK, "expected 200, got %v", res.Code)
+
+		assert.Equal(t, http.StatusOK, res.Code)
 	})
 
 	t.Run("Test handle file without ID", func(t *testing.T) {
@@ -184,8 +193,9 @@ func mustSetupRouter() *gin.Engine {
 
 	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {
-		fmt.Println("didn't get db test url from env, defaulting to postgres://cosyl:cosyl@localhost:5432/test")
-		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/test"
+		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/viewer-test"
+		fmt.Printf("didn't get db test url from env, defaulting t %v\n", databaseTestURL)
+
 	}
 
 	db, err := models.InitDB(databaseTestURL)

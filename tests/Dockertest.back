@@ -26,6 +26,7 @@ COPY --from=node /dist/public/ ./www/public
 RUN chmod -R a+rwX /app
 ENV CGO_ENABLED=0
 RUN mkdir -p /go/tmp
+RUN mkdir -p /tmp/commonsyllabi/files
 ENV TMPDIR=/go/tmp
 ENV GIN_MODE=test
 RUN chmod -R a+rwX /go/tmp
