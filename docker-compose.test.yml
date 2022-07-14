@@ -1,8 +1,8 @@
 services:
-  db_test:
+  db_test_viewer:
     image: postgres:alpine
     user: postgres
-    container_name: db_test
+    container_name: db_test_viewer
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
@@ -18,19 +18,19 @@ services:
       timeout: 3s
       retries: 10
 
-  backend_test:
-    container_name: backend_test
+  backend_test_viewer:
+    container_name: backend_test_viewer
     build:
       context: .
       dockerfile: tests/Dockertest.back
     depends_on:
-      db_test:
+      db_test_viewer:
         condition: service_healthy
     ports:
      - ${PORT}:${PORT}
     environment:
-      DATABASE_URL: "postgres://cosyl:cosyl@db_test:5433/cosyl"
-      DATABASE_TEST_URL: "postgres://test:test@db_test:5433/test"
+      DATABASE_URL: "postgres://cosyl:cosyl@db_test_viewer:5433/cosyl"
+      DATABASE_TEST_URL: "postgres://test:test@db_test_viewer:5433/test"
       PORT: "3046"
       DB_PORT: "5433"
       DEBUG: "false"
@@ -42,13 +42,13 @@ services:
     container_name: backend
     build: .
     depends_on:
-      db_test:
+      db_test_viewer:
         condition: service_healthy
     ports:
      - ${PORT}:${PORT}
     environment:
-      DATABASE_URL: "postgres://test:test@db_test:5433/test"
-      DATABASE_TEST_URL: "postgres://test:test@db_test:5433/test"
+      DATABASE_URL: "postgres://test:test@db_test_viewer:5433/test"
+      DATABASE_TEST_URL: "postgres://test:test@db_test_viewer:5433/test"
       PORT: "3046"
       DB_PORT: "5433"
       DEBUG: "false"
@@ -56,7 +56,7 @@ services:
     tmpfs:
       - /tmp
 
-  frontend_test:
+  frontend_test_viewer:
     image: cypress
     build:
       context: .

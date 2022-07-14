@@ -1,5 +1,6 @@
 {
   "projectId": "hyi8ai",
   "$schema": "https://on.cypress.io/cypress.schema.json",
-  "baseUrl": "http://localhost:3046"
+  "baseUrl": "http://localhost:3046",
+  "video": false
 }

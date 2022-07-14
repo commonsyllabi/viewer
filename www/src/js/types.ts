@@ -70,6 +70,7 @@ export interface ManifestType {
 export interface ResourceType {
   //-- basic learning application resource / webcontent
   XMLName: {
+    Space: string;
     Local: string;
   };
   Type: string;
