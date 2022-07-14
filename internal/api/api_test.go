@@ -23,11 +23,6 @@ const singleTestFile = "../../tests/samples/test_01.imscc"
 var router *gin.Engine
 
 func setup(t *testing.T) func(t *testing.T) {
-	err := os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
-	if err != nil {
-		t.Error(err)
-	}
-
 	gin.SetMode(gin.TestMode)
 	router = mustSetupRouter()
 
@@ -61,12 +56,16 @@ func TestApi(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, res.Code, "expected 200, got %v", res.Code)
 
-		var response map[string]string
+		var response struct {
+			Data      interface{}
+			Items     interface{}
+			Resources interface{}
+		}
 		json.Unmarshal(res.Body.Bytes(), &response)
 
-		assert.NotEmpty(t, response["data"])
-		assert.NotEmpty(t, response["items"])
-		assert.NotEmpty(t, response["resources"])
+		assert.NotEmpty(t, response.Data)
+		assert.NotEmpty(t, response.Items)
+		assert.NotEmpty(t, response.Resources)
 	})
 
 	t.Run("Test upload no field", func(t *testing.T) {
@@ -190,6 +189,11 @@ func mustSetupRouter() *gin.Engine {
 	conf.DefaultConf()
 	conf.TemplatesDir = "../../internal/api/templates"
 	conf.FixturesDir = "../../internal/api/models/fixtures"
+
+	err := os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 
 	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
 	if databaseTestURL == "" {

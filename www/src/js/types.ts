@@ -70,6 +70,7 @@ export interface ManifestType {
 export interface ResourceType {
   //-- basic learning application resource / webcontent
   XMLName: {
+    Space: string;
     Local: string;
   };
   Type: string;
@@ -131,6 +132,7 @@ export interface ResourceType {
 export interface ItemType {
   Item: {
     Identifier: string;
+    Identifierref: string;
     Title: string;
   };
   Children: Array<ItemType>;

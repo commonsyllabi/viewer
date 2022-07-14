@@ -89,8 +89,8 @@ yarn test
 An automated, end-to-end testing against a test database can be found in `docker-compose.yml` in the `tests` folder. It is used the `pre-commit` hook—a script in the `.git/hooks/` folder.
 
 ```bash
-docker compose -f docker compose.test.yml up --build backend_test
-docker compose -f docker compose.test.yml up --build frontend_test
+docker compose -f docker compose.test.yml up --build --remove-orphans backend_test_viewer
+docker compose -f docker compose.test.yml up --build --remove-orphans frontend_test_viewer
 
 ```
 
@@ -101,8 +101,8 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [ "$current_branch" = "main" ]
 then
-	docker compose -f docker-compose.test.yml --remove-orphans run backend_test 
-	docker compose -f docker-compose.test.yml run docker compose -f docker compose.test.yml run frontend_test --remove-orphans frontend_test 
+	docker compose -f docker compose.test.yml up --build --remove-orphans backend_test_viewer
+	docker compose -f docker compose.test.yml up --build --remove-orphans frontend_test_viewer
 else
 	echo "skipping tests... (not on main)"
 fi

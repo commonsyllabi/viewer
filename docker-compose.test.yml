@@ -1,8 +1,8 @@
 services:
-  db_viewer_test:
+  db_test_viewer:
     image: postgres:alpine
     user: postgres
-    container_name: db_viewer_test
+    container_name: db_test_viewer
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
@@ -18,19 +18,19 @@ services:
       timeout: 3s
       retries: 10
 
-  backend_viewer_test:
-    container_name: backend_viewer_test
+  backend_test_viewer:
+    container_name: backend_test_viewer
     build:
       context: .
       dockerfile: tests/Dockertest.back
     depends_on:
-      db_viewer_test:
+      db_test_viewer:
         condition: service_healthy
     ports:
      - ${PORT}:${PORT}
     environment:
-      DATABASE_URL: "postgres://cosyl:cosyl@db_viewer_test:5433/cosyl"
-      DATABASE_TEST_URL: "postgres://test:test@db_viewer_test:5433/viewer-test"
+      DATABASE_URL: "postgres://cosyl:cosyl@db_test_viewer:5433/cosyl"
+      DATABASE_TEST_URL: "postgres://test:test@db_test_viewer:5433/viewer-test"
       PORT: "3046"
       DB_PORT: "5433"
       DEBUG: "false"
@@ -42,13 +42,13 @@ services:
     container_name: backend_viewer
     build: .
     depends_on:
-      db_viewer_test:
+      db_test_viewer:
         condition: service_healthy
     ports:
      - ${PORT}:${PORT}
     environment:
-      DATABASE_URL: "postgres://test:test@db_viewer_test:5433/viewer-test"
-      DATABASE_TEST_URL: "postgres://test:test@db_viewer_test:5433/viewer-test"
+      DATABASE_URL: "postgres://test:test@db_test_viewer:5433/viewer-test"
+      DATABASE_TEST_URL: "postgres://test:test@db_test_viewer:5433/viewer-test"
       PORT: "3046"
       DB_PORT: "5433"
       DEBUG: "false"
@@ -56,15 +56,15 @@ services:
     tmpfs:
       - /tmp
 
-  frontend_viewer_test:
+  frontend_test_viewer:
     image: cypress
     build:
       context: .
       dockerfile: tests/Dockertest.front
     depends_on:
-      - backend
+      - backend_viewer
     environment:
-      - CYPRESS_baseUrl=http://backend:3046
+      - CYPRESS_baseUrl=http://backend_viewer:3046
     volumes:
       - ./www/cypress:/app/cypress
 

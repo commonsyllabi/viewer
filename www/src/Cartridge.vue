@@ -240,15 +240,15 @@
       .then((res) => {
         return res.json()
       })
-      .then((data) => {
+      .then((payload) => {
         log.value = `uploaded ${cartridge.name}`
         isUploaded.value = true
 
-        Object.assign(manifest, JSON.parse(data.data))
-        Object.assign(items, JSON.parse(data.items))
+        Object.assign(manifest, payload.data)
+        Object.assign(items, payload.items)
 
         //-- todo, here we have to get rid of the Item field of the returned struct... what to do?
-        for (let r of JSON.parse(data.resources)) {
+        for (let r of payload.resources){
           resources.push(r.Resource)
         }
 
@@ -299,15 +299,15 @@
     isUploaded.value = true
     isExample.value = true
 
-    Object.assign(manifest, JSON.parse(stub[v].data))
-    Object.assign(items, JSON.parse(stub[v].items))
+    Object.assign(manifest, stub[v].data)
+    Object.assign(items, stub[v].items)
 
     syllabus.title = manifest.Metadata.Lom.General.Title.String.Text
     syllabus.description = manifest.Metadata.Lom.General.Description.String.Text
     cartridge.name = 'example cartridge'
-
-    for (let r of JSON.parse(stub[v].resources)) {
-      resources.push(r.Resource)
+    
+    for (let r of stub[v].resources){
+      resources.push((r.Resource as unknown) as ResourceType)
     }
   }
 

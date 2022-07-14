@@ -321,7 +321,7 @@ func handleUpload(c *gin.Context) {
 		return
 	}
 
-	obj, err := cc.MarshalJSON()
+	obj, err := cc.Manifest()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Errorf("error parsing manifest into JSON: %v", err)
@@ -331,15 +331,15 @@ func handleUpload(c *gin.Context) {
 	fi, err := cc.Items()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
-		zero.Errorf("error getting resources: %v", err)
+		zero.Errorf("error getting items: %v", err)
 		return
 	}
-	sfi, err := json.Marshal(fi)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Errorf("error getting resources: %v", err)
-		return
-	}
+	// sfi, err := json.Marshal(fi)
+	// if err != nil {
+	// 	c.String(http.StatusInternalServerError, err.Error())
+	// 	zero.Errorf("error marshalling items: %v", err)
+	// 	return
+	// }
 
 	fr, err := cc.Resources()
 	if err != nil {
@@ -347,17 +347,17 @@ func handleUpload(c *gin.Context) {
 		zero.Errorf("error getting resources: %v", err)
 		return
 	}
-	sfr, err := json.Marshal(fr)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Errorf("error getting resources: %v", err)
-		return
-	}
+	// sfr, err := json.Marshal(fr)
+	// if err != nil {
+	// 	c.String(http.StatusInternalServerError, err.Error())
+	// 	zero.Errorf("error marshalling resources: %v", err)
+	// 	return
+	// }
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":      string(obj),
-		"items":     string(sfi),
-		"resources": string(sfr),
+		"data":      obj,
+		"items":     fi,
+		"resources": fr,
 	})
 }
 

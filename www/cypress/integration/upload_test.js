@@ -21,7 +21,7 @@ describe('Cartridge page', () => {
     cy.get("#upload-file").selectFile("cypress/fixtures/test_01.imscc", { force: true });
     cy.wait("@uploadCartridge");
 
-    cy.get("div.title").first().contains("Loaded Course")
+    cy.get("h2.title").first().contains("Loaded Course")
   });
 
   it('fills in the email', () => {
@@ -42,7 +42,7 @@ describe('Cartridge page', () => {
 
     cy.get("#examples").select('0')
 
-    cy.get("div.title").first().contains("Loaded Course")
+    cy.get("h2.title").first().contains("Loaded Course")
     cy.get("#course-submit").should('not.exist')
   })
 

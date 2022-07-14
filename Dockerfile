@@ -19,6 +19,7 @@ RUN apk add --no-cache msttcorefonts-installer fontconfig
 RUN update-ms-fonts
 
 RUN mkdir /app
+RUN mkdir -p /tmp/commonsyllabi/files
 COPY ./tests/samples /app/samples
 COPY go.mod /app
 COPY go.sum /app
