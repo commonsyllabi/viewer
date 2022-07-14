@@ -304,7 +304,7 @@
 
     syllabus.title = manifest.Metadata.Lom.General.Title.String.Text
     syllabus.description = manifest.Metadata.Lom.General.Description.String.Text
-    cartridge.name = 'example cartridge'
+    cartridge.name = stub[v].name
     
     for (let r of stub[v].resources){
       resources.push((r.Resource as unknown) as ResourceType)

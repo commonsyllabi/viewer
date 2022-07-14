@@ -3,7 +3,6 @@ run:
 	docker compose up
 
 build:
-	docker compose down --volumes
 	docker compose build
 
 test:
