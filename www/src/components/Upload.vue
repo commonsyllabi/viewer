@@ -5,25 +5,27 @@
       <h5>Upload this cartridge to the public repo</h5>
       <p>This cartridge will be viewable to others if you upload it to the public repo. Please only upload course
         materials that you have authored or have the rights to.</p>
-      <p class="important">
-        Important
-      </p>
-      <p>You may delete your shared cartridge at any time <b>via the link that will be sent to your email</b> after the
-        upload.</p>
-      <p>
-        <b>Please verify that the email address that you enter here is correct, and that you have access to it.</b>
-      </p>
+
       <form id="submit-form" action="/syllabi/" method="POST" v-show="!isSubmitted">
         <div>
-          <label class="w-100 visually-hidden" for="title">Title of the course</label>
-          <input class="text-input mb-2 w-50 visually-hidden" type="text" name="title" id="title" v-model="title" />
+          <label class="w-100" for="title">Title of the course</label>
+          <input class="text-input mb-2 w-100" type="text" name="title" id="title" v-model="title" />
         </div>
 
         <div>
-          <label class="w-100 visually-hidden" for="description">Description of the course</label>
-          <input class="text-input mb-2 w-50 visually-hidden" type="text" name="description" id="description"
-            v-model="description" />
+          <label class="w-100" for="description">Description of the course</label>
+          <textarea class="text-input mb-2 w-100" type="text" name="description" id="description" v-model="description" rows="6" placeholder="add a description of the course"></textarea>
         </div>
+
+        <p class="important">
+          Important
+        </p>
+        <p>You may delete your shared cartridge at any time <b>via the link that will be sent to your email</b> after
+          the
+          upload.</p>
+        <p>
+          <b>Please verify that the email address that you enter here is correct, and that you have access to it.</b>
+        </p>
 
         <div>
           <label class="w-100" for="email">Email</label>
