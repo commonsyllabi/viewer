@@ -64,12 +64,13 @@ const isSubmitted = ref(false)
 const email = ref("")
 
 const HOST = import.meta.env.DEV ? "http://localhost:3046" : ""
+const DEBUG = import.meta.env.DEV ? true : false
 const log = ref("")
 
 let submit = () => {
 
   if (isInvalidEmail()) {
-    log.value = "please make sure that the emails are matching!"
+    log.value = "Please make sure that the emails are matching!"
     return
   }
 
@@ -80,14 +81,16 @@ let submit = () => {
   const formData = new FormData(formElem);
 
   formData.set('attachments[]', pformData.get('cartridge') as FormDataEntryValue)
-  formData.forEach((v, k) => {
-    console.log(k, v)
-  })
+  if(DEBUG)
+    formData.forEach((v, k) => {
+      console.log(k, v)
+    })
 
   var valid = validateSubmission(formData)
   if (!valid) {
-    console.warn("can't submit an empty title or description!");
-    log.value = "can't submit an empty title or description!";
+    if(DEBUG)
+      console.warn("invalid input:", formData);
+    log.value = "Can't submit an empty title or description!";
     return;
   }
 
@@ -96,12 +99,32 @@ let submit = () => {
     body: formData,
   })
     .then(res => {
-      res.json()
+      if(DEBUG)
+        console.log(res)
+      switch (res.status) {
+        case 201:
+          res.json()
+          break;
+        case 400:
+          log.value = "There was an error in your submission. Titles and descriptions are required, and should not exceed respectively 200 and 500 characters. Emails should match."
+          throw new Error(`unexpected response: ${res.status} ${res.statusText}`)
+        case 500:
+          log.value = "Sorry, it seems there was an error on our side. Please try again in a few minutes."
+          throw new Error(`unexpected response: ${res.status} ${res.statusText}`)
+        default:
+          log.value = `Unexpected response code: ${res.status} ${res.statusText}`
+          throw new Error(`unexpected response: ${res.status} ${res.statusText}`)
+      }
     })
     .then(data => {
-      console.log(data)
+      if(DEBUG)
+        console.log(data)
       isSubmitted.value = true
       log.value = "Thank you! Your cartridge was submitted successfully."
+    })
+    .catch(err => {
+      if(DEBUG)
+        console.warn(err)
     })
 }
 
