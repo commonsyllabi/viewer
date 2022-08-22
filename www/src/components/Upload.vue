@@ -14,7 +14,7 @@
 
         <div>
           <label class="w-100" for="description">Description of the course</label>
-          <textarea class="text-input mb-2 w-100" type="text" name="description" id="description" v-model="description" rows="6" placeholder="add a description of the course"></textarea>
+          <textarea class="text-input mb-2 w-100" type="text" name="description" id="description" v-model="(description as string)" rows="6" placeholder="add a description of the course"></textarea>
         </div>
 
         <p class="important">
@@ -69,11 +69,6 @@ const log = ref("")
 
 let submit = () => {
 
-  if (isInvalidEmail()) {
-    log.value = "Please make sure that the emails are matching!"
-    return
-  }
-
   const pformElem = document.getElementById("upload-form") as HTMLFormElement;
   const pformData = new FormData(pformElem);
 
@@ -90,7 +85,7 @@ let submit = () => {
   if (!valid) {
     if(DEBUG)
       console.warn("invalid input:", formData);
-    log.value = "Can't submit an empty title or description!";
+    log.value = "Titles and descriptions are required, and should not exceed respectively 200 and 500 characters. Emails should match.";
     return;
   }
 
@@ -124,32 +119,28 @@ let submit = () => {
     })
     .catch(err => {
       if(DEBUG)
-        console.warn(err)
+        console.log(err.message)
     })
-}
-
-let isInvalidEmail = (): boolean => {
-  const e1 = document.getElementById("email") as HTMLInputElement
-  const e2 = document.getElementById("email-conf") as HTMLInputElement
-  if (!e1 || !e2)
-    return true
-  if (e1.value != e2.value)
-    return true
-
-  return false
 }
 
 let validateSubmission = (_data: FormData) => {
   if (_data == null)
     return false
-  else if (_data.get("title") != undefined || _data.get("description") != undefined)
+  else if (_data.get("title") == undefined || _data.get("description") == undefined)
     return false
-  else if (_data.get("title") != null || _data.get("description") != null)
+  else if (_data.get("title") == null || _data.get("description") == null)
     return false
 
   const title = _data.get("title") as string
   const description = _data.get("description") as string
   if (title.length < 5 || description.length < 5)
+    return false
+
+  const e1 = document.getElementById("email") as HTMLInputElement
+  const e2 = document.getElementById("email-conf") as HTMLInputElement
+  if (!e1 || !e2 || e1.value == "" || e2.value == "")
+    return false
+  if (e1.value != e2.value)
     return false
 
   return true
