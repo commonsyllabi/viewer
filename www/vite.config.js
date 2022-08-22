@@ -23,8 +23,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         about: fileURLToPath(new URL('./src/about.html', import.meta.url)),
-        home: fileURLToPath(new URL('./src/index.html', import.meta.url)),
-        cartridge: fileURLToPath(new URL('./src/cartridge.html', import.meta.url)),
+        listing: fileURLToPath(new URL('./src/listing.html', import.meta.url)),
+        cartridge: fileURLToPath(new URL('./src/index.html', import.meta.url)),
         syllabus: fileURLToPath(new URL('./src/syllabus.html', import.meta.url)),
         magic_link: fileURLToPath(new URL('./src/magic_link.html', import.meta.url)),
         error: fileURLToPath(new URL('./src/error.html', import.meta.url)),

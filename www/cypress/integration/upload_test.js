@@ -2,9 +2,9 @@
 // 2. take an action
 // 3. make an assertion about the resulting state
 
-describe('Home page', () => {
+describe('Listing page', () => {
   it('clicks to upload a cartridge', () => {
-    cy.visit('/')
+    cy.visit('/listing.html')
     cy.get("#cta-upload").click()
   });
 
@@ -13,10 +13,10 @@ describe('Home page', () => {
   });
 });
 
-describe('Cartridge page', () => {
+describe('Home page', () => {
   it('uploads a cartridge', () => {
     cy.intercept('POST', '/api/upload', { fixture: 'test_01_upload_response.json' }).as('uploadCartridge')
-    cy.visit('/cartridge.html')
+    cy.visit('/index.html')
 
     cy.get("#upload-file").selectFile("cypress/fixtures/test_01.imscc", { force: true });
     cy.wait("@uploadCartridge");
@@ -38,7 +38,7 @@ describe('Cartridge page', () => {
   })
 
   it('selects an example', () => {
-    cy.visit('/cartridge.html')
+    cy.visit('/index.html')
 
     cy.get("#examples").select('0')
 
