@@ -1,6 +1,7 @@
 <template>
   <div class="modal-dialog modal-dialog-centered small modal-lg rounded" id="modal-dialog">
     <div class="modal-content p-5">
+      <button id="upload-close" text="close" class="close-btn" @click="$emit('close')">x</button>
       <h5>Upload this cartridge to the public repo</h5>
       <p>This cartridge will be viewable to others if you upload it to the public repo. Please only upload course
         materials that you have authored or have the rights to.</p>
@@ -38,7 +39,6 @@
             href="mailto:admin@commonsyllabi.org">admin@commonsyllabi.org</a>.</p>
 
         <div class="buttons">
-          <button id="upload-close" text="close" class="close-btn" @click="$emit('close')">close</button>
           <button id="course-submit" text="submit" class="btn btn-primary mb-4 cc-btn"
             @click.prevent="submit()">upload</button>
         </div>
@@ -167,6 +167,9 @@ a {
   border: none;
   background-color: white;
   color: black;
-  text-decoration: underline;
+  position: absolute;
+  font-size: 2em;
+  right: 10px;
+  top: 10px;
 }
 </style>
