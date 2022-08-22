@@ -123,7 +123,7 @@ func NewSyllabus(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"syllabus":    string(s),
 		"attachments": string(a),
 	})
