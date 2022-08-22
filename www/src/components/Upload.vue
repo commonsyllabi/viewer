@@ -84,7 +84,8 @@ let submit = () => {
     console.log(k, v)
   })
 
-  if (validateSubmission(formData)) {
+  var valid = validateSubmission(formData)
+  if (!valid) {
     console.warn("can't submit an empty title or description!");
     log.value = "can't submit an empty title or description!";
     return;
