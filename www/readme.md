@@ -34,6 +34,7 @@ Alternatively, start everything with docker:
 ```
 docker compose up
 ```
+
 #### Secrets
 
 Necessary secrets to run the app, loaded from `.env.secrets`:

@@ -1,24 +1,23 @@
 export interface SyllabusType {
-  ID: number,
-  description: string,
-  title: string,
-  Attachments: Array<AttachmentType>,
-
+  ID: number
+  description: string
+  title: string
+  Attachments: Array<AttachmentType>
 }
 
 export interface AttachmentType {
-  ID: number,
-  Name: string,
-  Type: string,
-  File: string,
-  SyllabusID: number,
+  ID: number
+  Name: string
+  Type: string
+  File: string
+  SyllabusID: number
   Syllabus: SyllabusType
 }
 
 export interface ContributorType {
-  ID: number,
-  Name: string,
-  Email: string,
+  ID: number
+  Name: string
+  Email: string
   Syllabi: Array<SyllabusType>
 }
 
@@ -26,115 +25,115 @@ export interface ManifestType {
   Metadata: {
     Lom: {
       General: {
-        Language: ""
+        Language: ''
         Title: {
           String: {
-            Text: "";
-          };
-        },
-        Description: {
-          String: {
-            Text: "";
+            Text: ''
           }
         }
-      };
+        Description: {
+          String: {
+            Text: ''
+          }
+        }
+      }
       LifeCycle: {
         Contribute: {
           Date: {
-            DateTime: ""
-          };
+            DateTime: ''
+          }
           Entity: {
-            Text: "",
-            String: ""
-          },
+            Text: ''
+            String: ''
+          }
           Role: {
-            Text: "",
-            String: ""
+            Text: ''
+            String: ''
           }
         }
-      };
+      }
       Rights: {
         CopyrightAndOtherRestrictions: {
-          Value: ""
-        };
+          Value: ''
+        }
         Description: {
-        String: ""
+          String: ''
         }
       }
-    };
-    Schema: "",
-    Schemaversion: ""
-  };
+    }
+    Schema: ''
+    Schemaversion: ''
+  }
 }
 
 export interface ResourceType {
   //-- basic learning application resource / webcontent
   XMLName: {
-    Space: string;
-    Local: string;
-  };
-  Type: string;
-  Identifier: string;
+    Space: string
+    Local: string
+  }
+  Type: string
+  Identifier: string
   File: Array<{
-    Href: string;
-  }>;
+    Href: string
+  }>
 
   //-- topic
-  Title: string;
+  Title: string
   Text: {
-    Text: string;
-  };
+    Text: string
+  }
   Attachments: {
-    Text: string;
+    Text: string
     Attachment: Array<{
-      Text: string;
-      Href: string;
-    }>;
-  };
+      Text: string
+      Href: string
+    }>
+  }
 
   //-- assignment
   Gradable: {
-    Text: string;
-    PointsPossible: string;
-  };
+    Text: string
+    PointsPossible: string
+  }
   SubmissionFormats: {
-    Text: string;
+    Text: string
     Format: Array<{
-      Text: string;
-      Type: string;
-    }>;
-  };
+      Text: string
+      Type: string
+    }>
+  }
 
   //-- LTI
-  Description: string;
-  LaunchURL: string;
-  SecureLaunchURL: string;
+  Description: string
+  LaunchURL: string
+  SecureLaunchURL: string
   Vendor: {
-    Text: string;
-    Name: string;
-    Description: string;
-    URL: string;
-  };
+    Text: string
+    Name: string
+    Description: string
+    URL: string
+  }
 
   //-- QTI
   Assessment: {
-    Title: string;
-    Text: string;
-  };
+    Title: string
+    Text: string
+  }
 
   //-- Weblink
   URL: {
-    Text: string;
-    Href: string;
-  };
+    Text: string
+    Href: string
+  }
 }
 
 export interface ItemType {
   Item: {
-    Identifier: string;
-    Identifierref: string;
-    Title: string;
-  };
-  Children: Array<ItemType>;
-  Resources: Array<ResourceType>;
+    Identifier: string
+    Identifierref: string
+    Title: string
+  }
+  Children: Array<ItemType>
+  Resources: Array<ResourceType>
 }

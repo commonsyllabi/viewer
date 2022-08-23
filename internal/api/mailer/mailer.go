@@ -61,7 +61,7 @@ func HandleMagicLink(c *gin.Context) {
 
 	sender := "Common Syllabi <cosyl@post.enframed.net>"
 	subject := "Common Syllabi - Your Syllabus"
-	body := fmt.Sprintf("Hi!\nHere is your magic link for syllabus: %d - %s\nlink: http://%s:%s/syllabi/edit/%d?token=%s", syll.ID, syll.Title, "localhost", "3046", syll.ID, base64.URLEncoding.EncodeToString(token.Token))
+	body := fmt.Sprintf("Hi!\nHere is your magic link for syllabus: %d - %s\nlink: http://%s/syllabi/edit/%d?token=%s", syll.ID, syll.Title, "viewer.common-syllabi.org", syll.ID, base64.URLEncoding.EncodeToString(token.Token))
 	recipient := email
 
 	message := mg.NewMessage(sender, subject, body, recipient)
@@ -74,13 +74,18 @@ func HandleMagicLink(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	resp, mg_id, err := mg.Send(ctx, message)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		zero.Errorf("error sending email: %v", err)
-		return
+	if gin.Mode() == gin.TestMode {
+		resp, mg_id, err := mg.Send(ctx, message)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			zero.Errorf("error sending email: %v", err)
+			return
+		}
+
+		zero.Debugf("ID: %s Resp: %s\n", mg_id, resp)
+		c.String(http.StatusOK, "sending email to: %v", email)
+	} else {
+		c.String(http.StatusOK, "App is in test mode, email was not actually sent.")
 	}
 
-	zero.Debugf("ID: %s Resp: %s\n", mg_id, resp)
-	c.String(http.StatusOK, "sending email to: %v", email)
 }

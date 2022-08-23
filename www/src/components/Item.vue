@@ -6,8 +6,8 @@
     cartridge: string
   }>()
 
-  let scrollo = (_id : string) => {
-    console.warn("please implement me! I'm trying to do something with:",_id)
+  let scrollo = (_id: string) => {
+    console.warn("please implement me! I'm trying to do something with:", _id)
   }
 </script>
 
