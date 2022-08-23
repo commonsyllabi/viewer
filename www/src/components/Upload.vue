@@ -117,6 +117,7 @@
   const isSubmitted = ref(false)
   const email = ref('')
 
+
   const HOST = import.meta.env.DEV ? 'http://localhost:3046' : ''
   const DEBUG = import.meta.env.DEV ? true : false
   const log = ref('')
@@ -124,6 +125,7 @@
   let submit = () => {
     const pformElem = document.getElementById('upload-form') as HTMLFormElement
     const pformData = new FormData(pformElem)
+    const submitBtn = document.getElementById("course-submit") as HTMLFormElement
 
     const formElem = document.getElementById('submit-form') as HTMLFormElement
     const formData = new FormData(formElem)
@@ -146,6 +148,8 @@
     }
 
     //-- disable inputs
+    submitBtn.disabled = true
+    log.value = "Uploading your submission..."
 
     fetch(`${HOST}/syllabi/`, {
       method: 'POST',
@@ -183,6 +187,9 @@
       })
       .catch((err) => {
         if (DEBUG) console.log(err.message)
+      })
+      .finally(() => {
+        submitBtn.disabled = false
       })
   }
 
