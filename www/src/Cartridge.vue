@@ -3,7 +3,7 @@
   <main class="container p-3">
     <!-- upload form -->
     <div class="container d-flex flex-column align-items-center">
-      <div class="col-lg-6 mb-5 p-5 rounded upload-box" v-show="!isUploaded">
+      <div class="col-lg-6 mb-3 p-5 rounded upload-box" v-show="!isUploaded">
         <form id="upload-form" action="/api/upload" method="post">
           <div class="form-group d-flex flex-column align-items-center">
             <div class="upload-icon w-25 mb-4">
@@ -28,6 +28,11 @@
             </button>
           </div>
         </form>
+      </div>
+
+      <!-- status log -->
+      <div id="log" class="container p-0 w-50 mb-5 text-center">
+        {{ log }}
       </div>
 
       <div v-show="!isUploaded" class="w-50">
@@ -62,11 +67,6 @@
         @close="showUpload = false"
       ></Upload>
     </div>
-
-    <!-- status log -->
-    <!-- <div id="log" class="container py-1 mb-3">
-      <pre>{{ log }}</pre>
-    </div> -->
 
     <div v-if="isUploaded" class="container cartridge">
       <div>
@@ -210,10 +210,11 @@
   let showMetadata = ref(true)
   let showUpload = ref(false)
 
-  let log = ref('ready')
+  let log = ref('')
   let isUploaded = ref(false)
   let isExample = ref(false)
   const HOST = import.meta.env.DEV ? 'http://localhost:3046' : ''
+  const DEBUG = import.meta.env.DEV ? true : false
 
   let selectFile = () => {
     document.getElementById('upload-file')?.click()
@@ -225,13 +226,16 @@
 
     let cc = formData.get('cartridge') as File
     if (cc.name == '' || cc.size == 0) {
-      console.warn("can't submit an empty cartridge!")
+      if (DEBUG) console.warn("can't submit an empty cartridge!")
       log.value = "can't submit an empty cartridge!"
       return
     }
 
     cartridge.name = (formData.get('cartridge') as File).name
-    log.value = `uploading ${cartridge.name}`
+    log.value = `Uploading ${cartridge.name}...`
+
+    const uploadBtn = document.getElementById('upload-file') as HTMLInputElement
+    uploadBtn.disabled = true
 
     fetch(`${HOST}/api/upload`, {
       method: 'POST',
@@ -248,7 +252,7 @@
         Object.assign(items, payload.items)
 
         //-- todo, here we have to get rid of the Item field of the returned struct... what to do?
-        for (let r of payload.resources){
+        for (let r of payload.resources) {
           resources.push(r.Resource)
         }
 
@@ -259,6 +263,9 @@
       .catch((err) => {
         log = ref(err)
         console.error(err)
+      })
+      .finally(() => {
+        uploadBtn.disabled = false
       })
   }
 
@@ -286,7 +293,6 @@
 
   let loadExample = (_evt: Event) => {
     let v = parseInt((<HTMLInputElement>_evt.target).value)
-    console.log(v)
 
     if (isNaN(v) || v >= stub.length) {
       console.log(
@@ -305,9 +311,9 @@
     syllabus.title = manifest.Metadata.Lom.General.Title.String.Text
     syllabus.description = manifest.Metadata.Lom.General.Description.String.Text
     cartridge.name = stub[v].name
-    
-    for (let r of stub[v].resources){
-      resources.push((r.Resource as unknown) as ResourceType)
+
+    for (let r of stub[v].resources) {
+      resources.push(r.Resource as unknown as ResourceType)
     }
   }
 
