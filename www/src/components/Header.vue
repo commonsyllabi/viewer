@@ -4,13 +4,13 @@
       <a href="/" class="navbar-brand">Common Syllabi Viewer</a>
       <div class="nav-container d-flex">
         <div class="nav-item">
-          <a href="/index.html" class="nav-link">viewer</a>
+          <a href="/index.html" class="nav-link">Viewer</a>
         </div>
         <div class="nav-item">
-          <a href="/listing.html" class="nav-link">listing</a>
+          <a href="/listing.html" class="nav-link">Listing</a>
         </div>
         <div class="nav-item">
-          <a href="/about.html" class="nav-link">about</a>
+          <a href="/about.html" class="nav-link">About</a>
         </div>
       </div>
     </div>

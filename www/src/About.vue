@@ -21,12 +21,8 @@
           </p>
           <p>
             It is developped by the
-            <a
-              href="https://www.imsglobal.org/activity/common-cartridge"
-              target="_blank"
-              rel="noopener noreferrer"
-              >IMS consortium</a
-            >.
+            <a href="https://www.imsglobal.org/activity/common-cartridge" target="_blank" rel="noopener noreferrer">IMS
+              consortium</a>.
           </p>
         </div>
       </div>
@@ -42,35 +38,29 @@
           </p>
           <p>
             View this
-            <a
-              href="http://commonsyllabi.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Common Syllabi</a
-            >
+            <a href="http://commonsyllabi.org" target="_blank" rel="noopener noreferrer">Common Syllabi</a>
             project on
-            <a
-              href="https://github.com/commonsyllabi/commoncartridge"
-              target="_blank"
-              rel="noopener noreferrer"
-              >GitHub</a
-            >.
+            <a href="https://github.com/commonsyllabi/commoncartridge" target="_blank"
+              rel="noopener noreferrer">GitHub</a>.
           </p>
           <p>
             Funded by
-            <a
-              href="https://www.bmbf.de/bmbf/de/home/home_node.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Bundesministerium für Bildung und Forschung</a
-            >
+            <a href="https://www.bmbf.de/bmbf/de/home/home_node.html" target="_blank"
+              rel="noopener noreferrer">Bundesministerium für Bildung und Forschung</a>
             via the
-            <a
-              href="http://prototypefund.de"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Prototype Fund</a
-            >.
+            <a href="http://prototypefund.de" target="_blank" rel="noopener noreferrer">Prototype Fund</a>.
+          </p>
+        </div>
+        <div class="header">How do I keep in touch?</div>
+        <div class="body">
+          <p>
+            If you want to follow the developpment of this project, you can <a
+              href="https://tinyletter.com/common-syllabi" target="_blank" rel="noopener noreferrer">subscribe to the
+              newsletter</a>, which covers all our projects, on a monthly basis.
+          </p>
+          <p>
+            If you want to reach out directly with questions, ideas for collaboration, or references, you can write us
+            directly at <a href="mailto:team@common-syllabi.org">team@common-syllabi.org</a>.
           </p>
         </div>
       </div>
@@ -98,9 +88,7 @@
               If you do not remember the email you used when you uploaded the
               syllabus, or if someone has uploaded a course which you have
               claims to, please reach out to
-              <a href="mailto:admin@commonsyllabi.org"
-                >admin@commonsyllabi.org</a
-              >
+              <a href="mailto:admin@common-syllabi.org">admin@common-syllabi.org</a>
               with the link of the cartridge, and we will address the issue as
               soon as possible.
             </li>
@@ -113,37 +101,41 @@
 </template>
 
 <script setup>
-  import Footer from './components/Footer.vue'
-  import Header from './components/Header.vue'
+import Footer from './components/Footer.vue'
+import Header from './components/Header.vue'
 </script>
 
 <style lang="scss">
-  @import './css/global-vars.scss';
+@import './css/global-vars.scss';
 
-  main {
-    display: flex;
-    flex-direction: column;
-  }
+main {
+  display: flex;
+  flex-direction: column;
 
-  .description {
-    margin: auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
+  a {
+    font-weight: bold;
   }
+}
 
-  .column {
-    width: 28%;
-  }
+.description {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
 
-  .header {
-    font-size: 1.5em;
-    margin-bottom: 1em;
-  }
+.column {
+  width: 28%;
+}
 
-  .body {
-    a {
-      color: black;
-    }
+.header {
+  font-size: 1.5em;
+  margin-bottom: 1em;
+}
+
+.body {
+  a {
+    color: black;
   }
+}
 </style>
