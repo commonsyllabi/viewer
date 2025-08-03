@@ -13,7 +13,7 @@ describe('Listing page', () => {
 
 describe('Home page success upload', () => {
   it('uploads a cartridge', () => {
-    cy.intercept('POST', '/api/upload', {
+    cy.intercept('POST', '/parse', {
       fixture: 'test_01_upload_response.json',
     }).as('uploadCartridge')
     cy.visit('/index.html')
@@ -44,7 +44,7 @@ describe('Home page success upload', () => {
 
 describe('Home page invalid upload', () => {
   it('uploads a cartridge', () => {
-    cy.intercept('POST', '/api/upload', {
+    cy.intercept('POST', '/parse', {
       fixture: 'test_01_upload_response.json',
     }).as('uploadCartridge')
     cy.visit('/index.html')

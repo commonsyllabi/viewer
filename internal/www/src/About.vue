@@ -30,21 +30,15 @@
         <div class="header">What is this tool?</div>
         <div class="body">
           <p>
-            This viewer allows you to unfold your course, inspects its elements
+            This viewer is a visual interface to the <a href="https://github.com/commonsyllabi/commoncartridge" target="_blank" rel="noopener noreferrer">IMSCC Parser</a>. It allows you to unfold your course, inspects its elements
             and download individual resources, without having to sift through
             machine-generated names. Beyond this individual use, you can also
-            upload the cartridge to the public repo, and make it available to
+            upload the cartridge to the <a href="https://cosyll.org" target="_blank" rel="noopener noreferrer">cosyll</a> repo, and make it available to
             all.
           </p>
           <p>
-            View this
-            <a href="http://commonsyllabi.github.io" target="_blank" rel="noopener noreferrer">Common Syllabi</a>
-            project on
-            <a href="https://github.com/commonsyllabi/commoncartridge" target="_blank"
-              rel="noopener noreferrer">GitHub</a>.
-          </p>
-          <p>
-            Funded by
+            The
+            <a href="http://commonsyllabi.github.io" target="_blank" rel="noopener noreferrer">Common Syllabi</a>is funded by
             <a href="https://www.bmbf.de/bmbf/de/home/home_node.html" target="_blank"
               rel="noopener noreferrer">Bundesministerium für Bildung und Forschung</a>
             via the

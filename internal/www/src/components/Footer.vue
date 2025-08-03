@@ -4,9 +4,7 @@
     <div class="authors">
       <a href="http://cosyll.org" target="_blank" rel="noopener noreferrer">Cosyll</a>
     </div>
-    <div class="newsletter">
-      <a href="https://tinyletter.com/common-syllabi" target="_blank" rel="noopener noreferrer">Subscribe to the
-        newsletter</a>
+    <div class="newsletter"><a href="https://github.com/commonsyllabi/viewer" target="_blank" rel="noopener noreferrer">Github</a>
     </div>
   </footer>
 </template>
