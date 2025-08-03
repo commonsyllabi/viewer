@@ -1,3 +1,3 @@
 # viewer
 
-Common Cartridge viewer, interface at [commonsyllabi.org](https://commonsyllabi.org).
+Web interface for the IMS Common Cartridge parser, accessible at [viewer.cosyll.org](https://viewer.cosyll.org).
