@@ -8,15 +8,13 @@ RUN yarn
 COPY ./internal/www /dist
 RUN yarn build
 
-FROM golang:1.20-alpine AS go
+FROM golang:1.24-alpine AS go
 
 # for go tests
 RUN CGO_ENABLED=0
 
-# libreoffice for doc to pdf
-RUN apk update && apk add libreoffice
-RUN apk add --no-cache msttcorefonts-installer fontconfig
-RUN update-ms-fonts
+# pandoc for doc to pdf
+RUN apk update && apk add pandoc
 
 RUN mkdir /app
 RUN mkdir -p /tmp/commonsyllabi/files
@@ -30,11 +28,12 @@ COPY cmd /app/cmd
 COPY internal /app/internal
 
 COPY --from=node /dist/public/ ./www/public
-ENV PORT=3046
+ENV PORT=80
 ENV COSYLL_VIEWER_SAMPLES_DIR=/app/samples
 ENV COSYLL_VIEWER_PUBLIC_DIR=/app/internal/www/public
 ENV DEBUG=true
 
 
 RUN go build -o bin/api ./cmd/api/main.go
+EXPOSE 80
 CMD ["/app/bin/api"]

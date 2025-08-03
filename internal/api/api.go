@@ -153,7 +153,6 @@ func handleFile(c *gin.Context) {
 		return
 	}
 
-	//convert to PDF
 	info, err := file.Stat()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -161,8 +160,9 @@ func handleFile(c *gin.Context) {
 		return
 	}
 
+	//convert to PDF
 	ext := filepath.Ext(info.Name())
-	match, err := regexp.Match(`(doc|docx|odt)`, []byte(ext))
+	match, err := regexp.Match(`(\.doc|\.docx|\.odt)`, []byte(ext))
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Errorf("error parsing file extension: %v", err)
@@ -191,36 +191,34 @@ func handleFile(c *gin.Context) {
 	c.Writer.Write(bytes)
 }
 
-// convertToPDF writes the original doc/docx/odt file to disk, then converts it to PDF, and returns the converted file
+// convertToPDF writes the original doc/docx/odt file to disk, then converts it to PDF, and returns the converted file, in order to  display it in an iframe
 func convertToPDF(file fs.File, info fs.FileInfo) (fs.File, error) {
-	var f fs.File
-	libreoffice, err := exec.LookPath("libreoffice")
+	pandoc, err := exec.LookPath("pandoc")
 
 	if err != nil {
-		return f, err
+		return file, err
 	}
 
-	path := filepath.Join(conf.TmpDir, conf.FilesDir, info.Name())
-	dst, err := os.Create(path)
+	input_name := filepath.Join(conf.TmpDir, conf.FilesDir, info.Name())
+	input_file, err := os.Create(input_name)
 	if err != nil {
-		return f, err
+		return file, err
 	}
 
-	_, err = io.Copy(dst, file)
+	_, err = io.Copy(input_file, file)
 	if err != nil {
-		return f, err
+		return file, err
 	}
+	defer os.Remove(input_file.Name())
 
-	cmd := exec.Command(libreoffice, "--headless", "--convert-to", "pdf", "--outdir", filepath.Join(conf.TmpDir, conf.FilesDir), path)
+	dst := strings.TrimSuffix(input_file.Name(), filepath.Ext(input_file.Name())) + ".pdf"
+	cmd := exec.Command(pandoc, input_file.Name(), "-o", dst)
 
 	err = cmd.Run()
 	if err != nil {
 		return file, err
 	}
-
-	path = strings.TrimSuffix(path, filepath.Ext(path)) + ".pdf"
-	file, err = os.Open(path)
-
+	file, err = os.Open(dst)
 	return file, err
 }
 
@@ -278,7 +276,10 @@ func handleUpload(c *gin.Context) {
 		return
 	}
 
-	defer os.Remove(dst)
+	defer func() {
+		time.Sleep(1 * time.Hour)
+		os.Remove(dst)
+	}()
 
 	cc, err := commoncartridge.Load(dst)
 	if err != nil {

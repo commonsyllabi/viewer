@@ -9,7 +9,7 @@ COPY ./www /dist
 RUN yarn build
 
 FROM golang:1.18 AS go
-RUN apt update -y && apt install libreoffice -y
+RUN apt update -y && apt install pandoc -y
 
 RUN mkdir /app
 COPY tests/samples/test_01.imscc /app/tests/samples/test_01.imscc
