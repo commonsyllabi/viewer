@@ -1,14 +1,14 @@
 FROM node:16-alpine as node
 
 RUN mkdir /dist
-COPY ./www/package.json /dist/package.json
-COPY ./www/yarn.lock /dist/yarn.lock
+COPY ./internal/www/package.json /dist/package.json
+COPY ./internal/www/yarn.lock /dist/yarn.lock
 WORKDIR /dist
 RUN yarn
-COPY ./www /dist
+COPY ./internal/www /dist
 RUN yarn build
 
-FROM golang:1.18-alpine AS go
+FROM golang:1.20-alpine AS go
 
 # for go tests
 RUN CGO_ENABLED=0
@@ -30,6 +30,11 @@ COPY cmd /app/cmd
 COPY internal /app/internal
 
 COPY --from=node /dist/public/ ./www/public
+ENV PORT=3046
+ENV COSYLL_VIEWER_SAMPLES_DIR=/app/samples
+ENV COSYLL_VIEWER_PUBLIC_DIR=/app/internal/www/public
+ENV DEBUG=true
+
 
 RUN go build -o bin/api ./cmd/api/main.go
 CMD ["/app/bin/api"]
