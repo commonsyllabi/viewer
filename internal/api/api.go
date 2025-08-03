@@ -19,9 +19,6 @@ import (
 	"time"
 
 	"github.com/commonsyllabi/commoncartridge"
-	"github.com/commonsyllabi/viewer/internal/api/handlers"
-	"github.com/commonsyllabi/viewer/internal/api/mailer"
-	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
@@ -34,11 +31,7 @@ var conf Config
 func StartServer(port string, debug bool, c Config) error {
 	conf = c
 
-	if debug {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
+	gin.SetMode(gin.ReleaseMode)
 
 	err := os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
 	if err != nil {
@@ -81,10 +74,7 @@ func StartServer(port string, debug bool, c Config) error {
 	<-ch // block until signal received
 
 	zero.Info("shutting down...")
-	s.Shutdown(context.Background())
-	err = models.Shutdown()
-
-	return err
+	return s.Shutdown(context.Background())
 }
 
 // setupRouter registers all route groups
@@ -92,7 +82,6 @@ func setupRouter() (*gin.Engine, error) {
 	router := gin.New()
 
 	router.Use(cors.Default())
-	router.LoadHTMLGlob(conf.TemplatesDir + "/*")
 
 	err := os.MkdirAll(conf.TmpDir, os.ModePerm)
 	if err != nil {
@@ -122,33 +111,12 @@ func setupRouter() (*gin.Engine, error) {
 	router.Use(static.Serve("/", static.LocalFile(publicPath, false)))
 
 	router.GET("/ping", handlePing)
-
+	router.POST("/parse", handleUpload)
 	api := router.Group("/api")
 	{
-		api.POST("/upload", handleUpload)
+
 		api.GET("/resource/:id", handleResource)
 		api.GET("/file/:id", handleFile)
-		api.POST("/magic-link", mailer.HandleMagicLink)
-	}
-
-	syllabi := router.Group("/syllabi")
-	{
-		syllabi.GET("/", handlers.AllSyllabi)
-		syllabi.POST("/", handlers.NewSyllabus)
-		syllabi.PATCH("/:id", handlers.UpdateSyllabus)
-		syllabi.GET("/:id", handlers.GetSyllabus)
-		syllabi.DELETE("/:id", handlers.DeleteSyllabus)
-
-		syllabi.GET("/edit/:id", handlers.DisplayMagicLink)
-	}
-
-	attachments := router.Group("/attachments")
-	{
-		attachments.GET("/", handlers.AllAttachments)
-		attachments.POST("/", handlers.NewAttachment)
-		attachments.PATCH("/:id", handlers.UpdateAttachment)
-		attachments.GET("/:id", handlers.GetAttachment)
-		attachments.DELETE("/:id", handlers.DeleteAttachment)
 	}
 
 	router.Use(handleNotFound)
@@ -314,6 +282,8 @@ func handleUpload(c *gin.Context) {
 		return
 	}
 
+	defer os.Remove(dst)
+
 	cc, err := commoncartridge.Load(dst)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -334,12 +304,6 @@ func handleUpload(c *gin.Context) {
 		zero.Errorf("error getting items: %v", err)
 		return
 	}
-	// sfi, err := json.Marshal(fi)
-	// if err != nil {
-	// 	c.String(http.StatusInternalServerError, err.Error())
-	// 	zero.Errorf("error marshalling items: %v", err)
-	// 	return
-	// }
 
 	fr, err := cc.Resources()
 	if err != nil {
@@ -347,12 +311,6 @@ func handleUpload(c *gin.Context) {
 		zero.Errorf("error getting resources: %v", err)
 		return
 	}
-	// sfr, err := json.Marshal(fr)
-	// if err != nil {
-	// 	c.String(http.StatusInternalServerError, err.Error())
-	// 	zero.Errorf("error marshalling resources: %v", err)
-	// 	return
-	// }
 
 	c.JSON(http.StatusOK, gin.H{
 		"data":      obj,
@@ -365,13 +323,13 @@ func copySampleFiles() error {
 	samples := []string{"test_01.imscc", "OpenMed-English-IMSCC1-3-Canvas-sakai-export.imscc", "Falconer_Liz-Computers_Canvas_Community-941267a5971248daa62d3196014d1e65.zip"}
 
 	for _, v := range samples {
-		f, err := ioutil.ReadFile(filepath.Join("/app/samples", v))
+		f, err := os.ReadFile(filepath.Join(os.Getenv("COSYLL_VIEWER_SAMPLES_DIR"), v))
 
 		if err != nil {
 			return err
 		}
 
-		err = ioutil.WriteFile(filepath.Join(conf.TmpDir, conf.UploadsDir, v), f, 0644)
+		err = os.WriteFile(filepath.Join(conf.TmpDir, conf.UploadsDir, v), f, 0644)
 
 		if err != nil {
 			return err

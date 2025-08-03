@@ -1,0 +1,1 @@
+import{o,c as r,a,H as n,F as t,b as s,h as e,e as c}from"./Header.js";const l=e("main",null,[e("div",{class:"container p-3"},[e("h1",null,"Woops!"),e("p",null,"Sorry, we couldn't find what you were looking for :(")])],-1),_={setup(p){return(u,i)=>(o(),r(s,null,[a(n),l,a(t)],64))}};c(_).mount("#app");

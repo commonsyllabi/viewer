@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -12,7 +11,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/commonsyllabi/viewer/internal/api/models"
 	"github.com/gin-gonic/gin"
 
 	"github.com/stretchr/testify/assert"
@@ -187,26 +185,12 @@ func mustUploadFile(t *testing.T, router *gin.Engine) {
 
 func mustSetupRouter() *gin.Engine {
 	conf.DefaultConf()
-	conf.TemplatesDir = "../../internal/api/templates"
-	conf.FixturesDir = "../../internal/api/models/fixtures"
 
 	err := os.MkdirAll(filepath.Join(conf.TmpDir, conf.FilesDir), os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 
-	databaseTestURL := os.Getenv("DATABASE_TEST_URL")
-	if databaseTestURL == "" {
-		databaseTestURL = "postgres://cosyl:cosyl@localhost:5432/viewer-test"
-		fmt.Printf("didn't get db test url from env, defaulting t %v\n", databaseTestURL)
-
-	}
-
-	db, err := models.InitDB(databaseTestURL)
-	models.RunFixtures(db, conf.FixturesDir)
-	if err != nil {
-		panic(err)
-	}
 	router, err := setupRouter()
 	if err != nil {
 		panic(err)

@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/commonsyllabi/viewer/internal/api"
-	"github.com/commonsyllabi/viewer/internal/api/models"
 	zero "github.com/commonsyllabi/viewer/internal/logger"
 )
 
@@ -23,20 +21,10 @@ func main() {
 		zero.InitLog(1)
 	}
 
-	zero.Info("starting cosyl")
+	zero.Info("starting IMSCC viewer")
 
 	var conf api.Config
 	conf.DefaultConf()
-
-	url := os.Getenv("DATABASE_URL")
-	if url == "" {
-		zero.Log.Warn().Msg("missing DATABASE_URL, composing from env...")
-		if os.Getenv("DB_USER") == "" || os.Getenv("DB_PASSWORD") == "" || os.Getenv("DB_HOST") == "" || os.Getenv("DB_PORT") == "" {
-			zero.Log.Fatal().Msg("missing env DB_ variables!")
-		}
-
-		url = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
-	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -44,12 +32,7 @@ func main() {
 		port = "8080"
 	}
 
-	_, err := models.InitDB(url)
-	if err != nil {
-		zero.Log.Fatal().Msgf("Error initializing D: %v", err)
-	}
-
-	err = api.StartServer(port, debug, conf)
+	err := api.StartServer(port, debug, conf)
 	if err != nil {
 		zero.Log.Fatal().Msgf("Error starting server: %v", err)
 	}
