@@ -1,7 +1,6 @@
 package api
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -20,18 +19,16 @@ type Config struct {
 
 // DefaultConf is called if there is an error opening and parsing the config file
 func (c *Config) DefaultConf() {
-	c.TmpDir = "/tmp/commonsyllabi"
+	c.TmpDir = "/tmp/cosyll/viewer"
 	c.UploadsDir = "uploads"
 	c.FilesDir = "files"
-	c.PublicDir = "./www/public"
-	c.TemplatesDir = "./internal/api/templates"
-	c.FixturesDir = "./internal/api/models/fixtures"
+	c.PublicDir = os.Getenv("COSYLL_VIEWER_PUBLIC_DIR")
 }
 
 // LoadConf tries to load a yaml file from disk, and marshals it. Sensible defaults are provided, and loading a file overrides them
 func (c *Config) LoadConf(path string) error {
 	cwd, _ := os.Getwd()
-	content, err := ioutil.ReadFile(filepath.Join(cwd, path))
+	content, err := os.ReadFile(filepath.Join(cwd, path))
 	if err != nil {
 		c.DefaultConf()
 		return err

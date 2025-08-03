@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -105,10 +104,7 @@ func setupRouter() (*gin.Engine, error) {
 	router.MaxMultipartMemory = 16 << 20 // 16 MiB for uploads
 	router.Use(gin.Recovery())
 
-	cwd, _ := os.Getwd()
-	publicPath := filepath.Join(cwd, conf.PublicDir)
-
-	router.Use(static.Serve("/", static.LocalFile(publicPath, false)))
+	router.Use(static.Serve("/", static.LocalFile(conf.PublicDir, false)))
 
 	router.GET("/ping", handlePing)
 	router.POST("/parse", handleUpload)
@@ -182,7 +178,7 @@ func handleFile(c *gin.Context) {
 		}
 	}
 
-	bytes, err := ioutil.ReadAll(file)
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		zero.Errorf("error reading file into bytes: %v", err)
