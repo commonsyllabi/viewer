@@ -1,12 +1,12 @@
-FROM node:16-alpine as node
+FROM node:22-alpine AS node
 
 RUN mkdir /dist
 COPY ./internal/www/package.json /dist/package.json
 COPY ./internal/www/yarn.lock /dist/yarn.lock
 WORKDIR /dist
-RUN yarn
+RUN npm i
 COPY ./internal/www /dist
-RUN yarn build
+RUN npm run build
 
 FROM golang:1.24-alpine AS go
 
