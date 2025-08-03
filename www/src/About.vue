@@ -38,7 +38,7 @@
           </p>
           <p>
             View this
-            <a href="http://commonsyllabi.org" target="_blank" rel="noopener noreferrer">Common Syllabi</a>
+            <a href="http://commonsyllabi.github.io" target="_blank" rel="noopener noreferrer">Common Syllabi</a>
             project on
             <a href="https://github.com/commonsyllabi/commoncartridge" target="_blank"
               rel="noopener noreferrer">GitHub</a>.
@@ -60,39 +60,8 @@
           </p>
           <p>
             If you want to reach out directly with questions, ideas for collaboration, or references, you can write us
-            directly at <a href="mailto:team@common-syllabi.org">team@common-syllabi.org</a>.
+            directly at <a href="mailto:team@cosyll.org">team@cosyll.org</a>.
           </p>
-        </div>
-      </div>
-      <div class="column">
-        <div class="header">How do you handle uploaded data?</div>
-        <div class="body">
-          <p>
-            We only store your email address in order to access your cartridge.
-            Since we do not send any spontaneous emails, your email is encrypted
-            before it is stored.
-          </p>
-          <p>
-            If you would like to request the takedown of a cartridge, you have
-            two solutions:
-          </p>
-
-          <ol>
-            <li>
-              You can submit your email address on the cartridge page. If it
-              matches the one we have on record—that is, the one you used when
-              you first upload your cartridge—you will receive an email with a
-              link to delete the cartridge.
-            </li>
-            <li>
-              If you do not remember the email you used when you uploaded the
-              syllabus, or if someone has uploaded a course which you have
-              claims to, please reach out to
-              <a href="mailto:admin@common-syllabi.org">admin@common-syllabi.org</a>
-              with the link of the cartridge, and we will address the issue as
-              soon as possible.
-            </li>
-          </ol>
         </div>
       </div>
     </div>

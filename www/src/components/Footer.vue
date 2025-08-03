@@ -2,7 +2,7 @@
   <footer class="container bottom">
     <div class="copyright">&#169; 2022 - GPLv3</div>
     <div class="authors">
-      <a href="http://common-syllabi.org" target="_blank" rel="noopener noreferrer">Common Syllabi</a>
+      <a href="http://cosyll.org" target="_blank" rel="noopener noreferrer">Cosyll</a>
     </div>
     <div class="newsletter">
       <a href="https://tinyletter.com/common-syllabi" target="_blank" rel="noopener noreferrer">Subscribe to the
